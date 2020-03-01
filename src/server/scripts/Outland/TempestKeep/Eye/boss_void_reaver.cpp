@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -130,7 +130,7 @@ class boss_void_reaver : public CreatureScript
                         if (!target)
                             continue;
                         // exclude pets & totems, 18 yard radius minimum
-                        if (target->GetTypeId() == TYPEID_PLAYER && target->IsAlive() && !target->IsWithinDist(me, 18, false))
+                        if (target->GetTypeId() == TypeID::TYPEID_PLAYER && target->IsAlive() && !target->IsWithinDist(me, 18, false))
                             target_list.push_back(target);
                         target = NULL;
                     }

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,16 +24,22 @@
 
 int main(int argc, char* argv[])
 {
-    if(argc != 3)
+    std::string src = "Buildings";
+    std::string dest = "vmaps";
+    if(argc > 3)
     {
         //printf("\nusage: %s <raw data dir> <vmap dest dir> [config file name]\n", argv[0]);
         std::cout << "usage: " << argv[0] << " <raw data dir> <vmap dest dir>" << std::endl;
         return 1;
     }
-
-    std::string src = argv[1];
-    std::string dest = argv[2];
-
+    else
+    {
+        if (argc > 1)
+            src = argv[1];
+        if (argc > 2)
+            dest = argv[2];
+    }
+    
     std::cout << "using " << src << " as source directory and writing output to " << dest << std::endl;
 
     VMAP::TileAssembler* ta = new VMAP::TileAssembler(src, dest);

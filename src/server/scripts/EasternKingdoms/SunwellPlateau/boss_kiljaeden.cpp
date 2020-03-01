@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -371,7 +371,7 @@ public:
         if (go->GetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE) == 35)
         {
             InstanceScript* instance = go->GetInstanceScript();
-            player->SummonCreature(CREATURE_POWER_OF_THE_BLUE_DRAGONFLIGHT, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN, 121000);
+            player->SummonCreature(CREATURE_POWER_OF_THE_BLUE_DRAGONFLIGHT, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 121000);
             player->CastSpell(player, SPELL_VENGEANCE_OF_THE_BLUE_FLIGHT, false);
             go->SetUInt32Value(GAMEOBJECT_FIELD_FACTION_TEMPLATE, 0);
 
@@ -469,9 +469,9 @@ public:
             if (!bSummonedDeceivers)
             {
                 for (uint8 i = 0; i < 3; ++i)
-                    me->SummonCreature(CREATURE_HAND_OF_THE_DECEIVER, DeceiverLocations[i], TEMPSUMMON_DEAD_DESPAWN, 0);
+                    me->SummonCreature(CREATURE_HAND_OF_THE_DECEIVER, DeceiverLocations[i], TempSummonType::TEMPSUMMON_DEAD_DESPAWN, 0);
 
-                DoSpawnCreature(CREATURE_ANVEENA,  0, 0, 40, 0, TEMPSUMMON_DEAD_DESPAWN, 0);
+                DoSpawnCreature(CREATURE_ANVEENA,  0, 0, 40, 0, TempSummonType::TEMPSUMMON_DEAD_DESPAWN, 0);
                 DoCast(me, SPELL_ANVEENA_ENERGY_DRAIN);
                 bSummonedDeceivers = true;
             }
@@ -480,7 +480,7 @@ public:
             {
                 me->RemoveAurasDueToSpell(SPELL_ANVEENA_ENERGY_DRAIN);
                 phase = PHASE_NORMAL;
-                DoSpawnCreature(CREATURE_KILJAEDEN, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN, 0);
+                DoSpawnCreature(CREATURE_KILJAEDEN, 0, 0, 0, 0, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN, 0);
             }
         }
     };
@@ -660,7 +660,7 @@ public:
                 {
                     float x, y, z;
                     target->GetPosition(x, y, z);
-                    if (Creature* pSinisterReflection = me->SummonCreature(CREATURE_SINISTER_REFLECTION, x, y, z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* pSinisterReflection = me->SummonCreature(CREATURE_SINISTER_REFLECTION, x, y, z, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         pSinisterReflection->SetDisplayId(target->GetDisplayId());
                         pSinisterReflection->AI()->AttackStart(target);
@@ -751,7 +751,7 @@ public:
                                 if (pRandomPlayer)
                                     DoCast(pRandomPlayer, SPELL_LEGION_LIGHTNING, false);
                                 else
-                                    TC_LOG_ERROR("scripts", "try to cast SPELL_LEGION_LIGHTNING on invalid target");
+                                    SF_LOG_ERROR("scripts", "try to cast SPELL_LEGION_LIGHTNING on invalid target");
 
                                 Timer[TIMER_LEGION_LIGHTNING] = (Phase == PHASE_SACRIFICE) ? 18000 : 30000; // 18 seconds in PHASE_SACRIFICE
                                 Timer[TIMER_SOUL_FLAY] = 2500;
@@ -772,7 +772,7 @@ public:
                                 float sx, sy;
                                 sx = ShieldOrbLocations[0][0] + std::sin(ShieldOrbLocations[i][0]);
                                 sy = ShieldOrbLocations[0][1] + std::sin(ShieldOrbLocations[i][1]);
-                                me->SummonCreature(CREATURE_SHIELD_ORB, sx, sy, SHIELD_ORB_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+                                me->SummonCreature(CREATURE_SHIELD_ORB, sx, sy, SHIELD_ORB_Z, 0, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
                             }
                             Timer[TIMER_SUMMON_SHILEDORB] = urand(30000, 60000); // 30-60seconds cooldown
                             Timer[TIMER_SOUL_FLAY] = 2000;
@@ -844,7 +844,7 @@ public:
                             {
                                 float x, y, z;
                                 target->GetPosition(x, y, z);
-                                me->SummonCreature(CREATURE_ARMAGEDDON_TARGET, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                                me->SummonCreature(CREATURE_ARMAGEDDON_TARGET, x, y, z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15000);
                             }
                             Timer[TIMER_ARMAGEDDON] = 2000; // No, I'm not kidding
                             break;
@@ -980,7 +980,7 @@ public:
             // Felfire Portal - Creatres a portal, that spawns Volatile Felfire Fiends, which do suicide bombing.
             if (FelfirePortalTimer <= diff)
             {
-                if (Creature* pPortal = DoSpawnCreature(CREATURE_FELFIRE_PORTAL, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                if (Creature* pPortal = DoSpawnCreature(CREATURE_FELFIRE_PORTAL, 0, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 20000))
                 {
                     ThreatContainer::StorageType const &threatlist = me->getThreatManager().getThreatList();
                     for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
@@ -1037,7 +1037,7 @@ public:
 
             if (uiSpawnFiendTimer <= diff)
             {
-                if (Creature* pFiend = DoSpawnCreature(CREATURE_VOLATILE_FELFIRE_FIEND, 0, 0, 0, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
+                if (Creature* pFiend = DoSpawnCreature(CREATURE_VOLATILE_FELFIRE_FIEND, 0, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000))
                     pFiend->AddThreat(SelectTarget(SELECT_TARGET_RANDOM, 0), 100000.0f);
                 uiSpawnFiendTimer = urand(4000, 8000);
             } else uiSpawnFiendTimer -= diff;
@@ -1409,7 +1409,7 @@ public:
                     DoMeleeAttackIfReady();
                     break;
             }
-            TC_LOG_DEBUG("scripts", "Sinister-Timer");
+            SF_LOG_DEBUG("scripts", "Sinister-Timer");
             for (uint8 i = 0; i < 3; ++i)
                 uiTimer[i] -= diff;
         }

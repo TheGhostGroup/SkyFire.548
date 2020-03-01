@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,23 +36,21 @@ class wp_commandscript : public CommandScript
 public:
     wp_commandscript() : CommandScript("wp_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand wpCommandTable[] =
+        static std::vector<ChatCommand> wpCommandTable =
         {
-            { "add",    rbac::RBAC_PERM_COMMAND_WP_ADD,    false, &HandleWpAddCommand,    "", NULL },
-            { "event",  rbac::RBAC_PERM_COMMAND_WP_EVENT,  false, &HandleWpEventCommand,  "", NULL },
-            { "load",   rbac::RBAC_PERM_COMMAND_WP_LOAD,   false, &HandleWpLoadCommand,   "", NULL },
-            { "modify", rbac::RBAC_PERM_COMMAND_WP_MODIFY, false, &HandleWpModifyCommand, "", NULL },
-            { "unload", rbac::RBAC_PERM_COMMAND_WP_UNLOAD, false, &HandleWpUnLoadCommand, "", NULL },
-            { "reload", rbac::RBAC_PERM_COMMAND_WP_RELOAD, false, &HandleWpReloadCommand, "", NULL },
-            { "show",   rbac::RBAC_PERM_COMMAND_WP_SHOW,   false, &HandleWpShowCommand,   "", NULL },
-            { NULL,     0,                           false, NULL,                   "", NULL }
+            { "add",    rbac::RBAC_PERM_COMMAND_WP_ADD,    false, &HandleWpAddCommand,    "", },
+            { "event",  rbac::RBAC_PERM_COMMAND_WP_EVENT,  false, &HandleWpEventCommand,  "", },
+            { "load",   rbac::RBAC_PERM_COMMAND_WP_LOAD,   false, &HandleWpLoadCommand,   "", },
+            { "modify", rbac::RBAC_PERM_COMMAND_WP_MODIFY, false, &HandleWpModifyCommand, "", },
+            { "unload", rbac::RBAC_PERM_COMMAND_WP_UNLOAD, false, &HandleWpUnLoadCommand, "", },
+            { "reload", rbac::RBAC_PERM_COMMAND_WP_RELOAD, false, &HandleWpReloadCommand, "", },
+            { "show",   rbac::RBAC_PERM_COMMAND_WP_SHOW,   false, &HandleWpShowCommand,   "", },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "wp", rbac::RBAC_PERM_COMMAND_WP, false, NULL, "", wpCommandTable },
-            { NULL, 0,                    false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -216,7 +214,7 @@ public:
         target->LoadPath(pathid);
         target->SetDefaultMovementType(WAYPOINT_MOTION_TYPE);
         target->GetMotionMaster()->Initialize();
-        target->MonsterSay("Path loaded.", LANG_UNIVERSAL, NULL);
+        target->MonsterSay("Path loaded.", Language::LANG_UNIVERSAL, NULL);
 
         return true;
     }
@@ -280,7 +278,7 @@ public:
         target->SetDefaultMovementType(IDLE_MOTION_TYPE);
         target->GetMotionMaster()->MoveTargetedHome();
         target->GetMotionMaster()->Initialize();
-        target->MonsterSay("Path unloaded.", 0, 0);
+        target->MonsterSay("Path unloaded.", Language::LANG_UNIVERSAL, 0);
         return true;
     }
 
@@ -696,15 +694,16 @@ public:
                     }
                     // re-create
                     Creature* wpCreature2 = new Creature;
-                    if (!wpCreature2->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), VISUAL_WAYPOINT, 0, 0, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
+                    if (!wpCreature2->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, VISUAL_WAYPOINT, 0, 0, chr->GetPositionX(), chr->GetPositionY(), chr->GetPositionZ(), chr->GetOrientation()))
                     {
                         handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, VISUAL_WAYPOINT);
                         delete wpCreature2;
                         wpCreature2 = NULL;
                         return false;
                     }
-
-                    wpCreature2->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
+                    for (auto phase : chr->GetPhases())
+                        wpCreature2->SetPhased(phase, false, true);
+                    wpCreature2->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
                     // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
                     /// @todo Should we first use "Create" then use "LoadFromDB"?
                     if (!wpCreature2->LoadCreatureFromDB(wpCreature2->GetDBTableGUIDLow(), map))
@@ -920,13 +919,14 @@ public:
                 float o = chr->GetOrientation();
 
                 Creature* wpCreature = new Creature;
-                if (!wpCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
+                if (!wpCreature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, id, 0, 0, x, y, z, o))
                 {
                     handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                     delete wpCreature;
                     return false;
                 }
-
+                for (auto phase : chr->GetPhases())
+                    wpCreature->SetPhased(phase, false, true);
                 // Set "wpguid" column to the visual waypoint
                 PreparedStatement* stmt = WorldDatabase.GetPreparedStatement(WORLD_UPD_WAYPOINT_DATA_WPGUID);
 
@@ -936,7 +936,7 @@ public:
 
                 WorldDatabase.Execute(stmt);
 
-                wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
+                wpCreature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
                 // To call _LoadGoods(); _LoadQuests(); CreateTrainerSpells();
                 if (!wpCreature->LoadCreatureFromDB(wpCreature->GetDBTableGUIDLow(), map))
                 {
@@ -984,14 +984,17 @@ public:
             Map* map = chr->GetMap();
 
             Creature* creature = new Creature;
-            if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
+            if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, id, 0, 0, x, y, z, o))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
                 delete creature;
                 return false;
             }
 
-            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
+            for (auto phase : chr->GetPhases())
+                creature->SetPhased(phase, false, true);
+
+            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
             if (!creature->LoadCreatureFromDB(creature->GetDBTableGUIDLow(), map))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_VP_NOTCREATED, id);
@@ -1033,14 +1036,17 @@ public:
             Map* map = chr->GetMap();
 
             Creature* creature = new Creature;
-            if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), id, 0, 0, x, y, z, o))
+            if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, id, 0, 0, x, y, z, o))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);
                 delete creature;
                 return false;
             }
 
-            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
+            for (auto phase : chr->GetPhases())
+                creature->SetPhased(phase, false, true);
+
+            creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
             if (!creature->LoadCreatureFromDB(creature->GetDBTableGUIDLow(), map))
             {
                 handler->PSendSysMessage(LANG_WAYPOINT_NOTCREATED, id);

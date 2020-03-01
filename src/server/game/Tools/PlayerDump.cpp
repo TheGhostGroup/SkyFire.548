@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -325,7 +325,7 @@ bool PlayerDumpWriter::DumpTable(std::string& dump, uint32 guid, char const*tabl
                 {
                     if (result->GetFieldCount() <= 64)          // avoid crashes on next check
                     {
-                        TC_LOG_FATAL("misc", "PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
+                        SF_LOG_FATAL("misc", "PlayerDumpWriter::DumpTable - Trying to access non-existing or wrong positioned field (`deleteInfos_Account`) in `characters` table.");
                         return false;
                     }
 
@@ -365,10 +365,10 @@ bool PlayerDumpWriter::GetDump(uint32 guid, std::string &dump)
 
 DumpReturn PlayerDumpWriter::WriteDump(const std::string& file, uint32 guid)
 {
-    if (sWorld->getBoolConfig(CONFIG_PDUMP_NO_PATHS))
+    if (sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_PDUMP_NO_PATHS))
         if (strstr(file.c_str(), "\\") || strstr(file.c_str(), "/"))
             return DUMP_FILE_OPEN_ERROR;
-    if (sWorld->getBoolConfig(CONFIG_PDUMP_NO_OVERWRITE))
+    if (sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_PDUMP_NO_OVERWRITE))
         if (FILE* f = fopen(file.c_str(), "r"))
         {
             fclose(f);
@@ -503,7 +503,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
         std::string tn = gettablename(line);
         if (tn.empty())
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: Can't extract table name from line: '%s'!", line.c_str());
+            SF_LOG_ERROR("misc", "LoadPlayerDump: Can't extract table name from line: '%s'!", line.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -520,7 +520,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
 
         if (i == DUMP_TABLE_COUNT)
         {
-            TC_LOG_ERROR("misc", "LoadPlayerDump: Unknown table: '%s'!", tn.c_str());
+            SF_LOG_ERROR("misc", "LoadPlayerDump: Unknown table: '%s'!", tn.c_str());
             ROLLBACK(DUMP_FILE_BROKEN);
         }
 
@@ -670,7 +670,7 @@ DumpReturn PlayerDumpReader::LoadDump(std::string const& file, uint32 account, s
                 break;
             }
             default:
-                TC_LOG_ERROR("misc", "Unknown dump table type: %u", type);
+                SF_LOG_ERROR("misc", "Unknown dump table type: %u", type);
                 break;
         }
 

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYSERVER_TYPEDEFS_H
-#define TRINITYSERVER_TYPEDEFS_H
+#ifndef SKYFIRESERVER_TYPEDEFS_H
+#define SKYFIRESERVER_TYPEDEFS_H
 
 #include "Common.h"
 
@@ -47,13 +47,13 @@ namespace Movement
 
     float computeFallTime(float path_length, bool isSafeFall);
     float computeFallElevation(float t_passed, bool isSafeFall, float start_velocity = 0.0f);
-
+/*
 #ifndef static_assert
     #define CONCAT(x, y) CONCAT1 (x, y)
     #define CONCAT1(x, y) x##y
     #define static_assert(expr, msg) typedef char CONCAT(static_assert_failed_at_line_, __LINE__) [(expr) ? 1 : -1]
 #endif
-
+*/
     template<class T, T limit>
     class counter
     {
@@ -84,4 +84,4 @@ namespace Movement
     extern std::string MovementFlagsExtra_ToString(uint32 flags);
 }
 
-#endif // TRINITYSERVER_TYPEDEFS_H
+#endif // SKYFIRESERVER_TYPEDEFS_H

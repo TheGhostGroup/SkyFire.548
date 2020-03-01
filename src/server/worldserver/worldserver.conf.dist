@@ -2,6 +2,7 @@
 #   SkyFire World Server configuration file    #
 ################################################
 [worldserver]
+ConfVersion=2020012200
 
 ###################################################################################################
 # SECTION INDEX
@@ -32,6 +33,7 @@
 #    BATTLE PET SETTINGS
 #    BLACK MARKET SETTINGS
 #    PACKET SPOOF PROTECTION SETTINGS
+#    CHARACTER BOOST SETTINGS
 #
 ###################################################################################################
 
@@ -656,6 +658,7 @@ MaxWhoListReturns = 49
 #                     1 - (Disabled, Alliance)
 #                     2 - (Disabled, Horde)
 #                     3 - (Disabled, Both factions)
+#                     4 - (Disabled, Neutral)
 
 CharacterCreating.Disabled = 0
 
@@ -672,8 +675,13 @@ CharacterCreating.Disabled = 0
 #                     32   - (Disabled, Tauren)
 #                     64   - (Disabled, Gnome)
 #                     128  - (Disabled, Troll)
+#                     256  - (Disabled, Goblin)
 #                     512  - (Disabled, Blood Elf)
 #                     1024 - (Disabled, Draenei)
+#                     2097152 - (Disabled, Worgen)
+#                     8388608 - (Disabled, Pandaren Neutral)
+#                     16777216 - (Disabled, Pandaren Alliance)
+#                     33554432 - (Disabled, Pandaren Horde)
 
 CharacterCreating.Disabled.RaceMask = 0
 
@@ -691,6 +699,7 @@ CharacterCreating.Disabled.RaceMask = 0
 #                     64   - (Disabled, Shaman)
 #                     128  - (Disabled, Mage)
 #                     256  - (Disabled, Warlock)
+#                     512  - (Disabled, Monk)
 #                     1024 - (Disabled, Druid)
 
 CharacterCreating.Disabled.ClassMask = 0
@@ -761,6 +770,14 @@ MinDualSpecLevel = 30
 #        Default:     1
 
 StartPlayerLevel = 1
+
+#
+#    StartPetbarLevel
+#        Description: Select the level that pet bars appear.
+#        Range:       1-25
+#        Default:     10
+
+StartPetbarLevel = 10
 
 #
 #    StartHeroicPlayerLevel
@@ -1074,12 +1091,20 @@ Server.LoginInfo = 0
 Command.LookupMaxResults = 0
 
 #
-#    AllowTickets
-#        Description: Allow/disallow sending new tickets.
+#    TicketSystem
+#        Description: Allow/disallow sending new GM tickets.
 #        Default:     1 - (Enabled)
 #                     0 - (Disabled)
 
-AllowTickets = 1
+TicketSystem.GMTickets = 1
+
+#
+#    FeedBackSystem
+#        Description: Allow/disallow sending new Bug , Suggestion , Complaint tickets.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled)
+
+TicketSystem.FeedBackTickets = 1
 
 #
 #     DungeonFinder.OptionsMask
@@ -1682,6 +1707,7 @@ Visibility.Notify.Period.InBGArenas   = 1000
 #    Rate.Rage.Loss
 #    Rate.RunicPower.Income
 #    Rate.RunicPower.Loss
+#    Rate.DemonicFury.Loss
 #    Rate.Focus
 #    Rate.Chi
 #    Rate.Energy
@@ -1694,6 +1720,7 @@ Visibility.Notify.Period.InBGArenas   = 1000
 #                     1 - (Rate.Rage.Loss)
 #                     1 - (Rate.RunicPower.Income)
 #                     1 - (Rate.RunicPower.Loss)
+#                     1 - (Rate.DemonicFury.Loss)
 #                     1 - (Rate.Focus)
 #                     1 - (Rate.Chi)
 #                     1 - (Rate.Energy)
@@ -1705,6 +1732,7 @@ Rate.Rage.Income       = 1
 Rate.Rage.Loss         = 1
 Rate.RunicPower.Income = 1
 Rate.RunicPower.Loss   = 1
+Rate.DemonicFury.Loss  = 1
 Rate.Focus             = 1
 Rate.Chi               = 1
 Rate.Energy            = 1
@@ -1829,6 +1857,13 @@ Rate.Talent = 1
 #        Default:     1
 
 Rate.Reputation.Gain = 1
+
+#
+#    Rate.Reputation.LFGBonus
+#        Description: Reputation LFGBonus rate.
+#        Default:     1
+
+Rate.Reputation.LFGBonus = 1
 
 #
 #    Rate.Reputation.LowLevel.Kill
@@ -2251,9 +2286,9 @@ Arena.QueueAnnouncer.Enable = 0
 #
 #    Arena.ArenaSeason.ID
 #        Description: Current arena season id shown in clients.
-#        Default:     8
+#        Default:     15
 
-Arena.ArenaSeason.ID = 8
+Arena.ArenaSeason.ID = 15
 
 #
 #    Arena.ArenaSeason.InProgress
@@ -2735,6 +2770,46 @@ Logger.sql.sql=5,Console DBErrors
 #Logger.gameevent=3,Console Server
 #Logger.guild=3,Console Server
 #Logger.lfg=3,Console Server
+#Logger.lfg.join=3,Console Server
+#Logger.lfg.leave=3,Console Server
+#Logger.lfg.update=3,Console Server
+#Logger.lfg.proposal.update=3,Console Server
+#Logger.lfg.proposal.remove=3,Console Server
+#Logger.lfg.teleport=3,Console Server
+#Logger.lfg.dungeon.finish=3,Console Server
+#Logger.lfg.data.group.dungeon.get=3,Console Server
+#Logger.lfg.data.group.dungeon.map=3,Console Server
+#Logger.lfg.data.group.dungeon.set=3,Console Server
+#Logger.lfg.data.group.kickleft.get=3,Console Server
+#Logger.lfg.data.group.kicksleft.decrease=3,Console Server
+#Logger.lfg.data.group.remove.get=3,Console Server
+#Logger.lfg.data.group.state.get=3,Console Server
+#Logger.lfg.data.group.state.restore=3,Console Server
+#Logger.lfg.data.group.state.set=3,Console Server
+#Logger.lfg.data.group.oldstate.get=3,Console Server
+#Logger.lfg.data.group.votekick.get=3,Console Server
+#Logger.lfg.data.group.votekick.set=3,Console Server
+#Logger.lfg.data.player.comment.get=3,Console Server
+#Logger.lfg.data.player.comment.set=3,Console Server
+#Logger.lfg.data.player.dungeons.locked.get=3,Console Server
+#Logger.lfg.data.player.dungeons.locked.set=3,Console Server
+#Logger.lfg.data.player.dungeons.selected.get=3,Console Server
+#Logger.lfg.data.player.dungeons.selected.set=3,Console Server
+#Logger.lfg.data.player.remove=3,Console Server
+#Logger.lfg.data.player.role.get=3,Console Server
+#Logger.lfg.data.player.role.set=3,Console Server
+#Logger.lfg.data.player.state.get=3,Console Server
+#Logger.lfg.data.player.state.restore=3,Console Server
+#Logger.lfg.data.player.state.set=3,Console Server
+#Logger.lfg.data.player.team.get=3,Console Server
+#Logger.lfg.queue.add=3,Console Server
+#Logger.lfg.queue.compatibles.find=3,Console Server
+#Logger.lfg.queue.compatibles.update=3,Console Server
+#Logger.lfg.queue.data.compatibles.remove=3,Console Server
+#Logger.lfg.queue.match.check=3,Console Server
+#Logger.lfg.queue.match.check.new=3,Console Server
+#Logger.lfg.queue.match.compatibility.check=3,Console Server
+#Logger.lfg.queue.timers.update=3,Console Server
 #Logger.loot=3,Console Server
 #Logger.maps.script=3,Console Server
 #Logger.maps=3,Console Server
@@ -2743,6 +2818,7 @@ Logger.sql.sql=5,Console DBErrors
 #Logger.network.opcode=3,Console Server
 #Logger.network.soap=3,Console Server
 #Logger.outdoorpvp=3,Console Server
+#Logger.phase=3,Console Server
 #Logger.pool=3,Console Server
 #Logger.rbac=3,Console Server
 #Logger.scripts=3,Console Server
@@ -3000,6 +3076,37 @@ PacketSpoof.BanMode = 0
 #
 
 PacketSpoof.BanDuration = 86400
+
+#
+###################################################################################################
+
+###################################################################################################
+# CHARACTER BOOST SETTINGS
+#
+#    Boost.NewAccounts
+#        Description: Add boost for new accounts.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+#
+
+Boost.NewAccounts = 0
+
+#
+#    Boost.StartMoney
+#        Description: Amount of money (in Copper) that a character has after boost.
+#        Default:     1500000 - (150 Gold)
+#                     100 - (1 Silver)
+#
+
+Boost.StartMoney = 1500000
+
+#
+#    Boost.StartLevel
+#        Description: Character boost starting level.
+#        Default:     90
+#
+
+Boost.StartLevel = 90
 
 #
 ###################################################################################################

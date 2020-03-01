@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -309,7 +309,7 @@ class boss_krick : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() != TYPEID_PLAYER)
+                if (victim->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
 
                 Talk(SAY_KRICK_SLAY);
@@ -333,7 +333,7 @@ class boss_krick : public CreatureScript
                     if (tyrannusPtr)
                         tyrannusPtr->NearTeleportTo(outroPos[1].GetPositionX(), outroPos[1].GetPositionY(), outroPos[1].GetPositionZ(), outroPos[1].GetOrientation());
                     else
-                        tyrannusPtr = me->SummonCreature(NPC_TYRANNUS_EVENTS, outroPos[1], TEMPSUMMON_MANUAL_DESPAWN);
+                        tyrannusPtr = me->SummonCreature(NPC_TYRANNUS_EVENTS, outroPos[1], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
 
                     tyrannusPtr->SetCanFly(true);
                     me->GetMotionMaster()->MovePoint(POINT_KRICK_INTRO, outroPos[0].GetPositionX(), outroPos[0].GetPositionY(), outroPos[0].GetPositionZ());
@@ -370,9 +370,9 @@ class boss_krick : public CreatureScript
 
                             Creature* jainaOrSylvanas = NULL;
                             if (_instanceScript->GetData(DATA_TEAM_IN_INSTANCE) == ALLIANCE)
-                                jainaOrSylvanas = me->SummonCreature(NPC_JAINA_PART1, outroPos[2], TEMPSUMMON_MANUAL_DESPAWN);
+                                jainaOrSylvanas = me->SummonCreature(NPC_JAINA_PART1, outroPos[2], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                             else
-                                jainaOrSylvanas = me->SummonCreature(NPC_SYLVANAS_PART1, outroPos[2], TEMPSUMMON_MANUAL_DESPAWN);
+                                jainaOrSylvanas = me->SummonCreature(NPC_SYLVANAS_PART1, outroPos[2], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
 
                             if (jainaOrSylvanas)
                             {
@@ -513,7 +513,7 @@ class spell_krick_explosive_barrage : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 if (Unit* caster = GetCaster())
-                    if (caster->GetTypeId() == TYPEID_UNIT)
+                    if (caster->GetTypeId() == TypeID::TYPEID_UNIT)
                     {
                         Map::PlayerList const &players = caster->GetMap()->GetPlayers();
                         for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -547,14 +547,14 @@ class spell_ick_explosive_barrage : public SpellScriptLoader
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
-                    if (caster->GetTypeId() == TYPEID_UNIT)
+                    if (caster->GetTypeId() == TypeID::TYPEID_UNIT)
                         caster->GetMotionMaster()->MoveIdle();
             }
 
             void HandleEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* caster = GetCaster())
-                    if (caster->GetTypeId() == TYPEID_UNIT)
+                    if (caster->GetTypeId() == TypeID::TYPEID_UNIT)
                     {
                         caster->GetMotionMaster()->Clear();
                         caster->GetMotionMaster()->MoveChase(caster->GetVictim());

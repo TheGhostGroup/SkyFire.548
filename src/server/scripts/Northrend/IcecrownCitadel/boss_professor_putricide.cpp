@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -285,7 +285,7 @@ class boss_professor_putricide : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
@@ -452,7 +452,7 @@ class boss_professor_putricide : public CreatureScript
                             list.remove_if(RotfaceHeightCheck(rotface));
                             if (list.size() > 4)
                             {
-                                list.sort(Trinity::ObjectDistanceOrderPred(rotface));
+                                list.sort(Skyfire::ObjectDistanceOrderPred(rotface));
                                 do
                                 {
                                     list.pop_back();
@@ -501,7 +501,7 @@ class boss_professor_putricide : public CreatureScript
                                 {
                                     const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
                                     for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                                        if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER)
+                                        if ((*itr)->getTarget()->GetTypeId() == TypeID::TYPEID_PLAYER)
                                             targetList.push_back((*itr)->getTarget());
                                 }
 
@@ -874,7 +874,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
             bool Load() OVERRIDE
             {
                 _target = NULL;
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void SelectTarget(std::list<WorldObject*>& targets)
@@ -886,7 +886,7 @@ class spell_putricide_ooze_channel : public SpellScriptLoader
                     return;
                 }
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
                 _target = target;
@@ -1006,7 +1006,7 @@ class spell_putricide_unstable_experiment : public SpellScriptLoader
             void HandleScript(SpellEffIndex effIndex)
             {
                 PreventHitDefaultEffect(effIndex);
-                if (GetCaster()->GetTypeId() != TYPEID_UNIT)
+                if (GetCaster()->GetTypeId() != TypeID::TYPEID_UNIT)
                     return;
 
                 Creature* creature = GetCaster()->ToCreature();
@@ -1137,8 +1137,8 @@ class spell_putricide_unbound_plague : public SpellScriptLoader
                 }
 
 
-                targets.remove_if(Trinity::UnitAuraCheck(true, sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster())));
-                Trinity::Containers::RandomResizeList(targets, 1);
+                targets.remove_if(Skyfire::UnitAuraCheck(true, sSpellMgr->GetSpellIdForDifficulty(SPELL_UNBOUND_PLAGUE, GetCaster())));
+                Skyfire::Containers::RandomResizeList(targets, 1);
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1200,7 +1200,7 @@ class spell_putricide_eat_ooze : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                targets.sort(Skyfire::ObjectDistanceOrderPred(GetCaster()));
                 WorldObject* target = targets.front();
                 targets.clear();
                 targets.push_back(target);
@@ -1327,7 +1327,7 @@ class spell_putricide_mutation_init : public SpellScriptLoader
                 if (!GetExplTargetUnit())
                     return SPELL_FAILED_BAD_TARGETS;
 
-                if (GetExplTargetUnit()->GetTypeId() != TYPEID_PLAYER)
+                if (GetExplTargetUnit()->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return SPELL_FAILED_TARGET_NOT_PLAYER;
 
                 SpellCustomErrors extension = SPELL_CUSTOM_ERROR_NONE;

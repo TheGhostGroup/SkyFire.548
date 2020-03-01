@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -58,8 +58,8 @@ class npc_pet_dk_ebon_gargoyle : public CreatureScript
                 _despawnTimer = 0;
                 // Find victim of Summon Gargoyle spell
                 std::list<Unit*> targets;
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
+                Skyfire::AnyUnfriendlyUnitInObjectRangeCheck u_check(me, me, 30.0f);
+                Skyfire::UnitListSearcher<Skyfire::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, targets, u_check);
                 me->VisitNearbyObject(30.0f, searcher);
                 for (std::list<Unit*>::const_iterator iter = targets.begin(); iter != targets.end(); ++iter)
                     if ((*iter)->GetAura(SPELL_DK_SUMMON_GARGOYLE_1, ownerGuid))

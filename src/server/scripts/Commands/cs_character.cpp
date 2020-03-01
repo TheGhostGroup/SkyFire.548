@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,43 +37,39 @@ class character_commandscript : public CommandScript
 public:
     character_commandscript() : CommandScript("character_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand pdumpCommandTable[] =
+        static std::vector<ChatCommand> pdumpCommandTable =
         {
-            { "load",          rbac::RBAC_PERM_COMMAND_PDUMP_LOAD,                true,  &HandlePDumpLoadCommand,               "", NULL },
-            { "write",         rbac::RBAC_PERM_COMMAND_PDUMP_WRITE,               true,  &HandlePDumpWriteCommand,              "", NULL },
-            { NULL,            0,                                           false, NULL,                                  "", NULL }
+            { "load",          rbac::RBAC_PERM_COMMAND_PDUMP_LOAD,                true,  &HandlePDumpLoadCommand,               "", },
+            { "write",         rbac::RBAC_PERM_COMMAND_PDUMP_WRITE,               true,  &HandlePDumpWriteCommand,              "", },
         };
-        static ChatCommand characterDeletedCommandTable[] =
+        static std::vector<ChatCommand> characterDeletedCommandTable =
         {
-            { "delete",        rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_DELETE,  true,  &HandleCharacterDeletedDeleteCommand,  "", NULL },
-            { "list",          rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_LIST,    true,  &HandleCharacterDeletedListCommand,    "", NULL },
-            { "restore",       rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_RESTORE, true,  &HandleCharacterDeletedRestoreCommand, "", NULL },
-            { "old",           rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_OLD,     true,  &HandleCharacterDeletedOldCommand,     "", NULL },
-            { NULL,            0,                                           false, NULL,                                  "", NULL }
+            { "delete",        rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_DELETE,  true,  &HandleCharacterDeletedDeleteCommand,  "", },
+            { "list",          rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_LIST,    true,  &HandleCharacterDeletedListCommand,    "", },
+            { "restore",       rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_RESTORE, true,  &HandleCharacterDeletedRestoreCommand, "", },
+            { "old",           rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED_OLD,     true,  &HandleCharacterDeletedOldCommand,     "", },
         };
 
-        static ChatCommand characterCommandTable[] =
+        static std::vector<ChatCommand> characterCommandTable =
         {
-            { "customize",     rbac::RBAC_PERM_COMMAND_CHARACTER_CUSTOMIZE,       true,  &HandleCharacterCustomizeCommand,      "", NULL },
-            { "changefaction", rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEFACTION,   true,  &HandleCharacterChangeFactionCommand,  "", NULL },
-            { "changerace",    rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGERACE,      true,  &HandleCharacterChangeRaceCommand,     "", NULL },
+            { "customize",     rbac::RBAC_PERM_COMMAND_CHARACTER_CUSTOMIZE,       true,  &HandleCharacterCustomizeCommand,      "", },
+            { "changefaction", rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGEFACTION,   true,  &HandleCharacterChangeFactionCommand,  "", },
+            { "changerace",    rbac::RBAC_PERM_COMMAND_CHARACTER_CHANGERACE,      true,  &HandleCharacterChangeRaceCommand,     "", },
             { "deleted",       rbac::RBAC_PERM_COMMAND_CHARACTER_DELETED,         true,  NULL,                                  "", characterDeletedCommandTable },
-            { "erase",         rbac::RBAC_PERM_COMMAND_CHARACTER_ERASE,           true,  &HandleCharacterEraseCommand,          "", NULL },
-            { "level",         rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL,           true,  &HandleCharacterLevelCommand,          "", NULL },
-            { "rename",        rbac::RBAC_PERM_COMMAND_CHARACTER_RENAME,          true,  &HandleCharacterRenameCommand,         "", NULL },
-            { "reputation",    rbac::RBAC_PERM_COMMAND_CHARACTER_REPUTATION,      true,  &HandleCharacterReputationCommand,     "", NULL },
-            { "titles",        rbac::RBAC_PERM_COMMAND_CHARACTER_TITLES,          true,  &HandleCharacterTitlesCommand,         "", NULL },
-            { NULL,            0,                                           false, NULL,                                  "", NULL }
+            { "erase",         rbac::RBAC_PERM_COMMAND_CHARACTER_ERASE,           true,  &HandleCharacterEraseCommand,          "", },
+            { "level",         rbac::RBAC_PERM_COMMAND_CHARACTER_LEVEL,           true,  &HandleCharacterLevelCommand,          "", },
+            { "rename",        rbac::RBAC_PERM_COMMAND_CHARACTER_RENAME,          true,  &HandleCharacterRenameCommand,         "", },
+            { "reputation",    rbac::RBAC_PERM_COMMAND_CHARACTER_REPUTATION,      true,  &HandleCharacterReputationCommand,     "", },
+            { "titles",        rbac::RBAC_PERM_COMMAND_CHARACTER_TITLES,          true,  &HandleCharacterTitlesCommand,         "", },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "character",     rbac::RBAC_PERM_COMMAND_CHARACTER,                 true,  NULL,                                  "", characterCommandTable },
-            { "levelup",       rbac::RBAC_PERM_COMMAND_LEVELUP,                   false, &HandleLevelUpCommand,                 "", NULL },
+            { "levelup",       rbac::RBAC_PERM_COMMAND_LEVELUP,                   false, &HandleLevelUpCommand,                 "", },
             { "pdump",         rbac::RBAC_PERM_COMMAND_PDUMP,                     true,  NULL,                                  "", pdumpCommandTable },
-            { NULL,            0,                                           false, NULL,                                  "", NULL }
         };
         return commandTable;
     }
@@ -270,7 +266,7 @@ public:
 
         LocaleConstant loc = handler->GetSessionDbcLocale();
         char const* targetName = target->GetName().c_str();
-        char const* knownStr = handler->GetTrinityString(LANG_KNOWN);
+        char const* knownStr = handler->GetSkyFireString(LANG_KNOWN);
 
         // Search in CharTitles.dbc
         for (uint32 id = 0; id < sCharTitlesStore.GetNumRows(); id++)
@@ -284,7 +280,7 @@ public:
                     continue;
 
                 char const* activeStr = target->GetUInt32Value(PLAYER_FIELD_PLAYER_TITLE) == titleInfo->bit_index
-                ? handler->GetTrinityString(LANG_ACTIVE)
+                ? handler->GetSkyFireString(LANG_ACTIVE)
                 : "";
 
                 char titleNameStr[80];
@@ -570,7 +566,7 @@ public:
             FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction.ID);
             char const* factionName = factionEntry ? factionEntry->name : "#Not found#";
             ReputationRank rank = target->GetReputationMgr().GetRank(factionEntry);
-            std::string rankName = handler->GetTrinityString(ReputationRankStrIndex[rank]);
+            std::string rankName = handler->GetSkyFireString(ReputationRankStrIndex[rank]);
             std::ostringstream ss;
             if (handler->GetSession())
                 ss << faction.ID << " - |cffffffff|Hfaction:" << faction.ID << "|h[" << factionName << ' ' << localeNames[loc] << "]|h|r";
@@ -580,17 +576,17 @@ public:
             ss << ' ' << rankName << " (" << target->GetReputationMgr().GetReputation(factionEntry) << ')';
 
             if (faction.Flags & FACTION_FLAG_VISIBLE)
-                ss << handler->GetTrinityString(LANG_FACTION_VISIBLE);
+                ss << handler->GetSkyFireString(LANG_FACTION_VISIBLE);
             if (faction.Flags & FACTION_FLAG_AT_WAR)
-                ss << handler->GetTrinityString(LANG_FACTION_ATWAR);
+                ss << handler->GetSkyFireString(LANG_FACTION_ATWAR);
             if (faction.Flags & FACTION_FLAG_PEACE_FORCED)
-                ss << handler->GetTrinityString(LANG_FACTION_PEACE_FORCED);
+                ss << handler->GetSkyFireString(LANG_FACTION_PEACE_FORCED);
             if (faction.Flags & FACTION_FLAG_HIDDEN)
-                ss << handler->GetTrinityString(LANG_FACTION_HIDDEN);
+                ss << handler->GetSkyFireString(LANG_FACTION_HIDDEN);
             if (faction.Flags & FACTION_FLAG_INVISIBLE_FORCED)
-                ss << handler->GetTrinityString(LANG_FACTION_INVISIBLE_FORCED);
+                ss << handler->GetSkyFireString(LANG_FACTION_INVISIBLE_FORCED);
             if (faction.Flags & FACTION_FLAG_INACTIVE)
-                ss << handler->GetTrinityString(LANG_FACTION_INACTIVE);
+                ss << handler->GetSkyFireString(LANG_FACTION_INACTIVE);
 
             handler->SendSysMessage(ss.str().c_str());
         }
@@ -741,7 +737,7 @@ public:
      */
     static bool HandleCharacterDeletedOldCommand(ChatHandler* /*handler*/, char const* args)
     {
-        int32 keepDays = sWorld->getIntConfig(CONFIG_CHARDELETE_KEEP_DAYS);
+        int32 keepDays = sWorld->getIntConfig(WorldIntConfigs::CONFIG_CHARDELETE_KEEP_DAYS);
 
         char* daysStr = strtok((char*)args, " ");
         if (daysStr)

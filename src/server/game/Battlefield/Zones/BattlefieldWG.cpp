@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,13 +59,13 @@ bool BattlefieldWG::SetupBattlefield()
     m_MapId = BATTLEFIELD_WG_MAPID;
     m_Map = sMapMgr->FindMap(m_MapId, 0);
 
-    m_MaxPlayer = sWorld->getIntConfig(CONFIG_WINTERGRASP_PLR_MAX);
-    m_IsEnabled = sWorld->getBoolConfig(CONFIG_WINTERGRASP_ENABLE);
-    m_MinPlayer = sWorld->getIntConfig(CONFIG_WINTERGRASP_PLR_MIN);
-    m_MinLevel = sWorld->getIntConfig(CONFIG_WINTERGRASP_PLR_MIN_LVL);
-    m_BattleTime = sWorld->getIntConfig(CONFIG_WINTERGRASP_BATTLETIME) * MINUTE * IN_MILLISECONDS;
-    m_NoWarBattleTime = sWorld->getIntConfig(CONFIG_WINTERGRASP_NOBATTLETIME) * MINUTE * IN_MILLISECONDS;
-    m_RestartAfterCrash = sWorld->getIntConfig(CONFIG_WINTERGRASP_RESTART_AFTER_CRASH) * MINUTE * IN_MILLISECONDS;
+    m_MaxPlayer = sWorld->getIntConfig(WorldIntConfigs::CONFIG_WINTERGRASP_PLR_MAX);
+    m_IsEnabled = sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_WINTERGRASP_ENABLE);
+    m_MinPlayer = sWorld->getIntConfig(WorldIntConfigs::CONFIG_WINTERGRASP_PLR_MIN);
+    m_MinLevel = sWorld->getIntConfig(WorldIntConfigs::CONFIG_WINTERGRASP_PLR_MIN_LVL);
+    m_BattleTime = sWorld->getIntConfig(WorldIntConfigs::CONFIG_WINTERGRASP_BATTLETIME) * MINUTE * IN_MILLISECONDS;
+    m_NoWarBattleTime = sWorld->getIntConfig(WorldIntConfigs::CONFIG_WINTERGRASP_NOBATTLETIME) * MINUTE * IN_MILLISECONDS;
+    m_RestartAfterCrash = sWorld->getIntConfig(WorldIntConfigs::CONFIG_WINTERGRASP_RESTART_AFTER_CRASH) * MINUTE * IN_MILLISECONDS;
 
     m_TimeForAcceptInvite = 20;
     m_StartGroupingTimer = 15 * MINUTE * IN_MILLISECONDS;
@@ -230,7 +230,7 @@ void BattlefieldWG::OnBattleStart()
         m_titansRelicGUID = relic->GetGUID();
     }
     else
-        TC_LOG_ERROR("bg.battlefield", "WG: Failed to spawn titan relic.");
+        SF_LOG_ERROR("bg.battlefield", "WG: Failed to spawn titan relic.");
 
 
     // Update tower visibility and update faction
@@ -475,7 +475,7 @@ uint8 BattlefieldWG::GetSpiritGraveyardId(uint32 areaId) const
         case AREA_THE_CHILLED_QUAGMIRE:
             return BATTLEFIELD_WG_GY_HORDE;
         default:
-            TC_LOG_ERROR("bg.battlefield", "BattlefieldWG::GetSpiritGraveyardId: Unexpected Area Id %u", areaId);
+            SF_LOG_ERROR("bg.battlefield", "BattlefieldWG::GetSpiritGraveyardId: Unexpected Area Id %u", areaId);
             break;
     }
 
@@ -636,7 +636,7 @@ void BattlefieldWG::HandleKill(Player* killer, Unit* victim)
     bool again = false;
     TeamId killerTeam = killer->GetTeamId();
 
-    if (victim->GetTypeId() == TYPEID_PLAYER)
+    if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
         for (GuidSet::const_iterator itr = m_PlayersInWar[killerTeam].begin(); itr != m_PlayersInWar[killerTeam].end(); ++itr)
             if (Player* player = sObjectAccessor->FindPlayer(*itr))

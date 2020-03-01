@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -380,7 +380,7 @@ class boss_toc_champion_controller : public CreatureScript
                 vOtherEntries.push_back(playerTeam == ALLIANCE ? NPC_HORDE_WARRIOR : NPC_ALLIANCE_WARRIOR);
 
                 uint8 healersSubtracted = 2;
-                if (_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL || _instance->instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
+                if (_instance->instance->GetSpawnMode() == DIFFICULTY_25MAN_NORMAL || _instance->instance->GetSpawnMode() == DIFFICULTY_25MAN_HEROIC)
                     healersSubtracted = 1;
                 for (uint8 i = 0; i < healersSubtracted; ++i)
                 {
@@ -417,7 +417,7 @@ class boss_toc_champion_controller : public CreatureScript
                     vHealersEntries.erase(vHealersEntries.begin() + pos);
                 }
 
-                if (_instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_NORMAL || _instance->instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
+                if (_instance->instance->GetSpawnMode() == DIFFICULTY_10MAN_NORMAL || _instance->instance->GetSpawnMode() == DIFFICULTY_10MAN_HEROIC)
                     for (uint8 i = 0; i < 4; ++i)
                         vOtherEntries.erase(vOtherEntries.begin() + urand(0, vOtherEntries.size() - 1));
 
@@ -449,7 +449,7 @@ class boss_toc_champion_controller : public CreatureScript
                 for (uint8 i = 0; i < vChampionEntries.size(); ++i)
                 {
                     uint8 pos = urand(0, vChampionJumpTarget.size()-1);
-                    if (Creature* temp = me->SummonCreature(vChampionEntries[i], vChampionJumpOrigin[urand(0, vChampionJumpOrigin.size()-1)], TEMPSUMMON_MANUAL_DESPAWN))
+                    if (Creature* temp = me->SummonCreature(vChampionEntries[i], vChampionJumpOrigin[urand(0, vChampionJumpOrigin.size()-1)], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                     {
                         _summons.Summon(temp);
                         temp->SetReactState(REACT_PASSIVE);
@@ -583,7 +583,7 @@ struct boss_faction_championsAI : public BossAI
             Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
             if (unit && me->getThreatManager().getThreat(unit))
             {
-                if (unit->GetTypeId() == TYPEID_PLAYER)
+                if (unit->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
                     float threat = CalculateThreat(me->GetDistance2d(unit), (float)unit->GetArmor(), unit->GetHealth());
                     me->getThreatManager().modifyThreatPercent(unit, -100);
@@ -628,7 +628,7 @@ struct boss_faction_championsAI : public BossAI
 
     void KilledUnit(Unit* who) OVERRIDE
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
+        if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
         {
             Map::PlayerList const &players = me->GetMap()->GetPlayers();
             uint32 TeamInInstance = 0;
@@ -2323,7 +2323,7 @@ class spell_toc_bloodlust : public SpellScriptLoader
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(Trinity::UnitAuraCheck(true, AURA_SATED));
+                targets.remove_if(Skyfire::UnitAuraCheck(true, AURA_SATED));
             }
 
             void ApplyDebuff()
@@ -2364,7 +2364,7 @@ class spell_toc_heroism : public SpellScriptLoader
 
             void RemoveInvalidTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(Trinity::UnitAuraCheck(true, AURA_EXHAUSTION));
+                targets.remove_if(Skyfire::UnitAuraCheck(true, AURA_EXHAUSTION));
             }
 
             void ApplyDebuff()

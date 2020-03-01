@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_PET_H
-#define TRINITYCORE_PET_H
+#ifndef SKYFIRESERVER_PET_H
+#define SKYFIRESERVER_PET_H
 
 #include "PetDefines.h"
 #include "TemporarySummon.h"
@@ -56,10 +56,10 @@ class Pet : public Guardian
 
         bool IsPermanentPetFor(Player* owner) const;        // pet have tab in character windows and set UNIT_FIELD_PET_NUMBER
 
-        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 pet_number);
+        bool Create(uint32 guidlow, Map* map, /*uint32 phaseMask,*/ uint32 Entry, uint32 pet_number);
         bool CreateBaseAtCreature(Creature* creature);
         bool CreateBaseAtCreatureInfo(CreatureTemplate const* cinfo, Unit* owner);
-        bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map, uint32 phaseMask);
+        bool CreateBaseAtTamed(CreatureTemplate const* cinfo, Map* map/*, uint32 phaseMask*/);
         bool LoadPetFromDB(Player* owner, uint32 petentry = 0, uint32 petnumber = 0, bool current = false);
         bool isBeingLoaded() const { return m_loading;}
         void SavePetToDB(PetSaveMode mode);
@@ -157,7 +157,7 @@ class Pet : public Guardian
         DeclinedName *m_declinedname;
 
     private:
-        void SaveToDB(uint32, uint8, uint32)                // override of Creature::SaveToDB     - must not be called
+        void SaveToDB(uint32, uint32)                       // override of Creature::SaveToDB     - must not be called
         {
             ASSERT(false);
         }

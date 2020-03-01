@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -77,7 +77,7 @@ public:
 
             hasTaunted = false;
 
-            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+            if (GetDifficulty() == DIFFICULTY_25MAN_NORMAL)
             {
                 Position pos;
 
@@ -85,11 +85,11 @@ public:
                 // otherwise, after a wipe, they respawn where boss was at wipe moment.
                 pos = me->GetHomePosition();
                 pos.m_positionY -= 10.0f;
-                me->SummonCreature(NPC_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
+                me->SummonCreature(NPC_CRYPT_GUARD, pos, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
 
                 pos = me->GetHomePosition();
                 pos.m_positionY += 10.0f;
-                me->SummonCreature(NPC_CRYPT_GUARD, pos, TEMPSUMMON_CORPSE_DESPAWN);
+                me->SummonCreature(NPC_CRYPT_GUARD, pos, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
             }
         }
 
@@ -97,7 +97,7 @@ public:
         {
             /// Force the player to spawn corpse scarabs via spell, @todo Check percent chance for scarabs, 20% at the moment
             if (!(rand()%5))
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     victim->CastSpell(victim, SPELL_SUMMON_CORPSE_SCARABS_PLR, true, NULL, NULL, me->GetGUID());
 
             Talk(SAY_SLAY);
@@ -119,14 +119,14 @@ public:
             events.ScheduleEvent(EVENT_LOCUST, 90000);
             events.ScheduleEvent(EVENT_BERSERK, 600000);
 
-            if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+            if (GetDifficulty() == DIFFICULTY_10MAN_NORMAL)
                 events.ScheduleEvent(EVENT_SPAWN_GUARDIAN_NORMAL, urand(15000, 20000));
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
         {
-            if (!hasTaunted && me->IsWithinDistInMap(who, 60.0f) && who->GetTypeId() == TYPEID_PLAYER)
+            if (!hasTaunted && me->IsWithinDistInMap(who, 60.0f) && who->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
                 Talk(SAY_GREET);
                 hasTaunted = true;
@@ -167,12 +167,12 @@ public:
                     case EVENT_LOCUST:
                         /// @todo Add Text
                         DoCast(me, RAID_MODE(SPELL_LOCUST_SWARM_10, SPELL_LOCUST_SWARM_25));
-                        DoSummon(NPC_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                        DoSummon(NPC_CRYPT_GUARD, GuardSummonPos, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
                         events.ScheduleEvent(EVENT_LOCUST, 90000);
                         break;
                     case EVENT_SPAWN_GUARDIAN_NORMAL:
                         /// @todo Add Text
-                        DoSummon(NPC_CRYPT_GUARD, GuardSummonPos, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                        DoSummon(NPC_CRYPT_GUARD, GuardSummonPos, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
                         break;
                     case EVENT_BERSERK:
                         DoCast(me, SPELL_BERSERK, true);

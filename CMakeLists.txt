@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
-# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -12,8 +12,13 @@
 # Set projectname (must be done AFTER setting configurationtypes)
 project(Project_Skyfire)
 
+if( UNIX )
+  cmake_minimum_required(VERSION 3.10.2)
+else()
+  cmake_minimum_required(VERSION 3.15.1)
+endif()
+
 # CMake policies (can not be handled elsewhere)
-cmake_minimum_required(VERSION 2.8.9)
 cmake_policy(SET CMP0005 OLD)
 
 # add this options before PROJECT keyword
@@ -25,12 +30,13 @@ set(CMAKE_SKIP_BUILD_RPATH 0)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH 0)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH 1)
-
+	   
 # set macro-directory
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/macros")
 
-# build in Release-mode by default if not explicitly set
+# Set a default build type if none was specified
 if( NOT CMAKE_BUILD_TYPE )
+  message(STATUS "Setting build type to 'Release' as none was specified.")
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
@@ -48,18 +54,14 @@ endif()
 
 include(CheckPlatform)
 
-# basic packagesearching and setup (further support will be needed, this is a preliminary release!)
-set(OPENSSL_EXPECTED_VERSION 1.0.0)
-set(ACE_EXPECTED_VERSION 5.8.3)
+set(OPENSSL_EXPECTED_VERSION 1.1.1)
+set(ACE_EXPECTED_VERSION 6.4.5)
 
 find_package(PCHSupport)
 find_package(ACE REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
-
-if( NOT USE_MYSQL_SOURCES )
-  find_package(MySQL REQUIRED)
-endif()
+find_package(MySQL REQUIRED)
 
 if( UNIX )
   find_package(Readline)

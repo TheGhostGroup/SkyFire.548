@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -79,7 +79,7 @@ void PreparedStatement::BindParameters()
     }
     #ifdef _DEBUG
     if (i < m_stmt->m_paramCount)
-        TC_LOG_WARN("sql.sql", "[WARNING]: BindParameters() for statement %u did not bind all allocated parameters", m_index);
+        SF_LOG_WARN("sql.sql", "[WARNING]: BindParameters() for statement %u did not bind all allocated parameters", m_index);
     #endif
 }
 
@@ -212,7 +212,7 @@ m_bind(NULL)
     memset(m_bind, 0, sizeof(MYSQL_BIND)*m_paramCount);
 
     /// "If set to 1, causes mysql_stmt_store_result() to update the metadata MYSQL_FIELD->max_length value."
-    my_bool bool_tmp = 1;
+    bool bool_tmp = 1;
     mysql_stmt_attr_set(stmt, STMT_ATTR_UPDATE_MAX_LENGTH, &bool_tmp);
 }
 
@@ -242,7 +242,7 @@ void MySQLPreparedStatement::ClearParameters()
 
 static bool ParamenterIndexAssertFail(uint32 stmtIndex, uint8 index, uint32 paramCount)
 {
-    TC_LOG_ERROR("sql.driver", "Attempted to bind parameter %u%s on a PreparedStatement %u (statement has only %u parameters)", uint32(index) + 1, (index == 1 ? "st" : (index == 2 ? "nd" : (index == 3 ? "rd" : "nd"))), stmtIndex, paramCount);
+    SF_LOG_ERROR("sql.driver", "Attempted to bind parameter %u%s on a PreparedStatement %u (statement has only %u parameters)", uint32(index) + 1, (index == 1 ? "st" : (index == 2 ? "nd" : (index == 3 ? "rd" : "nd"))), stmtIndex, paramCount);
     return false;
 }
 
@@ -252,7 +252,7 @@ bool MySQLPreparedStatement::CheckValidIndex(uint8 index)
     ASSERT(index < m_paramCount || ParamenterIndexAssertFail(m_stmt->m_index, index, m_paramCount));
 
     if (m_paramsSet[index])
-        TC_LOG_WARN("sql.sql", "[WARNING] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->m_index, index);
+        SF_LOG_WARN("sql.sql", "[WARNING] Prepared Statement (id: %u) trying to bind value on already bound index (%u).", m_stmt->m_index, index);
     return true;
 }
 

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -248,7 +248,7 @@ const Position PosWeavers[MAX_WEAVERS] =
 };
 
 // predicate function to select not charmed target
-struct NotCharmedTargetSelector : public std::unary_function<Unit*, bool>
+struct NotCharmedTargetSelector : public SF_UNARY_FUNCTION<Unit*, bool>
 {
     NotCharmedTargetSelector() { }
 
@@ -325,7 +325,7 @@ public:
             {
                 if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                 {
-                    if (!((pPortal->getLootState() == GO_READY) || (pPortal->getLootState() == GO_NOT_READY)))
+                    if (!((pPortal->getLootState() == LootState::GO_READY) || (pPortal->getLootState() == LootState::GO_NOT_READY)))
                         pPortal->ResetDoorOrButton();
                 }
             }
@@ -439,7 +439,7 @@ public:
                             events.ScheduleEvent(EVENT_DETONATE, urand(30000, 40000));
                             events.ScheduleEvent(EVENT_FISSURE, urand(10000, 30000));
                             events.ScheduleEvent(EVENT_BLAST, urand(60000, 120000));
-                            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                            if (GetDifficulty() == DIFFICULTY_25MAN_NORMAL)
                                 events.ScheduleEvent(EVENT_CHAIN, urand(30000, 60000));
                             Phase = 2;
                             break;
@@ -466,7 +466,7 @@ public:
                         {
                             if (GameObject* pPortal = me->GetMap()->GetGameObject(PortalsGUID[i]))
                             {
-                                if (pPortal->getLootState() == GO_READY)
+                                if (pPortal->getLootState() == LootState::GO_READY)
                                     pPortal->UseDoorOrButton();
                             }
                         }
@@ -607,7 +607,7 @@ public:
                             {
                                 Unit* const target = (*itr)->getTarget();
 
-                                if (target->GetTypeId() == TYPEID_PLAYER
+                                if (target->GetTypeId() == TypeID::TYPEID_PLAYER
                                         && target->getPowerType() == POWER_MANA
                                         && target->GetPower(POWER_MANA))
                                 {
@@ -680,7 +680,7 @@ public:
         pKelthuzadAI->AttackStart(player);
         if (GameObject* trigger = instance->instance->GetGameObject(instance->GetData64(DATA_KELTHUZAD_TRIGGER)))
         {
-            if (trigger->getLootState() == GO_READY)
+            if (trigger->getLootState() == LootState::GO_READY)
                 trigger->UseDoorOrButton();
 
             // Note: summon must be done by trigger and not by KT.

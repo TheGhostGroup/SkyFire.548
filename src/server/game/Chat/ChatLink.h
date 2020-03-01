@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_CHATLINK_H
-#define TRINITYCORE_CHATLINK_H
+#ifndef SKYFIRESERVER_CHATLINK_H
+#define SKYFIRESERVER_CHATLINK_H
 
 #include "SharedDefines.h"
 #include <sstream>
@@ -58,7 +58,7 @@ protected:
 class ItemChatLink : public ChatLink
 {
 public:
-    ItemChatLink() : ChatLink(), _item(NULL), _suffix(NULL), _property(NULL) { }
+    ItemChatLink() : ChatLink(), _item(NULL), _suffix(NULL), _property(NULL) { memset(_data, 0, sizeof(_data)); }
     virtual bool Initialize(std::istringstream& iss);
     virtual bool ValidateName(char* buffer, const char* context);
 
@@ -100,7 +100,7 @@ protected:
 class AchievementChatLink : public ChatLink
 {
 public:
-    AchievementChatLink() : ChatLink(), _guid(0), _achievement(NULL) { }
+    AchievementChatLink() : ChatLink(), _guid(0), _achievement(NULL) { memset(_data, 0, sizeof(_data)); }
     virtual bool Initialize(std::istringstream& iss);
     virtual bool ValidateName(char* buffer, const char* context);
 
@@ -169,4 +169,4 @@ private:
 };
 
 
-#endif // TRINITYCORE_CHATLINK_H
+#endif // SKYFIRESERVER_CHATLINK_H

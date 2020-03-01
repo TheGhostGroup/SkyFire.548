@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -117,7 +117,7 @@ public:
 
         void KilledUnit(Unit* who) OVERRIDE
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
                 Talk(SAY_KILL);
         }
 
@@ -166,7 +166,7 @@ public:
         {
             BossAI::MoveInLineOfSight(who);
 
-            if (!_ohNovos || !who || who->GetTypeId() != TYPEID_UNIT || who->GetPositionY() > MAX_Y_COORD_OH_NOVOS)
+            if (!_ohNovos || !who || who->GetTypeId() != TypeID::TYPEID_UNIT || who->GetPositionY() > MAX_Y_COORD_OH_NOVOS)
                 return;
 
             uint32 entry = who->GetEntry();
@@ -230,7 +230,7 @@ public:
 
         void SetCrystalStatus(GameObject* crystal, bool active)
         {
-            crystal->SetGoState(active ? GO_STATE_ACTIVE : GO_STATE_READY);
+            crystal->SetGoState(active ? GOState::GO_STATE_ACTIVE : GOState::GO_STATE_READY);
             if (Creature* crystalChannelTarget = crystal->FindNearestCreature(NPC_CRYSTAL_CHANNEL_TARGET, 5.0f))
             {
                 if (active)
@@ -245,7 +245,7 @@ public:
             for (uint8 i = 0; i < 4; i++)
                 if (uint64 guid = instance->GetData64(DATA_NOVOS_CRYSTAL_1 + i))
                     if (GameObject* crystal = instance->instance->GetGameObject(guid))
-                        if (crystal->GetGoState() == GO_STATE_ACTIVE)
+                        if (crystal->GetGoState() == GOState::GO_STATE_ACTIVE)
                         {
                             SetCrystalStatus(crystal, false);
                             break;
@@ -346,7 +346,7 @@ public:
 
     bool OnCheck(Player* /*player*/, Unit* target) OVERRIDE
     {
-        return target && target->GetTypeId() == TYPEID_UNIT && target->ToCreature()->AI()->GetData(DATA_NOVOS_ACHIEV);
+        return target && target->GetTypeId() == TypeID::TYPEID_UNIT && target->ToCreature()->AI()->GetData(DATA_NOVOS_ACHIEV);
     }
 };
 

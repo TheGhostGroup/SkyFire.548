@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ typedef UNORDERED_MAP<uint32, std::set<uint32> > TransportInstanceMap;
 
 struct KeyFrame
 {
-    explicit KeyFrame(TaxiPathNodeEntry const& _node) : Node(&_node),
+    explicit KeyFrame(TaxiPathNodeEntry const& _node) : Index(0), Node(&_node),
         DistSinceStop(-1.0f), DistUntilStop(-1.0f), DistFromPrev(-1.0f), TimeFrom(0.0f), TimeTo(0.0f),
         Teleport(false), ArriveTime(0), DepartureTime(0), Spline(NULL), NextDistFromPrev(0.0f), NextArriveTime(0)
     {
@@ -68,7 +68,7 @@ struct KeyFrame
 
 struct TransportTemplate
 {
-    TransportTemplate() : pathTime(0), accelTime(0.0f), accelDist(0.0f) { }
+    TransportTemplate() : inInstance(false), pathTime(0), accelTime(0.0f), accelDist(0.0f), entry(0) { }
     ~TransportTemplate();
 
     std::set<uint32> mapsUsed;
@@ -85,6 +85,8 @@ typedef std::map<uint32, TransportRotationEntry const*> TransportPathRotationCon
 
 struct TransportAnimation
 {
+    TransportAnimation() : TotalTime(0) { }
+    
     TransportPathContainer Path;
     TransportPathRotationContainer Rotations;
     uint32 TotalTime;

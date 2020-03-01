@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -87,12 +87,15 @@ public:
         {
             GameObject* go = new GameObject;
             if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), entry, instance,
-                PHASEMASK_NORMAL, pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
-                0, 0, 0, 0, 120, GO_STATE_READY))
+                pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation(),
+                0, 0, 0, 0, 120, GOState::GO_STATE_READY))
             {
                 delete go;
                 return;
             }
+
+            for (auto phase : go->GetPhases())
+                go->SetPhased(phase, false, true);
 
             instance->AddToMap(go);
         }
@@ -105,14 +108,14 @@ public:
                     platformGUID = go->GetGUID();
                     break;
                 case GO_FOCUSING_IRIS_10:
-                    if (instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                    if (instance->GetDifficulty() == DIFFICULTY_10MAN_NORMAL)
                     {
                         irisGUID = go->GetGUID();
                         go->GetPosition(&focusingIrisPosition);
                     }
                     break;
                 case GO_FOCUSING_IRIS_25:
-                    if (instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                    if (instance->GetDifficulty() == DIFFICULTY_25MAN_NORMAL)
                     {
                         irisGUID = go->GetGUID();
                         go->GetPosition(&focusingIrisPosition);
@@ -123,11 +126,11 @@ public:
                     go->GetPosition(&exitPortalPosition);
                     break;
                 case GO_HEART_OF_MAGIC_10:
-                    if (instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                    if (instance->GetDifficulty() == DIFFICULTY_10MAN_NORMAL)
                         heartOfMagicGUID = go->GetGUID();
                     break;
                 case GO_HEART_OF_MAGIC_25:
-                    if (instance->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                    if (instance->GetDifficulty() == DIFFICULTY_25MAN_NORMAL)
                         heartOfMagicGUID = go->GetGUID();
                     break;
             }
@@ -157,7 +160,7 @@ public:
 
         void OnUnitDeath(Unit* unit) OVERRIDE
         {
-            if (unit->GetTypeId() != TYPEID_PLAYER)
+            if (unit->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return;
 
             // Player continues to be moving after death no matter if spline will be cleared along with all movements,
@@ -253,7 +256,7 @@ public:
                     PowerSparksHandling();
                     break;
                 case DATA_RESPAWN_IRIS:
-                    SpawnGameObject(instance->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? GO_FOCUSING_IRIS_10 : GO_FOCUSING_IRIS_25, focusingIrisPosition);
+                    SpawnGameObject(instance->GetDifficulty() == DIFFICULTY_10MAN_NORMAL ? GO_FOCUSING_IRIS_10 : GO_FOCUSING_IRIS_25, focusingIrisPosition);
                     break;
             }
         }

@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
-# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -17,6 +17,7 @@ file(GLOB_RECURSE sources_AuctionHouse AuctionHouse/*.cpp AuctionHouse/*.h)
 file(GLOB_RECURSE sources_Battlefield Battlefield/*.cpp Battlefield/*.h)
 file(GLOB_RECURSE sources_Battlegrounds Battlegrounds/*.cpp Battlegrounds/*.h)
 file(GLOB_RECURSE sources_BattlePet BattlePet/*.cpp BattlePet/*.h)
+file(GLOB_RECURSE sources_Boost Boost/*.cpp Boost/*.h)
 file(GLOB_RECURSE sources_BlackMarket BlackMarket/*.cpp BlackMarket/*.h)
 file(GLOB_RECURSE sources_Calendar Calendar/*.cpp Calendar/*.h)
 file(GLOB_RECURSE sources_Chat Chat/*.cpp Chat/*.h)
@@ -39,7 +40,6 @@ file(GLOB_RECURSE sources_Miscellaneous Miscellaneous/*.cpp Miscellaneous/*.h)
 file(GLOB_RECURSE sources_Movement Movement/*.cpp Movement/*.h)
 file(GLOB_RECURSE sources_OutdoorPvP OutdoorPvP/*.cpp OutdoorPvP/*.h)
 file(GLOB_RECURSE sources_Pools Pools/*.cpp Pools/*.h)
-file(GLOB_RECURSE sources_PrecompiledHeaders PrecompiledHeaders/*.cpp PrecompiledHeaders/*.h)
 file(GLOB_RECURSE sources_Quests Quests/*.cpp Quests/*.h)
 file(GLOB_RECURSE sources_Reputation Reputation/*.cpp Reputation/*.h)
 file(GLOB_RECURSE sources_Scripting Scripting/*.cpp Scripting/*.h)
@@ -62,6 +62,7 @@ source_group(AuctionHouse FILES ${sources_AuctionHouse})
 source_group(Battlefield FILES ${sources_Battlefield})
 source_group(Battlegrounds FILES ${sources_Battlegrounds})
 source_group(BattlePet FILES ${sources_BattlePet})
+source_group(Boost FILES ${sources_Boost})
 source_group(BlackMarket FILES ${sources_BlackMarket})
 source_group(Calendar FILES ${sources_Calendar})
 source_group(Chat FILES ${sources_Chat})
@@ -84,7 +85,6 @@ source_group(Miscellaneous FILES ${sources_Miscellaneous})
 source_group(Movement FILES ${sources_Movement})
 source_group(OutdoorPvP FILES ${sources_OutdoorPvP})
 source_group(Pools FILES ${sources_Pools})
-source_group(PrecompiledHeaders FILES ${sources_PrecompiledHeaders})
 source_group(Quests FILES ${sources_Quests})
 source_group(Reputation FILES ${sources_Reputation})
 source_group(Scripting FILES ${sources_Scripting})
@@ -114,6 +114,7 @@ set(game_STAT_SRCS
   ${sources_Battlefield}
   ${sources_Battlegrounds}
   ${sources_BattlePet}
+  ${sources_Boost}
   ${sources_BlackMarket}
   ${sources_Calendar}
   ${sources_Chat}
@@ -188,6 +189,7 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlegrounds
   ${CMAKE_CURRENT_SOURCE_DIR}/Battlegrounds/Zones
   ${CMAKE_CURRENT_SOURCE_DIR}/BattlePet
+  ${CMAKE_CURRENT_SOURCE_DIR}/Boost
   ${CMAKE_CURRENT_SOURCE_DIR}/BlackMarket
   ${CMAKE_CURRENT_SOURCE_DIR}/Calendar
   ${CMAKE_CURRENT_SOURCE_DIR}/Chat
@@ -247,7 +249,6 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}/Warden/Modules
   ${CMAKE_CURRENT_SOURCE_DIR}/Weather
   ${CMAKE_CURRENT_SOURCE_DIR}/World
-  ${CMAKE_SOURCE_DIR}/src/server/scripts/PrecompiledHeaders
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
   ${OPENSSL_INCLUDE_DIR}

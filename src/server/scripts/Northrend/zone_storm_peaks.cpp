@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -293,13 +293,13 @@ public:
                     break;
                 case EVENT_REACHED_HOME:
                     Unit* player = me->GetVehicleKit()->GetPassenger(0);
-                    if (player && player->GetTypeId() == TYPEID_PLAYER)
+                    if (player && player->GetTypeId() == TypeID::TYPEID_PLAYER)
                     {
                         // for each prisoner on drake, give credit
                         for (uint8 i = 1; i < 4; ++i)
                             if (Unit* prisoner = me->GetVehicleKit()->GetPassenger(i))
                             {
-                                if (prisoner->GetTypeId() != TYPEID_UNIT)
+                                if (prisoner->GetTypeId() != TypeID::TYPEID_UNIT)
                                     return;
                                 prisoner->CastSpell(player, SPELL_KILL_CREDIT_PRISONER, true);
                                 prisoner->CastSpell(prisoner, SPELL_SUMMON_LIBERATED, true);
@@ -334,7 +334,7 @@ public:
 
         void PassengerBoarded(Unit* who, int8 /*seatId*/, bool apply) OVERRIDE
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)
+            if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
                 if (apply)
                     Start(false, true, who->GetGUID());

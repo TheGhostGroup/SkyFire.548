@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -473,7 +473,7 @@ class instance_ulduar : public InstanceMapScript
                     case GO_LEVIATHAN_GATE:
                         LeviathanGateGUID = gameObject->GetGUID();
                         if (GetBossState(BOSS_LEVIATHAN) == DONE)
-                            gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                            gameObject->SetGoState(GOState::GO_STATE_ACTIVE_ALTERNATIVE);
                         break;
                     case GO_LEVIATHAN_DOOR:
                     case GO_XT_002_DOOR:
@@ -500,7 +500,7 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case GO_MOLE_MACHINE:
                         if (GetBossState(BOSS_RAZORSCALE) == IN_PROGRESS)
-                            gameObject->SetGoState(GO_STATE_ACTIVE);
+                            gameObject->SetGoState(GOState::GO_STATE_ACTIVE);
                         break;
                     case GO_BRAIN_ROOM_DOOR_1:
                         BrainRoomDoorGUIDs[0] = gameObject->GetGUID();
@@ -519,12 +519,12 @@ class instance_ulduar : public InstanceMapScript
                     case GO_DOODAD_UL_SIGILDOOR_01:
                         AlgalonSigilDoorGUID[0] = gameObject->GetGUID();
                         if (_algalonSummoned)
-                            gameObject->SetGoState(GO_STATE_ACTIVE);
+                            gameObject->SetGoState(GOState::GO_STATE_ACTIVE);
                         break;
                     case GO_DOODAD_UL_SIGILDOOR_02:
                         AlgalonSigilDoorGUID[1] = gameObject->GetGUID();
                         if (_algalonSummoned)
-                            gameObject->SetGoState(GO_STATE_ACTIVE);
+                            gameObject->SetGoState(GOState::GO_STATE_ACTIVE);
                         break;
                     case GO_DOODAD_UL_SIGILDOOR_03:
                         AlgalonSigilDoorGUID[2] = gameObject->GetGUID();
@@ -759,7 +759,7 @@ class instance_ulduar : public InstanceMapScript
                             if (Creature* Leviathan = instance->GetCreature(LeviathanGUID))
                                 Leviathan->AI()->DoAction(ACTION_MOVE_TO_CENTER_POSITION);
                             if (GameObject* gameObject = instance->GetGameObject(LeviathanGateGUID))
-                                gameObject->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                                gameObject->SetGoState(GOState::GO_STATE_ACTIVE_ALTERNATIVE);
                             SaveToDB();
                         }
                         break;

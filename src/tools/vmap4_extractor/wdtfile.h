@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@
 #include "mpqfile.h"
 #include "wmo.h"
 #include <string>
+#include <vector>
 #include "stdlib.h"
 
 class ADTFile;
@@ -31,13 +32,13 @@ class WDTFile
 {
 private:
     MPQFile WDT;
-    string filename;
+    std::string filename;
 public:
     WDTFile(char* file_name, char* file_name1);
     ~WDTFile(void);
     bool init(char* map_id, unsigned int mapID);
 
-    string* gWmoInstansName;
+    std::vector<std::string> gWmoInstansName;
     int gnWMO;
 
     ADTFile* GetMap(int x, int z);

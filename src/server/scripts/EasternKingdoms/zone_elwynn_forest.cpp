@@ -1,7 +1,7 @@
 /*
-* Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
-* Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
-* Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+* Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+* Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+* Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
 * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
 *
 * This program is free software; you can redistribute it and/or modify it
@@ -32,7 +32,8 @@ npc_blackrock_battle_worg
 npc_goblin_assassin
 EndContentData */
 
-#include "ScriptPCH.h"
+#include "ScriptMgr.h"
+#include "ScriptedCreature.h"
 
 enum Northshire
 {
@@ -92,7 +93,7 @@ public:
 
         void GetCreature(float X, float Y)
         {
-            if (me->GetHomePosition().GetPositionX() == X, me->GetHomePosition().GetPositionY() == Y)
+            if (me->GetHomePosition().GetPositionX() == X && me->GetHomePosition().GetPositionY() == Y)
                 if (!me->IsInCombat() && !me->HasAura(SPELL_SPYING))
                     DoCast(me, SPELL_SPYING);
 
@@ -108,16 +109,16 @@ public:
         void Spyglass(float X1, float Y1, float X2, float Y2, float X3, float Y3, float X4, float Y4, float X5, float Y5,
             float X6, float Y6, float X7, float Y7, float X8, float Y8, float X9, float Y9)
         {
-            if (me->GetHomePosition().GetPositionX() != X1, me->GetHomePosition().GetPositionY() != Y1)
-            if (me->GetHomePosition().GetPositionX() != X2, me->GetHomePosition().GetPositionY() != Y2)
-            if (me->GetHomePosition().GetPositionX() != X3, me->GetHomePosition().GetPositionY() != Y3)
-            if (me->GetHomePosition().GetPositionX() != X4, me->GetHomePosition().GetPositionY() != Y4)
-            if (me->GetHomePosition().GetPositionX() != X5, me->GetHomePosition().GetPositionY() != Y5)
-            if (me->GetHomePosition().GetPositionX() != X6, me->GetHomePosition().GetPositionY() != Y6)
-            if (me->GetHomePosition().GetPositionX() != X7, me->GetHomePosition().GetPositionY() != Y7)
-            if (me->GetHomePosition().GetPositionX() != X8, me->GetHomePosition().GetPositionY() != Y8)
-            if (me->GetHomePosition().GetPositionX() != X9, me->GetHomePosition().GetPositionY() != Y9)
-                if (me->GetHomePosition().GetPositionX() == me->GetPositionX(), me->GetHomePosition().GetPositionY() == me->GetPositionY())
+            if ((me->GetHomePosition().GetPositionX() != X1 && me->GetHomePosition().GetPositionY() != Y1) &&
+             (me->GetHomePosition().GetPositionX() != X2 && me->GetHomePosition().GetPositionY() != Y2) &&
+             (me->GetHomePosition().GetPositionX() != X3 && me->GetHomePosition().GetPositionY() != Y3) &&
+             (me->GetHomePosition().GetPositionX() != X4 && me->GetHomePosition().GetPositionY() != Y4) &&
+             (me->GetHomePosition().GetPositionX() != X5 && me->GetHomePosition().GetPositionY() != Y5) &&
+             (me->GetHomePosition().GetPositionX() != X6 && me->GetHomePosition().GetPositionY() != Y6) &&
+             (me->GetHomePosition().GetPositionX() != X7 && me->GetHomePosition().GetPositionY() != Y7) &&
+             (me->GetHomePosition().GetPositionX() != X8 && me->GetHomePosition().GetPositionY() != Y8) &&
+             (me->GetHomePosition().GetPositionX() != X9 && me->GetHomePosition().GetPositionY() != Y9))
+                if (me->GetHomePosition().GetPositionX() == me->GetPositionX() && me->GetHomePosition().GetPositionY() == me->GetPositionY())
                     if (!me->IsInCombat() && !me->HasAura(SPELL_SPYGLASS))
                         DoCast(me, SPELL_SPYGLASS);
         }
@@ -238,7 +239,7 @@ public:
 
         void DamageTaken(Unit* who, uint32& damage)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)//If damage taken from player
+            if (who->GetTypeId() == TypeID::TYPEID_PLAYER)//If damage taken from player
             {
                 me->getThreatManager().resetAllAggro();
                 who->AddThreat(me, 1.0f);
@@ -314,7 +315,7 @@ public:
 
         void DamageTaken(Unit* who, uint32& damage)
         {
-            if (who->GetTypeId() == TYPEID_PLAYER)//If damage taken from player
+            if (who->GetTypeId() == TypeID::TYPEID_PLAYER)//If damage taken from player
             {
                 me->getThreatManager().resetAllAggro();
                 who->AddThreat(me, 1.0f);

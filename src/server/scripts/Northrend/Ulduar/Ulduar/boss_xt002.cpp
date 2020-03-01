@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -256,7 +256,7 @@ class boss_xt002 : public CreatureScript
 
             void KilledUnit(Unit* who) OVERRIDE
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
@@ -384,7 +384,7 @@ class boss_xt002 : public CreatureScript
                     heart->CastSpell(heart, SPELL_EXPOSED_HEART, false);    // Channeled
                     heart->ChangeSeat(HEART_VEHICLE_SEAT_EXPOSED, true);
                     heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                    heart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+                    heart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_POWERS);
                }
 
                 events.CancelEvent(EVENT_SEARING_LIGHT);
@@ -419,7 +419,7 @@ class boss_xt002 : public CreatureScript
 
                 heart->ChangeSeat(HEART_VEHICLE_SEAT_NORMAL, false);
                 heart->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_29);
+                heart->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_DISABLE_POWERS);
                 heart->RemoveAurasDueToSpell(SPELL_EXPOSED_HEART);
 
                 if (!_hardMode)

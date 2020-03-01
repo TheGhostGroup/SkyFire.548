@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,7 +89,7 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
         else if (getWaterFallStatus() == BG_DS_WATERFALL_STATUS_WARNING) // Active collision and start knockback timer
         {
             if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[BG_DS_OBJECT_WATER_1]))
-                gob->SetGoState(GO_STATE_READY);
+                gob->SetGoState(GOState::GO_STATE_READY);
 
             setWaterFallTimer(BG_DS_WATERFALL_DURATION);
             setWaterFallStatus(BG_DS_WATERFALL_STATUS_ON);
@@ -99,7 +99,7 @@ void BattlegroundDS::PostUpdateImpl(uint32 diff)
         {
             // turn off collision
             if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[BG_DS_OBJECT_WATER_1]))
-                gob->SetGoState(GO_STATE_ACTIVE);
+                gob->SetGoState(GOState::GO_STATE_ACTIVE);
 
             DoorOpen(BG_DS_OBJECT_WATER_2);
             setWaterFallTimer(urand(BG_DS_WATERFALL_TIMER_MIN, BG_DS_WATERFALL_TIMER_MAX));
@@ -135,7 +135,7 @@ void BattlegroundDS::StartingEventOpenDoors()
 
     // Turn off collision
     if (GameObject* gob = GetBgMap()->GetGameObject(BgObjects[BG_DS_OBJECT_WATER_1]))
-        gob->SetGoState(GO_STATE_ACTIVE);
+        gob->SetGoState(GOState::GO_STATE_ACTIVE);
 
     // Remove effects of Demonic Circle Summon
     for (BattlegroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
@@ -167,7 +167,7 @@ void BattlegroundDS::HandleKillPlayer(Player* player, Player* killer)
 
     if (!killer)
     {
-        TC_LOG_ERROR("bg.battleground", "BattlegroundDS: Killer player not found");
+        SF_LOG_ERROR("bg.battleground", "BattlegroundDS: Killer player not found");
         return;
     }
 
@@ -229,7 +229,7 @@ bool BattlegroundDS::SetupBattleground()
         || !AddCreature(BG_DS_NPC_TYPE_WATER_SPOUT, BG_DS_NPC_PIPE_KNOCKBACK_1, 0, 1369.977f, 817.2882f, 16.08718f, 3.106686f, RESPAWN_IMMEDIATELY)
         || !AddCreature(BG_DS_NPC_TYPE_WATER_SPOUT, BG_DS_NPC_PIPE_KNOCKBACK_2, 0, 1212.833f, 765.3871f, 16.09484f, 0.0f, RESPAWN_IMMEDIATELY))
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundDS: Failed to spawn some object!");
+        SF_LOG_ERROR("sql.sql", "BatteGroundDS: Failed to spawn some object!");
         return false;
     }
 

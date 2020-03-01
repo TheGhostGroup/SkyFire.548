@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -186,7 +186,7 @@ public:
             if (me->IsInCombat())
                 return;
 
-            if (who->GetTypeId() != TYPEID_PLAYER)
+            if (who->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return;
 
             if (me->GetDistance(who) > 50.0f)
@@ -213,7 +213,7 @@ public:
             float x = Coords[random].x;
             float y = Coords[random].y;
 
-            Creature* Soul = me->SummonCreature(CREATURE_ENSLAVED_SOUL, x, y, me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0);
+            Creature* Soul = me->SummonCreature(CREATURE_ENSLAVED_SOUL, x, y, me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (!Soul)
                 return false;
 
@@ -288,7 +288,7 @@ public:
                     break;
                 case 2:
                     Timer = 5000;
-                    if (Creature* Summon = DoSpawnCreature(23417+Phase, 0, 0, 0, 0, TEMPSUMMON_DEAD_DESPAWN, 0))
+                    if (Creature* Summon = DoSpawnCreature(23417+Phase, 0, 0, 0, 0, TempSummonType::TEMPSUMMON_DEAD_DESPAWN, 0))
                     {
                         me->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, EMOTE_STATE_SUBMERGED);  // Ribs: open
                         Summon->AI()->AttackStart(SelectTarget(SELECT_TARGET_TOPAGGRO, 0));
@@ -454,12 +454,12 @@ public:
             for (; itr != threatlist.end(); ++itr)
             {
                 Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                if (unit && unit->IsAlive() && (unit->GetTypeId() == TYPEID_PLAYER)) // Only alive players
+                if (unit && unit->IsAlive() && (unit->GetTypeId() == TypeID::TYPEID_PLAYER)) // Only alive players
                     targets.push_back(unit);
             }
             if (targets.empty())
                 return; // No targets added for some reason. No point continuing.
-            targets.sort(Trinity::ObjectDistanceOrderPred(me)); // Sort players by distance.
+            targets.sort(Skyfire::ObjectDistanceOrderPred(me)); // Sort players by distance.
             targets.resize(1); // Only need closest target.
             Unit* target = targets.front(); // Get the first target.
             if (target)

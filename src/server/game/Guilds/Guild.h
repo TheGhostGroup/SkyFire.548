@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_GUILD_H
-#define TRINITYCORE_GUILD_H
+#ifndef SKYFIRESERVER_GUILD_H
+#define SKYFIRESERVER_GUILD_H
 
 #include "AchievementMgr.h"
 #include "World.h"
@@ -269,7 +269,7 @@ struct GuildReward
     uint8 Standing;
 };
 
-uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353 };
+uint32 const MinNewsItemLevel[MAX_CONTENT] = { 61, 90, 200, 353, 463 };
 
 // GuildChallengeInfo
 const uint32 GuildChallengeWeeklyMaximum[] = { 0, 7, 1, 3, 15, 3 };
@@ -782,6 +782,7 @@ public:
     void HandleSetInfo(WorldSession* session, std::string const& info);
     void HandleSetEmblem(WorldSession* session, const EmblemInfo& emblemInfo);
     void HandleSetNewGuildMaster(WorldSession* session, std::string const& name);
+    void HandleReplaceGuildMaster(WorldSession* session);
     void HandleSetBankTabInfo(WorldSession* session, uint8 tabId, std::string const& name, std::string const& icon);
     void HandleSetMemberNote(WorldSession* session, std::string const& note, uint64 guid, bool isPublic);
     void HandleSetRankInfo(WorldSession* session, uint8 rankId, std::string const& name, uint32 rights, uint32 moneyPerDay, GuildBankRightsAndSlotsVec const& rightsAndSlots);
@@ -830,7 +831,7 @@ public:
     bool Validate();
 
     // Broadcasts
-    void BroadcastToGuild(WorldSession* session, bool officerOnly, std::string const& msg, uint32 language = LANG_UNIVERSAL) const;
+    void BroadcastToGuild(WorldSession* session, bool officerOnly, std::string const& msg, Language language = Language::LANG_UNIVERSAL) const;
     void BroadcastAddonToGuild(WorldSession* session, bool officerOnly, std::string const& msg, std::string const& prefix) const;
     void BroadcastPacketToRank(WorldPacket* packet, uint8 rankId) const;
     void BroadcastPacket(WorldPacket* packet) const;
@@ -990,6 +991,8 @@ private:
     void _SendBankContentUpdate(uint8 tabId, SlotIds slots) const;
     void SendGuildReputationWeeklyCap(WorldSession* session, uint32 reputation) const;
     void SendGuildRanksUpdate(uint64 setterGuid, uint64 targetGuid, uint32 rank);
+    void _SendSetNewGuildMaster(Member const* guildMaster, Member const* newGuildMaster, bool replace) const;
+    void _SendRemovePlayerFromGuild(ObjectGuid removedGuid, std::string const& removedName, Player const* remover) const;
 
     void _BroadcastEvent(GuildEvents guildEvent, uint64 guid, const char* param1 = NULL, const char* param2 = NULL, const char* param3 = NULL) const;
 };

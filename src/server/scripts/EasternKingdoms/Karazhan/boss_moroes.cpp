@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -191,14 +191,14 @@ public:
                 for (uint8 i = 0; i < 6; ++i)
                     AddList.push_back(Adds[i]);
 
-                Trinity::Containers::RandomResizeList(AddList, 4);
+                Skyfire::Containers::RandomResizeList(AddList, 4);
 
                 uint8 i = 0;
                 for (std::list<uint32>::const_iterator itr = AddList.begin(); itr != AddList.end() && i < 4; ++itr, ++i)
                 {
                     uint32 entry = *itr;
 
-                    if (Creature* creature = me->SummonCreature(entry, Locations[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                    if (Creature* creature = me->SummonCreature(entry, Locations[i], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                     {
                         AddGUID[i] = creature->GetGUID();
                         AddId[i] = entry;
@@ -209,7 +209,7 @@ public:
             {
                 for (uint8 i = 0; i < 4; ++i)
                 {
-                    if (Creature* creature = me->SummonCreature(AddId[i], Locations[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                    if (Creature* creature = me->SummonCreature(AddId[i], Locations[i], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
                         AddGUID[i] = creature->GetGUID();
                 }
             }

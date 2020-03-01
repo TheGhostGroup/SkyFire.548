@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -159,10 +159,10 @@ public:
     {
         npc_ancestral_wolfAI(Creature* creature) : npc_escortAI(creature)
         {
-            if (creature->GetOwner() && creature->GetOwner()->GetTypeId() == TYPEID_PLAYER)
+            if (creature->GetOwner() && creature->GetOwner()->GetTypeId() == TypeID::TYPEID_PLAYER)
                 Start(false, false, creature->GetOwner()->GetGUID());
             else
-                TC_LOG_ERROR("scripts", "TRINITY: npc_ancestral_wolf can not obtain owner or owner is not a player.");
+                SF_LOG_ERROR("scripts", "SKYFIRE: npc_ancestral_wolf can not obtain owner or owner is not a player.");
 
             creature->SetSpeed(MOVE_WALK, 1.5f);
             Reset();
@@ -406,8 +406,8 @@ public:
                 case 9:
                     Talk(SAY_ELF_SUMMON1, player);
                     // Spawn two Haal'eshi Talonguard
-                    DoSpawnCreature(16967, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                    DoSpawnCreature(16967, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    DoSpawnCreature(16967, -15, -15, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    DoSpawnCreature(16967, -17, -17, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     break;
                 case 13:
                     Talk(SAY_ELF_RESTING, player);
@@ -415,8 +415,8 @@ public:
                 case 14:
                     Talk(SAY_ELF_SUMMON2, player);
                     // Spawn two Haal'eshi Windwalker
-                    DoSpawnCreature(16966, -15, -15, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
-                    DoSpawnCreature(16966, -17, -17, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    DoSpawnCreature(16966, -15, -15, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    DoSpawnCreature(16966, -17, -17, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     break;
                 case 27:
                     Talk(SAY_ELF_COMPLETE, player);

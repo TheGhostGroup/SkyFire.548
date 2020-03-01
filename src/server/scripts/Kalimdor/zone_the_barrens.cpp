@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -162,7 +162,7 @@ public:
                 return;
 
             //only aggro text if not player and only in this area
-            if (who->GetTypeId() != TYPEID_PLAYER && me->GetAreaId() == AREA_MERCHANT_COAST)
+            if (who->GetTypeId() != TypeID::TYPEID_PLAYER && me->GetAreaId() == AREA_MERCHANT_COAST)
             {
                 //appears to be pretty much random (possible only if escorter not in combat with who yet?)
                 Talk(SAY_GIL_AGGRO, who);
@@ -350,7 +350,7 @@ public:
             if (!who || !who->IsAlive() || EventInProgress)
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
+            if (who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
                 if (Player* player = who->ToPlayer())
                     if (player->GetQuestStatus(1719) == QUEST_STATUS_INCOMPLETE)
                     {
@@ -409,7 +409,7 @@ public:
 
                         for (uint8 i = 0; i < 6; ++i)
                         {
-                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i], TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
+                            Creature* creature = me->SummonCreature(NPC_AFFRAY_CHALLENGER, AffrayChallengerLoc[i], TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000);
                             if (!creature)
                                 continue;
                             creature->setFaction(35);
@@ -461,7 +461,7 @@ public:
                         }
                         else if (Wave >= 6 && !EventBigWill)
                         {
-                            if (Creature* creature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
+                            if (Creature* creature = me->SummonCreature(NPC_BIG_WILL, -1722, -4341, 6.12f, 6.26f, TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 480000))
                             {
                                 BigWill = creature->GetGUID();
                                 //creature->GetMotionMaster()->MovePoint(0, -1693, -4343, 4.32f);
@@ -552,10 +552,10 @@ public:
                     SetRun(false);
                     break;
                 case 17:
-                    if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
+                    if (Creature* temp = me->SummonCreature(NPC_MERCENARY, 1128.489f, -3037.611f, 92.701f, 1.472f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000))
                     {
                         temp->AI()->Talk(SAY_MERCENARY);
-                        me->SummonCreature(NPC_MERCENARY, 1160.172f, -2980.168f, 97.313f, 3.690f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
+                        me->SummonCreature(NPC_MERCENARY, 1160.172f, -2980.168f, 97.313f, 3.690f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 120000);
                     }
                     break;
                 case 24:
@@ -615,7 +615,7 @@ public:
                                 if (Player* player = GetPlayerForEscort())
                                 {
                                     player->GroupEventHappens(QUEST_ESCAPE, me);
-                                    me->SummonCreature(NPC_PILOT_WIZZ, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 180000);
+                                    me->SummonCreature(NPC_PILOT_WIZZ, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000);
                                 }
                                 break;
                         }

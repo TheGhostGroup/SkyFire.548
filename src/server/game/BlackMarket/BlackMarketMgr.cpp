@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -91,7 +91,7 @@ uint32 BlackMarketAuction::TimeLeft()
     return (endTime >= curTime) ? endTime - curTime : 0;
 }
 
-void BlackMarketMgr::LoadFromDB()
+void BlackMarketMgr::LoadBlackMarketTemplates()
 {
     uint32 count = 0;
     uint32 oldMSTime = getMSTime();
@@ -107,8 +107,23 @@ void BlackMarketMgr::LoadFromDB()
             blackmarket_template->Id = fields[0].GetUInt32();
             blackmarket_template->MarketId = fields[1].GetUInt32();
             blackmarket_template->SellerNPCEntry = fields[2].GetUInt32();
+            if (!sObjectMgr->GetCreatureTemplate(blackmarket_template->SellerNPCEntry)) 
+            {
+                SF_LOG_ERROR("sql.sql", "Table `blackmarket_template` (MarketId: %u) have data for not existing creature template (Entry: %u), ignoring", blackmarket_template->MarketId, blackmarket_template->SellerNPCEntry); 
+                continue; 
+            }
             blackmarket_template->ItemEntry = fields[3].GetUInt32();
+            if (!sObjectMgr->GetItemTemplate(blackmarket_template->ItemEntry))
+            { 
+                SF_LOG_ERROR("sql.sql", "Table `blackmarket_template` (MarketId: %u) have data for not existing item template (Entry: %u), ignoring.", blackmarket_template->MarketId, blackmarket_template->ItemEntry); 
+                continue; 
+            }
             blackmarket_template->Quantity = fields[4].GetUInt32();
+            if (!blackmarket_template->Quantity)
+            { 
+                SF_LOG_ERROR("sql.sql", "Table `blackmarket_template` (MarketId: %u) have amount == 0 for (ItemEntry : %u) in `blackmarket_template` table, ignoring.", blackmarket_template->MarketId, blackmarket_template->ItemEntry); 
+                continue; 
+            } 
             blackmarket_template->MinBid = fields[5].GetUInt32();
             blackmarket_template->Duration = fields[6].GetUInt32();
             blackmarket_template->Chance = fields[7].GetFloat();
@@ -119,9 +134,9 @@ void BlackMarketMgr::LoadFromDB()
         } while (result->NextRow());
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u BlackMarket templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u BlackMarket templates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
-void BlackMarketMgr::LoadAuctions()
+void BlackMarketMgr::LoadBlackMarketAuctions()
 {
     uint32 count = 0;
     uint32 oldMSTime = getMSTime();
@@ -159,13 +174,11 @@ void BlackMarketMgr::LoadAuctions()
         CharacterDatabase.CommitTransaction(trans);
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u BlackMarket Auctions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u BlackMarket Auctions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void BlackMarketMgr::Update()
 {
-    uint32 curTime = time(NULL);
-
     SQLTransaction trans = CharacterDatabase.BeginTransaction();
 
     // Delete expired auctions
@@ -185,7 +198,7 @@ void BlackMarketMgr::Update()
     }
 
     // Add New Auctions
-    int32 add = sWorld->getIntConfig(CONFIG_BLACK_MARKET_MAX_AUCTIONS) - _auctions.size();
+    int32 add = sWorld->getIntConfig(WorldIntConfigs::CONFIG_BLACK_MARKET_MAX_AUCTIONS) - _auctions.size();
     if (add > 0)
         CreateAuctions(add, trans);
 
@@ -227,7 +240,7 @@ void BlackMarketMgr::CreateAuctions(uint32 number, SQLTransaction& trans)
         if (!selTemplate)
             continue;
 
-        uint32 startTime = time(NULL) + sWorld->getIntConfig(CONFIG_BLACK_MARKET_AUCTION_DELAY) + urand(0, sWorld->getIntConfig(CONFIG_BLACK_MARKET_AUCTION_DELAY_MOD) * 2) - sWorld->getIntConfig(CONFIG_BLACK_MARKET_AUCTION_DELAY_MOD) / 2;
+        uint32 startTime = time(NULL) + sWorld->getIntConfig(WorldIntConfigs::CONFIG_BLACK_MARKET_AUCTION_DELAY) + urand(0, sWorld->getIntConfig(WorldIntConfigs::CONFIG_BLACK_MARKET_AUCTION_DELAY_MOD) * 2) - sWorld->getIntConfig(WorldIntConfigs::CONFIG_BLACK_MARKET_AUCTION_DELAY_MOD) / 2;
 
         uint32 minIncrement = selTemplate->MinBid * 0.05f;
 
@@ -286,7 +299,7 @@ void BlackMarketMgr::BuildBlackMarketRequestItemsResult(WorldPacket& data, uint3
 
     data.PutBits<uint32>(32, count, 18);
 
-    TC_LOG_DEBUG("network", ">> Sent %u Black Market Auctions", count);
+    SF_LOG_DEBUG("network", ">> Sent %u Black Market Auctions", count);
 }
 
 void BlackMarketMgr::UpdateAuction(BlackMarketAuction* auction, uint64 newPrice, uint64 requiredIncrement, Player* newBidder)
@@ -314,7 +327,7 @@ BlackMarketAuctionTemplate* BlackMarketMgr::GetTemplate(uint32 templateId) const
         if (itr->second->Id == templateId)
             return itr->second;
 
-    TC_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetTemplate: [%u] not found!", templateId);
+    SF_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetTemplate: [%u] not found!", templateId);
     return NULL;
 }
 
@@ -324,7 +337,7 @@ BlackMarketAuction* BlackMarketMgr::GetAuction(uint32 auctionId) const
         if (itr->second->GetAuctionId() == auctionId)
             return itr->second;
 
-    TC_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetAuction: [%u] not found!", auctionId);
+    SF_LOG_DEBUG("blackMarket", "BlackMarketMgr::GetAuction: [%u] not found!", auctionId);
     return NULL;
 }
 

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,6 +26,7 @@
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "DBCStructure.h"
+#include "World.h"
 
 class Item;
 class Player;
@@ -129,8 +130,8 @@ private:
 public:
     void Update();
 
-    void LoadFromDB();
-    void LoadAuctions();
+    void LoadBlackMarketTemplates();
+    void LoadBlackMarketAuctions();
 
     BlackMarketAuctionTemplate* GetTemplate(uint32 templateId) const;
     uint32 GetTemplatesCount() { return _templates.size(); }
@@ -151,6 +152,8 @@ public:
 
     void SendAuctionWon(BlackMarketAuction* auction, SQLTransaction& trans);
     void SendAuctionOutbidded(BlackMarketAuction* auction, uint32 newPrice, Player* newBidder, SQLTransaction& trans);
+    
+    bool isBlackMarketOpen() { return sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_BLACK_MARKET_OPEN); }
 };
 
 #define sBlackMarketMgr ACE_Singleton<BlackMarketMgr, ACE_Null_Mutex>::instance()

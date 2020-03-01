@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -174,10 +174,10 @@ public:
                             Creature* creature = instance->GetCreature(Azgalor);
                             if (creature)
                             {
-                                Creature* unit = creature->SummonCreature(NPC_WORLD_TRIGGER_TINY, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 10000);
+                                Creature* unit = creature->SummonCreature(NPC_WORLD_TRIGGER_TINY, creature->GetPositionX(), creature->GetPositionY(), creature->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 10000);
 
                                 Map* map = creature->GetMap();
-                                if (map->IsDungeon() && unit)
+                                if (map->IsRaid() && unit)
                                 {
                                     unit->SetVisible(false);
                                     Map::PlayerList const &PlayerList = map->GetPlayers();
@@ -189,7 +189,7 @@ public:
                                          if (i->GetSource())
                                          {
                                             WorldPacket packet(SMSG_MESSAGECHAT, 200);
-                                            unit->MonsterYell(YELL_EFFORTS, LANG_UNIVERSAL, i->GetSource());
+                                            unit->MonsterYell(YELL_EFFORTS, Language::LANG_UNIVERSAL, i->GetSource());
                                             i->GetSource()->GetSession()->SendPacket(&packet);
 
                                             ObjectGuid guid = unit->GetGUID();
@@ -266,7 +266,7 @@ public:
                     break;
             }
 
-             TC_LOG_DEBUG("scripts", "Instance Hyjal: Instance data updated for event %u (Data=%u)", type, data);
+             SF_LOG_DEBUG("scripts", "Instance Hyjal: Instance data updated for event %u (Data=%u)", type, data);
 
             if (data == DONE)
             {

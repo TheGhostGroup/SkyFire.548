@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,7 +26,7 @@
 AreaTrigger::AreaTrigger() : WorldObject(false), _duration(0)
 {
     m_objectType |= TYPEMASK_AREATRIGGER;
-    m_objectTypeId = TYPEID_AREATRIGGER;
+    m_objectTypeId = TypeID::TYPEID_AREATRIGGER;
 
     m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
 
@@ -66,7 +66,7 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
     Relocate(pos);
     if (!IsPositionValid())
     {
-        sLog->outError("misc", "AreaTrigger (spell %u) not created. Invalid coordinates (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
+        SF_LOG_ERROR("sql.sql", "AreaTrigger (spell %u) not created. Invalid coordinates (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
         return false;
     }
 

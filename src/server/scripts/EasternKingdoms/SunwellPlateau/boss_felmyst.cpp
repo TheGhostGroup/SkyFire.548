@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -212,7 +212,7 @@ public:
             {
                 float x, y, z;
                 caster->GetPosition(x, y, z);
-                if (Unit* summon = me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                if (Unit* summon = me->SummonCreature(NPC_DEAD, x, y, z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                 {
                     summon->SetMaxHealth(caster->GetMaxHealth());
                     summon->SetHealth(caster->GetMaxHealth());
@@ -300,7 +300,7 @@ public:
                     return;
                 }
 
-                Creature* Vapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
+                Creature* Vapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 9000);
                 if (Vapor)
                 {
                     Vapor->AI()->AttackStart(target);
@@ -328,7 +328,7 @@ public:
                 }
 
                 //target->CastSpell(target, SPELL_VAPOR_SUMMON, true); need core support
-                Creature* pVapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 9000);
+                Creature* pVapor = me->SummonCreature(NPC_VAPOR, target->GetPositionX()-5+rand()%10, target->GetPositionY()-5+rand()%10, target->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 9000);
                 if (pVapor)
                 {
                     if (pVapor->AI())
@@ -473,7 +473,7 @@ public:
                             float x, y, z;
                             me->GetPosition(x, y, z);
                             me->UpdateGroundPositionZ(x, y, z);
-                            if (Creature* Fog = me->SummonCreature(NPC_VAPOR_TRAIL, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
+                            if (Creature* Fog = me->SummonCreature(NPC_VAPOR_TRAIL, x, y, z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 10000))
                             {
                                 Fog->RemoveAurasDueToSpell(SPELL_TRAIL_TRIGGER);
                                 Fog->CastSpell(Fog, SPELL_FOG_TRIGGER, true);
@@ -492,13 +492,13 @@ public:
             float x, y, z;
             me->GetPosition(x, y, z);
 
-            CellCoord pair(Trinity::ComputeCellCoord(x, y));
+            CellCoord pair(Skyfire::ComputeCellCoord(x, y));
             Cell cell(pair);
             cell.SetNoCreate();
 
-            Trinity::AllCreaturesOfEntryInRange check(me, entry, 100);
-            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, templist, check);
-            TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
+            Skyfire::AllCreaturesOfEntryInRange check(me, entry, 100);
+            Skyfire::CreatureListSearcher<Skyfire::AllCreaturesOfEntryInRange> searcher(me, templist, check);
+            TypeContainerVisitor<Skyfire::CreatureListSearcher<Skyfire::AllCreaturesOfEntryInRange>, GridTypeMapContainer> cSearcher(searcher);
             cell.Visit(pair, cSearcher, *(me->GetMap()), *me, me->GetGridActivationRange());
 
             for (std::list<Creature*>::const_iterator i = templist.begin(); i != templist.end(); ++i)
@@ -506,11 +506,11 @@ public:
                 if (entry == NPC_VAPOR_TRAIL && phase == PHASE_FLIGHT)
                 {
                     (*i)->GetPosition(x, y, z);
-                    me->SummonCreature(NPC_DEAD, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    me->SummonCreature(NPC_DEAD, x, y, z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 }
                 (*i)->SetVisible(false);
-                (*i)->setDeathState(JUST_DIED);
-                if ((*i)->getDeathState() == CORPSE)
+                (*i)->setDeathState(DeathState::JUST_DIED);
+                if ((*i)->getDeathState() == DeathState::CORPSE)
                     (*i)->RemoveCorpse();
             }
         }

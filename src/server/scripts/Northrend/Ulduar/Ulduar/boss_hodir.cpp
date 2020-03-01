@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -229,7 +229,7 @@ class npc_flash_freeze : public CreatureScript
                     DoCast(target, SPELL_BLOCK_OF_ICE, true);
                     // Prevents to have Ice Block on other place than target is
                     me->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation());
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
                         if (Creature* Hodir = ObjectAccessor::GetCreature(*me, instance ? instance->GetData64(BOSS_HODIR) : 0))
                             Hodir->AI()->DoAction(ACTION_CHEESE_THE_FREEZE);
                 }
@@ -328,7 +328,7 @@ class boss_hodir : public CreatureScript
                 me->SetReactState(REACT_PASSIVE);
 
                 for (uint8 n = 0; n < FRIENDS_COUNT; ++n)
-                    if (Creature* FrozenHelper = me->SummonCreature(Entry[n], SummonPositions[n], TEMPSUMMON_MANUAL_DESPAWN))
+                    if (Creature* FrozenHelper = me->SummonCreature(Entry[n], SummonPositions[n], TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                         FrozenHelper->CastSpell(FrozenHelper, SPELL_SUMMON_FLASH_FREEZE_HELPER, true);
             }
 
@@ -354,7 +354,7 @@ class boss_hodir : public CreatureScript
 
             void KilledUnit(Unit* who) OVERRIDE
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
@@ -457,7 +457,7 @@ class boss_hodir : public CreatureScript
                     for (std::list<HostileReference*>::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                         if (Unit* target = ObjectAccessor::GetUnit(*me, (*itr)->getUnitGuid()))
                             if (Aura* BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))
-                                if ((target->GetTypeId() == TYPEID_PLAYER) && (BitingColdAura->GetStackAmount() > 2))
+                                if ((target->GetTypeId() == TypeID::TYPEID_PLAYER) && (BitingColdAura->GetStackAmount() > 2))
                                         me->AI()->SetData(DATA_GETTING_COLD_IN_HERE, 0);
                     gettingColdInHereTimer = 1000;
                 }
@@ -485,8 +485,8 @@ class boss_hodir : public CreatureScript
             void FlashFreeze()
             {
                 std::list<Unit*> TargetList;
-                Trinity::AnyUnfriendlyUnitInObjectRangeCheck checker(me, me, 100.0f);
-                Trinity::UnitListSearcher<Trinity::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
+                Skyfire::AnyUnfriendlyUnitInObjectRangeCheck checker(me, me, 100.0f);
+                Skyfire::UnitListSearcher<Skyfire::AnyUnfriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
                 me->VisitNearbyObject(100.0f, searcher);
                 for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                 {
@@ -642,8 +642,8 @@ class npc_hodir_priest : public CreatureScript
                         case EVENT_DISPEL_MAGIC:
                         {
                             std::list<Unit*> TargetList;
-                            Trinity::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 30.0f);
-                            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
+                            Skyfire::AnyFriendlyUnitInObjectRangeCheck checker(me, me, 30.0f);
+                            Skyfire::UnitListSearcher<Skyfire::AnyFriendlyUnitInObjectRangeCheck> searcher(me, TargetList, checker);
                             me->VisitNearbyObject(30.0f, searcher);
                             for (std::list<Unit*>::iterator itr = TargetList.begin(); itr != TargetList.end(); ++itr)
                                 if ((*itr)->HasAura(SPELL_FREEZE))

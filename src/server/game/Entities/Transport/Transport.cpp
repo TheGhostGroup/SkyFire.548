@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,9 +34,9 @@
 #include "CellImpl.h"
 
 Transport::Transport() : GameObject(),
-    _transportInfo(NULL), _isMoving(true), _pendingStop(false)
+    _transportInfo(NULL), _isMoving(true), _pendingStop(false), _triggeredArrivalEvent(false), _triggeredDepartureEvent(false)
 {
-    m_updateFlag = UPDATEFLAG_TRANSPORT | UPDATEFLAG_LOWGUID | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION;
+    m_updateFlag = UPDATEFLAG_TRANSPORT | UPDATEFLAG_STATIONARY_POSITION | UPDATEFLAG_ROTATION ;
 }
 
 Transport::~Transport()
@@ -51,7 +51,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
 
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("entities.transport", "Transport (GUID: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
+        SF_LOG_ERROR("entities.transport", "Transport (GUID: %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)",
             guidlow, x, y);
         return false;
     }
@@ -62,7 +62,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
 
     if (!goinfo)
     {
-        TC_LOG_ERROR("sql.sql", "Transport not created: entry in `gameobject_template` not found, guidlow: %u map: %u  (X: %f Y: %f Z: %f) ang: %f", guidlow, mapid, x, y, z, ang);
+        SF_LOG_ERROR("sql.sql", "Transport not created: entry in `gameobject_template` not found, guidlow: %u map: %u  (X: %f Y: %f Z: %f) ang: %f", guidlow, mapid, x, y, z, ang);
         return false;
     }
 
@@ -71,7 +71,7 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     TransportTemplate const* tInfo = sTransportMgr->GetTransportTemplate(entry);
     if (!tInfo)
     {
-        TC_LOG_ERROR("sql.sql", "Transport %u (name: %s) will not be created, missing `transport_template` entry.", entry, goinfo->name.c_str());
+        SF_LOG_ERROR("sql.sql", "Transport %u (name: %s) will not be created, missing `transport_template` entry.", entry, goinfo->name.c_str());
         return false;
     }
 
@@ -90,12 +90,13 @@ bool Transport::Create(uint32 guidlow, uint32 entry, uint32 mapid, float x, floa
     SetPeriod(tInfo->pathTime);
     SetEntry(goinfo->entry);
     SetDisplayId(goinfo->displayId);
-    SetGoState(GO_STATE_READY);
+    SetGoState(GOState::GO_STATE_READY);
     _pendingStop = goinfo->moTransport.canBeStopped != 0;
     SetGoType(GAMEOBJECT_TYPE_MO_TRANSPORT);
     SetGoAnimProgress(animprogress);
     SetName(goinfo->name);
     UpdateRotationFields(0.0f, 1.0f);
+    m_model = CreateModel();
     return true;
 }
 
@@ -106,7 +107,7 @@ void Transport::Update(uint32 diff)
     if (AI())
         AI()->UpdateAI(diff);
     else if (!AIM_Initialize())
-        TC_LOG_ERROR("entities.transport", "Could not initialize GameObjectAI for Transport");
+        SF_LOG_ERROR("entities.transport", "Could not initialize GameObjectAI for Transport");
 
     if (GetKeyFrames().size() <= 1)
         return;
@@ -133,12 +134,12 @@ void Transport::Update(uint32 diff)
             {
                 SetMoving(false);
                 if (_pendingStop)
-                    SetGoState(GO_STATE_READY);
+                    SetGoState(GOState::GO_STATE_READY);
                 break;  // its a stop frame and we are waiting
             }
         }
 
-        if (_pendingStop && timer >= _currentFrame->DepartureTime && GetGoState() == GO_STATE_READY)
+        if (_pendingStop && timer >= _currentFrame->DepartureTime && GetGoState() == GOState::GO_STATE_READY)
         {
             m_goValue.Transport.PathProgress = (m_goValue.Transport.PathProgress / GetPeriod());
             m_goValue.Transport.PathProgress *= GetPeriod();
@@ -162,11 +163,11 @@ void Transport::Update(uint32 diff)
 
         // Enable movement
         if (GetGOInfo()->moTransport.canBeStopped)
-            SetGoState(GO_STATE_ACTIVE);
+            SetGoState(GOState::GO_STATE_ACTIVE);
 
         sScriptMgr->OnRelocate(this, _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
 
-        TC_LOG_DEBUG("entities.transport", "Transport %u (%s) moved to node %u %u %f %f %f", GetEntry(), GetName().c_str(), _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
+        SF_LOG_DEBUG("entities.transport", "Transport %u (%s) moved to node %u %u %f %f %f", GetEntry(), GetName().c_str(), _currentFrame->Node->index, _currentFrame->Node->mapid, _currentFrame->Node->x, _currentFrame->Node->y, _currentFrame->Node->z);
 
         // Departure event
         if (_currentFrame->IsTeleportFrame())
@@ -194,9 +195,12 @@ void Transport::Update(uint32 diff)
 
 void Transport::AddPassenger(WorldObject* passenger)
 {
+    if (!IsInWorld())
+        return;
+
     if (_passengers.insert(passenger).second)
     {
-        TC_LOG_DEBUG("entities.transport", "Object %s boarded transport %s.", passenger->GetName().c_str(), GetName().c_str());
+        SF_LOG_DEBUG("entities.transport", "Object %s boarded transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
         if (Player* plr = passenger->ToPlayer())
             sScriptMgr->OnAddPassenger(this, plr);
@@ -207,7 +211,7 @@ void Transport::RemovePassenger(WorldObject* passenger)
 {
     if (_passengers.erase(passenger) || _staticPassengers.erase(passenger)) // static passenger can remove itself in case of grid unload
     {
-        TC_LOG_DEBUG("entities.transport", "Object %s removed from transport %s.", passenger->GetName().c_str(), GetName().c_str());
+        SF_LOG_DEBUG("entities.transport", "Object %s removed from transport %s.", passenger->GetName().c_str(), GetName().c_str());
 
         if (Player* plr = passenger->ToPlayer())
             sScriptMgr->OnRemovePassenger(this, plr);
@@ -244,7 +248,7 @@ Creature* Transport::CreateNPCPassenger(uint32 guid, CreatureData const* data)
 
     if (!creature->IsPositionValid())
     {
-        TC_LOG_ERROR("entities.transport", "Creature (guidlow %d, entry %d) not created. Suggested coordinates aren't valid (X: %f Y: %f)",
+        SF_LOG_ERROR("entities.transport", "Creature (guidlow %d, entry %d) not created. Suggested coordinates aren't valid (X: %f Y: %f)",
             creature->GetGUIDLow(), creature->GetEntry(), creature->GetPositionX(), creature->GetPositionY());
         delete creature;
         return NULL;
@@ -285,7 +289,7 @@ GameObject* Transport::CreateGOPassenger(uint32 guid, GameObjectData const* data
 
     if (!go->IsPositionValid())
     {
-        TC_LOG_ERROR("entities.transport", "GameObject (guidlow %d, entry %d) not created. Suggested coordinates aren't valid (X: %f Y: %f)", go->GetGUIDLow(), go->GetEntry(), go->GetPositionX(), go->GetPositionY());
+        SF_LOG_ERROR("entities.transport", "GameObject (guidlow %d, entry %d) not created. Suggested coordinates aren't valid (X: %f Y: %f)", go->GetGUIDLow(), go->GetEntry(), go->GetPositionX(), go->GetPositionY());
         delete go;
         return NULL;
     }
@@ -305,6 +309,7 @@ void Transport::UpdatePosition(float x, float y, float z, float o)
     bool newActive = GetMap()->IsGridLoaded(x, y);
 
     Relocate(x, y, z, o);
+    UpdateModelPosition();
 
     UpdatePassengerPositions(_passengers);
 
@@ -378,8 +383,8 @@ float Transport::CalculateSegmentPos(float now)
     KeyFrame const& frame = *_currentFrame;
     const float speed = float(m_goInfo->moTransport.moveSpeed);
     const float accel = float(m_goInfo->moTransport.accelRate);
-    float timeSinceStop = frame.TimeFrom + (now - (1.0f/IN_MILLISECONDS) * frame.DepartureTime);
-    float timeUntilStop = frame.TimeTo - (now - (1.0f/IN_MILLISECONDS) * frame.DepartureTime);
+    float timeSinceStop = frame.TimeFrom + (now - (1.0f/float(IN_MILLISECONDS)) * frame.DepartureTime);
+    float timeUntilStop = frame.TimeTo - (now - (1.0f/float(IN_MILLISECONDS)) * frame.DepartureTime);
     float segmentPos, dist;
     float accelTime = _transportInfo->accelTime;
     float accelDist = _transportInfo->accelDist;
@@ -453,11 +458,11 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
 
             switch (obj->GetTypeId())
             {
-                case TYPEID_UNIT:
+                case TypeID::TYPEID_UNIT:
                     if (!IS_PLAYER_GUID(obj->ToUnit()->GetOwnerGUID()))  // pets should be teleported with player
                         obj->ToCreature()->FarTeleportTo(newMap, destX, destY, destZ, destO);
                     break;
-                case TYPEID_GAMEOBJECT:
+                case TypeID::TYPEID_GAMEOBJECT:
                 {
                     GameObject* go = obj->ToGameObject();
                     go->GetMap()->RemoveFromMap(go, false);
@@ -466,7 +471,7 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
                     newMap->AddToMap(go);
                     break;
                 }
-                case TYPEID_PLAYER:
+                case TypeID::TYPEID_PLAYER:
                     if (!obj->ToPlayer()->TeleportTo(newMapid, destX, destY, destZ, destO, TELE_TO_NOT_LEAVE_TRANSPORT))
                         _passengers.erase(obj);
                     break;
@@ -476,6 +481,7 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
         }
 
         Relocate(x, y, z, GetOrientation());
+        UpdateModelPosition();
         GetMap()->AddToMap<Transport>(this);
         return true;
     }
@@ -484,7 +490,7 @@ bool Transport::TeleportTransport(uint32 newMapid, float x, float y, float z)
         // Teleport players, they need to know it
         for (std::set<WorldObject*>::iterator itr = _passengers.begin(); itr != _passengers.end(); ++itr)
         {
-            if ((*itr)->GetTypeId() == TYPEID_PLAYER)
+            if ((*itr)->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
                 float destX, destY, destZ, destO;
                 (*itr)->m_movementInfo.transport.pos.GetPosition(destX, destY, destZ, destO);
@@ -521,7 +527,7 @@ void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)
         CalculatePassengerPosition(x, y, z, &o);
         switch (passenger->GetTypeId())
         {
-            case TYPEID_UNIT:
+            case TypeID::TYPEID_UNIT:
             {
                 Creature* creature = passenger->ToCreature();
                 GetMap()->CreatureRelocation(creature, x, y, z, o, false);
@@ -530,10 +536,10 @@ void Transport::UpdatePassengerPositions(std::set<WorldObject*>& passengers)
                 creature->SetHomePosition(x, y, z, o);
                 break;
             }
-            case TYPEID_PLAYER:
+            case TypeID::TYPEID_PLAYER:
                 GetMap()->PlayerRelocation(passenger->ToPlayer(), x, y, z, o);
                 break;
-            case TYPEID_GAMEOBJECT:
+            case TypeID::TYPEID_GAMEOBJECT:
                 GetMap()->GameObjectRelocation(passenger->ToGameObject(), x, y, z, o, false);
                 break;
             default:
@@ -550,7 +556,7 @@ void Transport::DoEventIfAny(KeyFrame const& node, bool departure)
 {
     if (uint32 eventid = departure ? node.Node->departureEventID : node.Node->arrivalEventID)
     {
-        TC_LOG_DEBUG("maps.script", "Taxi %s event %u of node %u of %s path", departure ? "departure" : "arrival", eventid, node.Node->index, GetName().c_str());
+        SF_LOG_DEBUG("maps.script", "Taxi %s event %u of node %u of %s path", departure ? "departure" : "arrival", eventid, node.Node->index, GetName().c_str());
         GetMap()->ScriptsStart(sEventScripts, eventid, this, this);
         EventInform(eventid);
     }

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -114,7 +114,7 @@ public:
                 events.ScheduleEvent(EVENT_BALCONY, 110000);
                 events.ScheduleEvent(EVENT_CURSE, 10000+rand()%15000);
                 events.ScheduleEvent(EVENT_WARRIOR, 30000);
-                if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                if (GetDifficulty() == DIFFICULTY_25MAN_NORMAL)
                     events.ScheduleEvent(EVENT_BLINK, urand(20000, 40000));
             }
         }
@@ -144,7 +144,7 @@ public:
             {
                 uint32 pos = rand()%MAX_SUMMON_POS;
                 me->SummonCreature(entry, SummonPos[pos][0], SummonPos[pos][1], SummonPos[pos][2],
-                    SummonPos[pos][3], TEMPSUMMON_CORPSE_DESPAWN, 60000);
+                    SummonPos[pos][3], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 60000);
             }
         }
 

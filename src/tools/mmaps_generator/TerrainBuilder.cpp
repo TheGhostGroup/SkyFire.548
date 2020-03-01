@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -83,7 +83,7 @@ struct map_liquidHeader
 namespace MMAP
 {
 
-    char const* MAP_VERSION_MAGIC = "v1.3";  // Changed from 1.4 to 1.3
+    char const* MAP_VERSION_MAGIC = "v1.4";
 
     TerrainBuilder::TerrainBuilder(bool skipLiquid) : m_skipLiquid (skipLiquid){ }
     TerrainBuilder::~TerrainBuilder() { }
@@ -137,7 +137,7 @@ namespace MMAP
     bool TerrainBuilder::loadMap(uint32 mapID, uint32 tileX, uint32 tileY, MeshData &meshData, Spot portion)
     {
         char mapFileName[255];
-        sprintf(mapFileName, "maps/%03u%02u%02u.map", mapID, tileY, tileX);
+        snprintf(mapFileName, sizeof(mapFileName), "maps/%04u_%02u_%02u.map", mapID, tileY, tileX);
 
         FILE* mapFile = fopen(mapFileName, "rb");
         if (!mapFile)
@@ -171,7 +171,7 @@ namespace MMAP
         }
 
         // data used later
-        uint16 holes[16][16];
+        uint8 holes[16][16][8];
         memset(holes, 0, sizeof(holes));
         uint8 liquid_type[16][16];
         memset(liquid_type, 0, sizeof(liquid_type));
@@ -280,7 +280,6 @@ namespace MMAP
             fseek(mapFile, fheader.liquidMapOffset, SEEK_SET);
             if (fread(&lheader, sizeof(map_liquidHeader), 1, mapFile) != 1)
                 printf("TerrainBuilder::loadMap: Failed to read some data expected 1, read 0\n");
-
 
             float* liquid_map = NULL;
 
@@ -599,23 +598,16 @@ namespace MMAP
         coord[1] = (yOffset + (int)(index/(V9_SIZE))*GRID_PART_SIZE) * -1.f;
         coord[2] = v[index2];
     }
-
-    static uint16 holetab_h[4] = {0x1111, 0x2222, 0x4444, 0x8888};
-    static uint16 holetab_v[4] = {0x000F, 0x00F0, 0x0F00, 0xF000};
-
     /**************************************************************************/
-    bool TerrainBuilder::isHole(int square, const uint16 holes[16][16])
+    bool TerrainBuilder::isHole(int square, uint8 const holes[16][16][8])
     {
         int row = square / 128;
         int col = square % 128;
         int cellRow = row / 8;     // 8 squares per cell
         int cellCol = col / 8;
-        int holeRow = row % 8 / 2;
-        int holeCol = (square - (row * 128 + cellCol * 8)) / 2;
-
-        uint16 hole = holes[cellRow][cellCol];
-
-        return (hole & holetab_h[holeCol] & holetab_v[holeRow]) != 0;
+        int holeRow = row % 8;
+        int holeCol = (square - (row * 128 + cellCol * 8));
+        return holes[cellRow][cellCol][holeRow] & (1 << holeCol);
     }
 
     /**************************************************************************/
@@ -855,6 +847,7 @@ namespace MMAP
         {
             if (vertMap.find(t[i]) != vertMap.end())
                 continue;
+
             std::pair<int, int> val;
             val.first = t[i];
 

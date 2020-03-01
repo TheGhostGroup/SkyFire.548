@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CALENDARMGR_H
-#define TRINITY_CALENDARMGR_H
+#ifndef SKYFIRE_CALENDARMGR_H
+#define SKYFIRE_CALENDARMGR_H
 
 #include <ace/Singleton.h>
 #include "Common.h"
@@ -127,7 +127,6 @@ enum CalendarError
 #define CALENDAR_MAX_EVENTS         30
 #define CALENDAR_MAX_GUILD_EVENTS   100
 #define CALENDAR_MAX_INVITES        100
-#define DEFAULT_STATUS_TIME         946684800
 
 struct CalendarInvitePacketInfo
 {
@@ -145,7 +144,7 @@ struct CalendarInvite
             _eventId = eventId;
             _invitee = calendarInvite.GetInviteeGUID();
             _senderGUID = creatorGuid;
-            _statusTime = DEFAULT_STATUS_TIME;
+            _statusTime = 0;
             _status = creatorGuid == calendarInvite.GetInviteeGUID() ? CALENDAR_STATUS_CONFIRMED : CALENDAR_STATUS_INVITED;
             _rank = creatorGuid == calendarInvite.GetInviteeGUID() ? CALENDAR_RANK_OWNER : (calendarInvite.GetRank() == CALENDAR_RANK_OWNER ? CALENDAR_RANK_MODERATOR : calendarInvite.GetRank());
             _text = calendarInvite.GetText();
@@ -310,7 +309,7 @@ class CalendarMgr
         void RemoveEvent(uint64 eventId, uint64 remover);
         void UpdateEvent(CalendarEvent* calendarEvent);
 
-        void AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite, bool sendEventInvitePacket = true);
+        void AddInvite(CalendarEvent* calendarEvent, CalendarInvite* invite, bool sendEventInvitePacket = true, bool forceEventInviteAlertPacket = false);
         void RemoveInvite(uint64 inviteId, uint64 eventId, uint64 remover);
         void UpdateInvite(CalendarInvite* invite);
 
@@ -319,7 +318,7 @@ class CalendarMgr
 
         void SendCalendarEvent(uint64 playerGuid, CalendarEvent const& calendarEvent, CalendarSendEventType sendType);
         void SendCalendarEventInvite(CalendarInvite const& invite);
-        void SendCalendarEventInviteAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite);
+        void SendCalendarEventInviteAlert(CalendarEvent const& calendarEvent, CalendarInvite const& invite, bool broadcast);
         void SendCalendarEventInviteRemove(CalendarEvent const& calendarEvent, CalendarInvite const& invite, uint32 flags);
         void SendCalendarEventInviteRemoveAlert(uint64 guid, CalendarEvent const& calendarEvent, CalendarInviteStatus status);
         void SendCalendarEventUpdateAlert(CalendarEvent const& calendarEvent, time_t oldEventTime);

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -319,7 +319,7 @@ class boss_algalon_the_observer : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_UNIT)
+                if (victim->GetTypeId() == TypeID::TYPEID_UNIT)
                 {
                     _fedOnTears = true;
                     if (!_hasYelled)
@@ -519,7 +519,7 @@ class boss_algalon_the_observer : public CreatureScript
                     for (std::list<Creature*>::iterator itr = stalkers.begin(); itr != stalkers.end(); ++itr)
                         (*itr)->m_Events.KillAllEvents(true);
                     for (uint32 i = 0; i < COLLAPSING_STAR_COUNT; ++i)
-                        if (Creature* wormHole = DoSummon(NPC_WORM_HOLE, CollapsingStarPos[i], TEMPSUMMON_MANUAL_DESPAWN))
+                        if (Creature* wormHole = DoSummon(NPC_WORM_HOLE, CollapsingStarPos[i], 30000, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                             wormHole->m_Events.AddEvent(new SummonUnleashedDarkMatter(wormHole), wormHole->m_Events.CalculateTime(i >= 2 ? 8000 : 6000));
                 }
                 else if ((int32(me->GetHealth()) - int32(damage)) < CalculatePct<int32>(int32(me->GetMaxHealth()), 2.5f) && !_fightWon)
@@ -586,14 +586,14 @@ class boss_algalon_the_observer : public CreatureScript
                             if (!me->getThreatManager().isThreatListEmpty())
                                 AttackStart(me->getThreatManager().getHostilTarget());
                             for (uint32 i = 0; i < LIVING_CONSTELLATION_COUNT; ++i)
-                                if (Creature* summon = DoSummon(NPC_LIVING_CONSTELLATION, ConstellationPos[i], 0, TEMPSUMMON_DEAD_DESPAWN))
+                                if (Creature* summon = DoSummon(NPC_LIVING_CONSTELLATION, ConstellationPos[i], 0, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                     summon->SetReactState(REACT_PASSIVE);
 
                             std::list<Creature*> stalkers;
                             me->GetCreatureListWithEntryInGrid(stalkers, NPC_ALGALON_STALKER, 200.0f);
                             if (!stalkers.empty())
                             {
-                                Unit* stalker = Trinity::Containers::SelectRandomContainerElement(stalkers);
+                                Unit* stalker = Skyfire::Containers::SelectRandomContainerElement(stalkers);
                                 stalker->m_Events.AddEvent(new ActivateLivingConstellation(stalker), stalker->m_Events.CalculateTime(urand(45000, 50000)));
                             }
                             break;
@@ -610,7 +610,7 @@ class boss_algalon_the_observer : public CreatureScript
                             Talk(SAY_ALGALON_COLLAPSING_STAR);
                             Talk(EMOTE_ALGALON_COLLAPSING_STAR);
                             for (uint32 i = 0; i < COLLAPSING_STAR_COUNT; ++i)
-                                me->SummonCreature(NPC_COLLAPSING_STAR, CollapsingStarPos[i], TEMPSUMMON_CORPSE_DESPAWN);
+                                me->SummonCreature(NPC_COLLAPSING_STAR, CollapsingStarPos[i], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
                             events.ScheduleEvent(EVENT_SUMMON_COLLAPSING_STAR, 60000);
                             break;
                         case EVENT_BIG_BANG:
@@ -666,7 +666,7 @@ class boss_algalon_the_observer : public CreatureScript
                             me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                             break;
                         case EVENT_OUTRO_5:
-                            if (Creature* brann = DoSummon(NPC_BRANN_BRONZBEARD_ALG, BrannOutroPos[0], 131500, TEMPSUMMON_TIMED_DESPAWN))
+                            if (Creature* brann = DoSummon(NPC_BRANN_BRONZBEARD_ALG, BrannOutroPos[0], 131500, TempSummonType::TEMPSUMMON_TIMED_DESPAWN))
                                 brann->AI()->DoAction(ACTION_OUTRO);
                             break;
                         case EVENT_OUTRO_6:
@@ -760,7 +760,7 @@ class npc_living_constellation : public CreatureScript
 
             void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
             {
-                if (spell->Id != SPELL_CONSTELLATION_PHASE_EFFECT || caster->GetTypeId() != TYPEID_UNIT)
+                if (spell->Id != SPELL_CONSTELLATION_PHASE_EFFECT || caster->GetTypeId() != TypeID::TYPEID_UNIT)
                     return;
 
                 me->DespawnOrUnsummon(1);
@@ -1000,10 +1000,10 @@ class go_celestial_planetarium_access : public GameObjectScript
                 {
                     instance->SetData(DATA_ALGALON_SUMMON_STATE, 1);
                     if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetData64(DATA_SIGILDOOR_01)))
-                        sigil->SetGoState(GO_STATE_ACTIVE);
+                        sigil->SetGoState(GOState::GO_STATE_ACTIVE);
 
                     if (GameObject* sigil = ObjectAccessor::GetGameObject(*go, instance->GetData64(DATA_SIGILDOOR_02)))
-                        sigil->SetGoState(GO_STATE_ACTIVE);
+                        sigil->SetGoState(GOState::GO_STATE_ACTIVE);
                 }
 
                 return false;

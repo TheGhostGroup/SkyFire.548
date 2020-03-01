@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,12 +17,13 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_UNITAI_H
-#define TRINITY_UNITAI_H
+#ifndef SKYFIRE_UNITAI_H
+#define SKYFIRE_UNITAI_H
 
 #include "Define.h"
 #include "Unit.h"
 #include "Containers.h"
+#include "UnaryFunction.h"
 #include <list>
 
 class Player;
@@ -41,7 +42,7 @@ enum SelectAggroTarget
 };
 
 // default predicate function to select target based on distance, player and/or aura criteria
-struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
+struct DefaultTargetSelector : public SF_UNARY_FUNCTION<Unit*, bool>
 {
     const Unit* me;
     float m_dist;
@@ -62,7 +63,7 @@ struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
         if (!target)
             return false;
 
-        if (m_playerOnly && (target->GetTypeId() != TYPEID_PLAYER))
+        if (m_playerOnly && (target->GetTypeId() != TypeID::TYPEID_PLAYER))
             return false;
 
         if (m_dist > 0.0f && !me->IsWithinCombatRange(target, m_dist))
@@ -91,7 +92,7 @@ struct DefaultTargetSelector : public std::unary_function<Unit*, bool>
 
 // Target selector for spell casts checking range, auras and attributes
 /// @todo Add more checks from Spell::CheckCast
-struct SpellTargetSelector : public std::unary_function<Unit*, bool>
+struct SpellTargetSelector : public SF_UNARY_FUNCTION<Unit*, bool>
 {
     public:
         SpellTargetSelector(Unit* caster, uint32 spellId);
@@ -105,7 +106,7 @@ struct SpellTargetSelector : public std::unary_function<Unit*, bool>
 // Very simple target selector, will just skip main target
 // NOTE: When passing to UnitAI::SelectTarget remember to use 0 as position for random selection
 //       because tank will not be in the temporary list
-struct NonTankTargetSelector : public std::unary_function<Unit*, bool>
+struct NonTankTargetSelector : public SF_UNARY_FUNCTION<Unit*, bool>
 {
     public:
         NonTankTargetSelector(Creature* source, bool playerOnly = true) : _source(source), _playerOnly(playerOnly) { }
@@ -160,7 +161,7 @@ class UnitAI
                 return NULL;
 
             if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-                targetList.sort(Trinity::ObjectDistanceOrderPred(me));
+                targetList.sort(Skyfire::ObjectDistanceOrderPred(me));
 
             switch (targetType)
             {
@@ -209,13 +210,13 @@ class UnitAI
                 return;
 
             if (targetType == SELECT_TARGET_NEAREST || targetType == SELECT_TARGET_FARTHEST)
-                targetList.sort(Trinity::ObjectDistanceOrderPred(me));
+                targetList.sort(Skyfire::ObjectDistanceOrderPred(me));
 
             if (targetType == SELECT_TARGET_FARTHEST || targetType == SELECT_TARGET_BOTTOMAGGRO)
                 targetList.reverse();
 
             if (targetType == SELECT_TARGET_RANDOM)
-                Trinity::Containers::RandomResizeList(targetList, maxTargets);
+                Skyfire::Containers::RandomResizeList(targetList, maxTargets);
             else
                 targetList.resize(maxTargets);
         }
@@ -264,6 +265,9 @@ class UnitAI
         virtual void sQuestReward(Player* /*player*/, Quest const* /*quest*/, uint32 /*opt*/) { }
         virtual bool sOnDummyEffect(Unit* /*caster*/, uint32 /*spellId*/, SpellEffIndex /*effIndex*/) { return false; }
         virtual void sOnGameEvent(bool /*start*/, uint16 /*eventId*/) { }
+    private:
+        UnitAI(UnitAI const& right) = delete;
+        UnitAI & operator=(UnitAI const& right) = delete;
 };
 
 class PlayerAI : public UnitAI
@@ -273,13 +277,13 @@ class PlayerAI : public UnitAI
     public:
         explicit PlayerAI(Player* player) : UnitAI((Unit*)player), me(player) { }
 
-        void OnCharmed(bool apply);
+        void OnCharmed(bool apply) OVERRIDE;
 };
 
 class SimpleCharmedAI : public PlayerAI
 {
     public:
-        void UpdateAI(uint32 diff);
+        void UpdateAI(uint32 diff) OVERRIDE;
         SimpleCharmedAI(Player* player): PlayerAI(player) { }
 };
 

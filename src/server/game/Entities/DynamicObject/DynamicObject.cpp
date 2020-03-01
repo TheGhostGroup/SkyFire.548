@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,7 +32,7 @@ DynamicObject::DynamicObject(bool isWorldObject) : WorldObject(isWorldObject),
     _aura(NULL), _removedAura(NULL), _caster(NULL), _duration(0), _isViewpoint(false)
 {
     m_objectType |= TYPEMASK_DYNAMICOBJECT;
-    m_objectTypeId = TYPEID_DYNAMICOBJECT;
+    m_objectTypeId = TypeID::TYPEID_DYNAMICOBJECT;
 
     m_updateFlag = UPDATEFLAG_STATIONARY_POSITION;
 
@@ -86,7 +86,7 @@ bool DynamicObject::CreateDynamicObject(uint32 guidlow, Unit* caster, SpellInfo 
     Relocate(pos);
     if (!IsPositionValid())
     {
-        TC_LOG_ERROR("misc", "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
+        SF_LOG_ERROR("misc", "DynamicObject (spell %u) not created. Suggested coordinates isn't valid (X: %f Y: %f)", spell->Id, GetPositionX(), GetPositionY());
         return false;
     }
 

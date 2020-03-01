@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -120,7 +120,7 @@ void BattlegroundRV::HandleKillPlayer(Player* player, Player* killer)
 
     if (!killer)
     {
-        TC_LOG_ERROR("bg.battleground", "BattlegroundRV: Killer player not found");
+        SF_LOG_ERROR("bg.battleground", "BattlegroundRV: Killer player not found");
         return;
     }
 
@@ -197,7 +197,7 @@ bool BattlegroundRV::SetupBattleground()
 
 )
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundRV: Failed to spawn some object!");
+        SF_LOG_ERROR("sql.sql", "BatteGroundRV: Failed to spawn some object!");
         return false;
     }
     return true;
@@ -221,10 +221,10 @@ void BattlegroundRV::TogglePillarCollision()
         {
             if (i >= BG_RV_OBJECT_PILAR_COLLISION_1)
             {
-                uint32 _state = GO_STATE_READY;
+                GOState _state = GOState::GO_STATE_READY;
                 if (gob->GetGOInfo()->door.startOpen)
-                    _state = GO_STATE_ACTIVE;
-                gob->SetGoState(apply ? (GOState)_state : (GOState)(!_state));
+                    _state = GOState::GO_STATE_ACTIVE;
+                gob->SetGoState(apply ? _state : GOState::GO_STATE_ACTIVE);
 
                 if (gob->GetGOInfo()->door.startOpen)
                     gob->EnableCollision(!apply); // Forced collision toggle

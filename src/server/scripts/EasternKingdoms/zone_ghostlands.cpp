@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -119,7 +119,7 @@ public:
                 case 0:
                     me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
                     if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
-                        Cage->SetGoState(GO_STATE_ACTIVE);
+                        Cage->SetGoState(GOState::GO_STATE_ACTIVE);
                     Talk(SAY_START, player);
                     break;
                 case 5:
@@ -132,8 +132,8 @@ public:
                 case 18:
                     {
                         Talk(SAY_PROGRESS3, player);
-                        Creature* Summ1 = me->SummonCreature(16342, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TEMPSUMMON_DEAD_DESPAWN, 0);
-                        Creature* Summ2 = me->SummonCreature(16343, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                        Creature* Summ1 = me->SummonCreature(16342, 7627.083984f, -7532.538086f, 152.128616f, 1.082733f, TempSummonType::TEMPSUMMON_DEAD_DESPAWN, 0);
+                        Creature* Summ2 = me->SummonCreature(16343, 7620.432129f, -7532.550293f, 152.454865f, 0.827478f, TempSummonType::TEMPSUMMON_DEAD_DESPAWN, 0);
                         if (Summ1 && Summ2)
                         {
                             Summ1->Attack(me, true);
@@ -168,7 +168,7 @@ public:
         void Reset() OVERRIDE
         {
             if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
-                Cage->SetGoState(GO_STATE_READY);
+                Cage->SetGoState(GOState::GO_STATE_READY);
         }
     };
 

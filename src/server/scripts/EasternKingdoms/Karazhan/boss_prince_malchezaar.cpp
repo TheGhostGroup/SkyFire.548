@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -282,7 +282,7 @@ public:
                     if (pInfernal->IsAlive())
                     {
                         pInfernal->SetVisible(false);
-                        pInfernal->setDeathState(JUST_DIED);
+                        pInfernal->setDeathState(DeathState::JUST_DIED);
                     }
 
             infernals.clear();
@@ -305,9 +305,9 @@ public:
 
             //damage
             const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-            me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
-            me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
-            me->UpdateDamagePhysical(BASE_ATTACK);
+            me->SetBaseWeaponDamage(WeaponAttackType::BASE_ATTACK, MINDAMAGE, cinfo->mindmg);
+            me->SetBaseWeaponDamage(WeaponAttackType::BASE_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+            me->UpdateDamagePhysical(WeaponAttackType::BASE_ATTACK);
         }
 
         void EnfeebleHealthEffect()
@@ -327,7 +327,7 @@ public:
             std::advance(itr, 1);
             for (; itr != t_list.end(); ++itr) //store the threat list in a different container
                 if (Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
-                    if (target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->IsAlive() && target->GetTypeId() == TypeID::TYPEID_PLAYER)
                         targets.push_back(target);
 
             //cut down to size if we have more than 5 targets
@@ -366,11 +366,11 @@ public:
                 me->GetRandomNearPosition(pos, 60);
             else
             {
-                point = Trinity::Containers::SelectRandomContainerElement(positions);
+                point = Skyfire::Containers::SelectRandomContainerElement(positions);
                 pos.Relocate(point->x, point->y, INFERNAL_Z, frand(0.0f, float(M_PI * 2)));
             }
 
-            Creature* infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TEMPSUMMON_TIMED_DESPAWN, 180000);
+            Creature* infernal = me->SummonCreature(NETHERSPITE_INFERNAL, pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 180000);
 
             if (infernal)
             {
@@ -426,17 +426,17 @@ public:
 
                     //damage
                     const CreatureTemplate* cinfo = me->GetCreatureTemplate();
-                    me->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, 2*cinfo->mindmg);
-                    me->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, 2*cinfo->maxdmg);
-                    me->UpdateDamagePhysical(BASE_ATTACK);
+                    me->SetBaseWeaponDamage(WeaponAttackType::BASE_ATTACK, MINDAMAGE, 2*cinfo->mindmg);
+                    me->SetBaseWeaponDamage(WeaponAttackType::BASE_ATTACK, MAXDAMAGE, 2*cinfo->maxdmg);
+                    me->UpdateDamagePhysical(WeaponAttackType::BASE_ATTACK);
 
-                    me->SetBaseWeaponDamage(OFF_ATTACK, MINDAMAGE, cinfo->mindmg);
-                    me->SetBaseWeaponDamage(OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg);
+                    me->SetBaseWeaponDamage(WeaponAttackType::OFF_ATTACK, MINDAMAGE, cinfo->mindmg);
+                    me->SetBaseWeaponDamage(WeaponAttackType::OFF_ATTACK, MAXDAMAGE, cinfo->maxdmg);
                     //Sigh, updating only works on main attack, do it manually ....
                     me->SetFloatValue(UNIT_FIELD_MIN_OFF_HAND_DAMAGE, cinfo->mindmg);
                     me->SetFloatValue(UNIT_FIELD_MAX_OFF_HAND_DAMAGE, cinfo->maxdmg);
 
-                    me->SetAttackTime(OFF_ATTACK, (me->GetAttackTime(BASE_ATTACK)*150)/100);
+                    me->SetAttackTime(WeaponAttackType::OFF_ATTACK, (me->GetAttackTime(WeaponAttackType::BASE_ATTACK)*150)/100);
                 }
             }
             else if (phase == 2)
@@ -457,7 +457,7 @@ public:
                     Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100, true);
                     for (uint8 i = 0; i < 2; ++i)
                     {
-                        Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                        Creature* axe = me->SummonCreature(MALCHEZARS_AXE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
                         if (axe)
                         {
                             axe->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -580,10 +580,10 @@ public:
                     me->resetAttackTimer();
                 }
                 //Check for offhand attack
-                if (me->isAttackReady(OFF_ATTACK) && me->GetVictim())
+                if (me->isAttackReady(WeaponAttackType::OFF_ATTACK) && me->GetVictim())
                 {
-                    me->AttackerStateUpdate(me->GetVictim(), OFF_ATTACK);
-                    me->resetAttackTimer(OFF_ATTACK);
+                    me->AttackerStateUpdate(me->GetVictim(), WeaponAttackType::OFF_ATTACK);
+                    me->resetAttackTimer(WeaponAttackType::OFF_ATTACK);
                 }
             }
         }

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TRINITYCORE_TEMPSUMMON_H
-#define TRINITYCORE_TEMPSUMMON_H
+#ifndef SKYFIRESERVER_TEMPSUMMON_H
+#define SKYFIRESERVER_TEMPSUMMON_H
 
 #include "Creature.h"
 
@@ -48,7 +48,7 @@ class TempSummon : public Creature
         virtual void UnSummon(uint32 msTime = 0);
         void RemoveFromWorld();
         void SetTempSummonType(TempSummonType type);
-        void SaveToDB(uint32 /*mapid*/, uint8 /*spawnMask*/, uint32 /*phaseMask*/) { }
+        void SaveToDB(uint32 /*mapid*/, uint32 /*spawnMask*/) { }
         Unit* GetSummoner() const;
         Creature* GetSummonerCreatureBase() const;
         uint64 GetSummonerGUID() const { return m_summonerGUID; }
@@ -74,6 +74,7 @@ class Minion : public TempSummon
         void SetFollowAngle(float angle) { m_followAngle = angle; }
         bool IsPetGhoul() const {return GetEntry() == 26125;} // Ghoul may be guardian or pet
         bool IsSpiritWolf() const {return GetEntry() == 29264;} // Spirit wolf from feral spirits
+        bool IsWhiteTiger() const {return GetEntry() == 63508;} // Invoke Xuen
         bool IsGuardianPet() const;
     protected:
         Unit* const m_owner;

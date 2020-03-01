@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +24,7 @@
 #include "DBCFileLoader.h"
 #include "Errors.h"
 
-DBCFileLoader::DBCFileLoader() : fieldsOffset(NULL), data(NULL), stringTable(NULL) { }
+DBCFileLoader::DBCFileLoader() : recordSize(0), recordCount(0), fieldCount(0), stringSize(0), fieldsOffset(NULL), data(NULL), stringTable(NULL) { }
 
 bool DBCFileLoader::Load(const char* filename, const char* fmt)
 {

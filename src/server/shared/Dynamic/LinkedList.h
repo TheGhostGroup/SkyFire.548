@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,7 +35,7 @@ class LinkedListElement
         LinkedListElement* iPrev;
     public:
         LinkedListElement(): iNext(NULL), iPrev(NULL) { }
-        ~LinkedListElement() { delink(); }
+        virtual ~LinkedListElement() { delink(); }
 
         bool hasNext() const { return(iNext && iNext->iNext != NULL); }
         bool hasPrev() const { return(iPrev && iPrev->iPrev != NULL); }
@@ -74,6 +74,9 @@ class LinkedListElement
             iNext->iPrev = pElem;
             iNext = pElem;
         }
+    private:
+        LinkedListElement(LinkedListElement const&);
+        LinkedListElement& operator=(LinkedListElement const&);
 };
 
 //============================================
@@ -93,6 +96,7 @@ class LinkedListHead
             iLast.iPrev = &iFirst;
         }
 
+        virtual ~LinkedListHead() { }
         bool isEmpty() const { return(!iFirst.iNext->isInList()); }
 
         LinkedListElement      * getFirst()       { return(isEmpty() ? NULL : iFirst.iNext); }
@@ -240,6 +244,10 @@ class LinkedListHead
         };
 
         typedef Iterator<LinkedListElement> iterator;
+
+    private:
+        LinkedListHead(LinkedListHead const&);
+        LinkedListHead& operator=(LinkedListHead const&);
 };
 
 //============================================

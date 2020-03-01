@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -342,7 +342,7 @@ class boss_deathbringer_saurfang : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
@@ -620,7 +620,7 @@ class npc_high_overlord_saurfang_icc : public CreatureScript
                             return;
 
                         GetCreatureListWithEntryInGrid(_guardList, me, NPC_SE_KOR_KRON_REAVER, 20.0f);
-                        _guardList.sort(Trinity::ObjectDistanceOrderPred(me));
+                        _guardList.sort(Skyfire::ObjectDistanceOrderPred(me));
                         uint32 x = 1;
                         for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++x, ++itr)
                             (*itr)->AI()->SetData(0, x);
@@ -830,7 +830,7 @@ class npc_muradin_bronzebeard_icc : public CreatureScript
 
                         _events.SetPhase(PHASE_INTRO_A);
                         GetCreatureListWithEntryInGrid(_guardList, me, NPC_SE_SKYBREAKER_MARINE, 20.0f);
-                        _guardList.sort(Trinity::ObjectDistanceOrderPred(me));
+                        _guardList.sort(Skyfire::ObjectDistanceOrderPred(me));
                         uint32 x = 1;
                         for (std::list<Creature*>::iterator itr = _guardList.begin(); itr != _guardList.end(); ++x, ++itr)
                             (*itr)->AI()->SetData(0, x);
@@ -1209,7 +1209,7 @@ class spell_deathbringer_blood_nova_targeting : public SpellScriptLoader
                 // select one random target, with preference of ranged targets
                 uint32 targetsAtRange = 0;
                 uint32 const minTargets = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 10 : 4);
-                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster(), false));
+                targets.sort(Skyfire::ObjectDistanceOrderPred(GetCaster(), false));
 
                 // get target count at range
                 for (std::list<WorldObject*>::iterator itr = targets.begin(); itr != targets.end(); ++itr, ++targetsAtRange)
@@ -1275,7 +1275,7 @@ class spell_deathbringer_boiling_blood : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -1284,7 +1284,7 @@ class spell_deathbringer_boiling_blood : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -194,7 +194,7 @@ uint32 Quest::XPValue(Player* player) const
 
 int32 Quest::GetRewMoney() const
 {
-    return int32(RewardMoney * sWorld->getRate(RATE_DROP_MONEY));
+    return int32(RewardMoney * sWorld->getRate(Rates::RATE_DROP_MONEY));
 }
 
 uint32 Quest::GetRewMoneyMaxLevel() const
@@ -207,24 +207,24 @@ uint32 Quest::GetRewMoneyMaxLevel() const
 
 bool Quest::IsAutoAccept() const
 {
-    return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? false : (Flags & QUEST_FLAGS_AUTO_ACCEPT);
+    return sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_QUEST_IGNORE_AUTO_ACCEPT) ? false : (Flags & QUEST_FLAGS_AUTO_ACCEPT);
 }
 
 bool Quest::IsAutoComplete() const
 {
-    return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_AUTO_COMPLETE) ? false : (Method == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
+    return sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_QUEST_IGNORE_AUTO_COMPLETE) ? false : (Method == 0 || HasFlag(QUEST_FLAGS_AUTOCOMPLETE));
 }
 
-bool Quest::IsRaidQuest(Difficulty difficulty) const
+bool Quest::IsRaidQuest(DifficultyID difficulty) const
 {
     switch (Type)
     {
         case QUEST_TYPE_RAID:
             return true;
         case QUEST_TYPE_RAID_10:
-            return !(difficulty & RAID_DIFFICULTY_MASK_25MAN);
+            return difficulty & (DIFFICULTY_10MAN_NORMAL || DIFFICULTY_10MAN_HEROIC);
         case QUEST_TYPE_RAID_25:
-            return difficulty & RAID_DIFFICULTY_MASK_25MAN;
+            return difficulty & (DIFFICULTY_25MAN_NORMAL || DIFFICULTY_25MAN_HEROIC);
         default:
             break;
     }
@@ -232,12 +232,12 @@ bool Quest::IsRaidQuest(Difficulty difficulty) const
     return false;
 }
 
-bool Quest::IsAllowedInRaid(Difficulty difficulty) const
+bool Quest::IsAllowedInRaid(DifficultyID difficulty) const
 {
     if (IsRaidQuest(difficulty))
         return true;
 
-    return sWorld->getBoolConfig(CONFIG_QUEST_IGNORE_RAID);
+    return sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_QUEST_IGNORE_RAID);
 }
 
 uint32 Quest::CalculateHonorGain(uint8 level) const
@@ -282,7 +282,7 @@ uint32 Quest::GetRewChoiceItemCount(uint32 itemId) const
 
 QuestObjective const* Quest::GetQuestObjective(uint32 objectiveId) const
 {
-    for (QuestObjectiveSet::const_iterator citr = m_questObjectives.begin(); citr != m_questObjectives.end(); citr++)
+    for (QuestObjectiveSet::const_iterator citr = m_questObjectives.begin(); citr != m_questObjectives.end(); ++citr)
         if ((*citr)->Id == objectiveId)
             return *citr;
 
@@ -291,7 +291,7 @@ QuestObjective const* Quest::GetQuestObjective(uint32 objectiveId) const
 
 QuestObjective const* Quest::GetQuestObjectiveXIndex(uint8 index) const
 {
-    for (QuestObjectiveSet::const_iterator citr = m_questObjectives.begin(); citr != m_questObjectives.end(); citr++)
+    for (QuestObjectiveSet::const_iterator citr = m_questObjectives.begin(); citr != m_questObjectives.end(); ++citr)
         if ((*citr)->Index == index)
             return *citr;
 
@@ -300,7 +300,7 @@ QuestObjective const* Quest::GetQuestObjectiveXIndex(uint8 index) const
 
 QuestObjective const* Quest::GetQuestObjectiveXObjectId(uint32 objectId) const
 {
-    for (QuestObjectiveSet::const_iterator citr = m_questObjectives.begin(); citr != m_questObjectives.end(); citr++)
+    for (QuestObjectiveSet::const_iterator citr = m_questObjectives.begin(); citr != m_questObjectives.end(); ++citr)
         if ((*citr)->ObjectId == objectId)
             return *citr;
 

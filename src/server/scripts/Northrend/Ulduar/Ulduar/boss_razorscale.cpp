@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -240,7 +240,7 @@ class boss_razorscale_controller : public CreatureScript
                 {
                     case ACTION_HARPOON_BUILD:
                         events.ScheduleEvent(EVENT_BUILD_HARPOON_1, 50000);
-                        if (me->GetMap()->GetSpawnMode() == RAID_DIFFICULTY_25MAN_NORMAL)
+                        if (me->GetMap()->GetSpawnMode() == DIFFICULTY_25MAN_NORMAL)
                             events.ScheduleEvent(EVENT_BUILD_HARPOON_3, 90000);
                         break;
                     case ACTION_PLACE_BROKEN_HARPOON:
@@ -565,7 +565,7 @@ class boss_razorscale : public CreatureScript
                     float x = float(irand(540, 640));       // Safe range is between 500 and 650
                     float y = float(irand(-230, -195));     // Safe range is between -235 and -145
                     float z = GROUND_Z;                     // Ground level
-                    me->SummonCreature(MOLE_MACHINE_TRIGGER, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                    me->SummonCreature(MOLE_MACHINE_TRIGGER, x, y, z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15000);
                 }
             }
 
@@ -621,7 +621,7 @@ class npc_expedition_commander : public CreatureScript
             void MoveInLineOfSight(Unit* who) OVERRIDE
 
             {
-                if (!Greet && me->IsWithinDistInMap(who, 10.0f) && who->GetTypeId() == TYPEID_PLAYER)
+                if (!Greet && me->IsWithinDistInMap(who, 10.0f) && who->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
                     Talk(SAY_INTRO);
                     Greet = true;
@@ -662,7 +662,7 @@ class npc_expedition_commander : public CreatureScript
                         case 2:
                             for (uint8 n = 0; n < RAID_MODE(2, 4); n++)
                             {
-                                Engineer[n] = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                Engineer[n] = me->SummonCreature(NPC_ENGINEER, PosEngSpawn, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                                 Engineer[n]->SetWalk(false);
                                 Engineer[n]->SetSpeed(MOVE_RUN, 0.5f);
                                 Engineer[n]->SetHomePosition(PosEngRepair[n]);
@@ -675,7 +675,7 @@ class npc_expedition_commander : public CreatureScript
                         case 3:
                             for (uint8 n = 0; n < 4; n++)
                             {
-                                Defender[n] = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                                Defender[n] = me->SummonCreature(NPC_DEFENDER, PosDefSpawn[n], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
                                 Defender[n]->SetWalk(false);
                                 Defender[n]->SetHomePosition(PosDefCombat[n]);
                                 Defender[n]->GetMotionMaster()->MoveTargetedHome();
@@ -1028,7 +1028,7 @@ class spell_razorscale_devouring_flame : public SpellScriptLoader
                 if (!caster || !summonLocation)
                     return;
 
-                caster->SummonCreature(entry, summonLocation->GetPositionX(), summonLocation->GetPositionY(), GROUND_Z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 20000);
+                caster->SummonCreature(entry, summonLocation->GetPositionX(), summonLocation->GetPositionY(), GROUND_Z, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 20000);
             }
 
             void Register() OVERRIDE

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_PET_DEFINES_H
-#define TRINITYCORE_PET_DEFINES_H
+#ifndef SKYFIRESERVER_PET_DEFINES_H
+#define SKYFIRESERVER_PET_DEFINES_H
 
 enum PetType
 {
@@ -37,13 +37,6 @@ enum PetSaveMode
     PET_SAVE_FIRST_STABLE_SLOT =  1,
     PET_SAVE_LAST_STABLE_SLOT  =  MAX_PET_STABLES,          // last in DB stable slot index (including), all higher have same meaning as PET_SAVE_NOT_IN_SLOT
     PET_SAVE_NOT_IN_SLOT       =  100                       // for avoid conflict with stable size grow will use 100
-};
-
-enum HappinessState
-{
-    UNHAPPY = 1,
-    CONTENT = 2,
-    HAPPY   = 3
 };
 
 enum PetSpellState

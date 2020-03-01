@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -135,7 +135,7 @@ class boss_baltharus_the_warborn : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
@@ -148,7 +148,7 @@ class boss_baltharus_the_warborn : public CreatureScript
 
             void DamageTaken(Unit* /*attacker*/, uint32& damage) OVERRIDE
             {
-                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                if (GetDifficulty() == DIFFICULTY_10MAN_NORMAL)
                 {
                     if (me->HealthBelowPctDamaged(50, damage) && _cloneCount == 1)
                         DoAction(ACTION_CLONE);

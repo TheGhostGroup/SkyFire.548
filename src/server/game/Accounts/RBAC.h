@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -137,13 +137,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_ACCOUNT_SET_PASSWORD                   = 229,
     RBAC_PERM_COMMAND_ACHIEVEMENT                            = 230,
     RBAC_PERM_COMMAND_ACHIEVEMENT_ADD                        = 231,
-    RBAC_PERM_COMMAND_ARENA                                  = 232,
-    RBAC_PERM_COMMAND_ARENA_CAPTAIN                          = 233,
-    RBAC_PERM_COMMAND_ARENA_CREATE                           = 234,
-    RBAC_PERM_COMMAND_ARENA_DISBAND                          = 235,
-    RBAC_PERM_COMMAND_ARENA_INFO                             = 236,
-    RBAC_PERM_COMMAND_ARENA_LOOKUP                           = 237,
-    RBAC_PERM_COMMAND_ARENA_RENAME                           = 238,
+    //Free 232-238
     RBAC_PERM_COMMAND_BAN                                    = 239,
     RBAC_PERM_COMMAND_BAN_ACCOUNT                            = 240,
     RBAC_PERM_COMMAND_BAN_CHARACTER                          = 241,
@@ -230,7 +224,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_DEBUG_SEND_CHATMESSAGE                 = 322,
     RBAC_PERM_COMMAND_DEBUG_SEND_EQUIPERROR                  = 323,
     RBAC_PERM_COMMAND_DEBUG_SEND_LARGEPACKET                 = 324,
-    RBAC_PERM_COMMAND_DEBUG_SEND_OPCODE                      = 325,
+    //325 = 325,
     RBAC_PERM_COMMAND_DEBUG_SEND_QINVALIDMSG                 = 326,
     RBAC_PERM_COMMAND_DEBUG_SEND_QPARTYMSG                   = 327,
     RBAC_PERM_COMMAND_DEBUG_SEND_SELLERROR                   = 328,
@@ -609,7 +603,7 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_RELOAD_SPELL_TARGET_POSITION           = 701,
     RBAC_PERM_COMMAND_RELOAD_SPELL_THREATS                   = 702,
     RBAC_PERM_COMMAND_RELOAD_SPILLOVER_TEMPLATE              = 703,
-    RBAC_PERM_COMMAND_RELOAD_TRINITY_STRING                  = 704,
+    RBAC_PERM_COMMAND_RELOAD_SKYFIRE_STRING                  = 704,
     RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY                = 705,
     RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY      = 706,
     RBAC_PERM_COMMAND_RELOAD_WARDEN_ACTION                   = 707,
@@ -681,13 +675,43 @@ enum RBACPermissions
     RBAC_PERM_COMMAND_WP_RELOAD                              = 773,
     RBAC_PERM_COMMAND_WP_SHOW                                = 774,
     RBAC_PERM_COMMAND_MODIFY_CURRENCY                        = 775, // only 4.3.4
-    RBAC_PERM_COMMAND_DEBUG_PHASE                            = 776, // Only 4.3.4
+    RBAC_PERM_COMMAND_SERVER_UPTIME                          = 776,
+    RBAC_PERM_COMMAND_SUPPORT_BUG                            = 777,
+    RBAC_PERM_COMMAND_SUPPORT_BUG_ASSIGN                     = 778,
+    RBAC_PERM_COMMAND_SUPPORT_BUG_CLOSE                      = 779,
+    RBAC_PERM_COMMAND_SUPPORT_BUG_CLOSEDLIST                 = 780,
+    RBAC_PERM_COMMAND_SUPPORT_BUG_COMMENT                    = 781,
+    RBAC_PERM_COMMAND_SUPPORT_BUG_DELETE                     = 782,
+    RBAC_PERM_COMMAND_SUPPORT_BUG_LIST                       = 783,
+    RBAC_PERM_COMMAND_SUPPORT_BUG_UNASSIGN                   = 784,
+    RBAC_PERM_COMMAND_SUPPORT_BUG_VIEW                       = 785,
+    RBAC_PERM_COMMAND_SUPPORT_BUG_RESET                      = 786,
+    RBAC_PERM_COMMAND_SUPPORT_SUGGEST                        = 787,
+    RBAC_PERM_COMMAND_SUPPORT_SUGGEST_ASSIGN                 = 788,
+    RBAC_PERM_COMMAND_SUPPORT_SUGGEST_CLOSE                  = 789,
+    RBAC_PERM_COMMAND_SUPPORT_SUGGEST_CLOSEDLIST             = 790,
+    RBAC_PERM_COMMAND_SUPPORT_SUGGEST_COMMENT                = 791,
+    RBAC_PERM_COMMAND_SUPPORT_SUGGEST_DELETE                 = 792,
+    RBAC_PERM_COMMAND_SUPPORT_SUGGEST_LIST                   = 793,
+    RBAC_PERM_COMMAND_SUPPORT_SUGGEST_UNASSIGN               = 794,
+    RBAC_PERM_COMMAND_SUPPORT_SUGGEST_VIEW                   = 795,
+    RBAC_PERM_COMMAND_SUPPORT_SUGGEST_RESET                  = 796,
+
+    RBAC_PERM_COMMAND_RELOAD_QUEST_OBJECTIVES                = 800,
+    RBAC_PERM_COMMAND_RELOAD_QUEST_OBJECTIVE_EFFECTS         = 801,
+    RBAC_PERM_COMMAND_RELOAD_LOCALES_QUEST_OBJECTIVE         = 802,
+    RBAC_PERM_COMMAND_RELOAD_BLACKMARKET_AUCTIONS            = 803,
+    RBAC_PERM_COMMAND_RELOAD_BLACKMARKET_TEMPLATE            = 804,
+
+    RBAC_PERM_COMMAND_ACCOUNT_BOOST                          = 805,
+    RBAC_PERM_COMMAND_ACCOUNT_BOOST_ADD                      = 806,
+    RBAC_PERM_COMMAND_ACCOUNT_BOOST_DEL                      = 807,
 
     // custom permissions 1000+
     RBAC_PERM_MAX
 };
 
-enum RBACCommandResult
+enum class RBACCommandResult
 {
     RBAC_OK,
     RBAC_CANT_ADD_ALREADY_ADDED,
@@ -703,7 +727,7 @@ class RBACPermission
 {
     public:
         RBACPermission(uint32 id = 0, std::string const& name = ""):
-            _id(id), _name(name) { }
+            _id(id), _name(name), _perms() { }
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
@@ -738,7 +762,7 @@ class RBACData
 {
     public:
         RBACData(uint32 id, std::string const& name, int32 realmId, uint8 secLevel = 255):
-            _id(id), _name(name), _realmId(realmId), _secLevel(secLevel) { }
+            _id(id), _name(name), _realmId(realmId), _secLevel(secLevel), _grantedPerms(), _deniedPerms(), _globalPerms() { }
 
         /// Gets the Name of the Object
         std::string const& GetName() const { return _name; }
@@ -789,7 +813,7 @@ class RBACData
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 permissionId = 2;
          * if (rbac->GrantRole(permissionId) == RBAC_IN_DENIED_LIST)
-         *     TC_LOG_DEBUG("entities.player", "Failed to grant permission %u, already denied", permissionId);
+         *     SF_LOG_DEBUG("entities.player", "Failed to grant permission %u, already denied", permissionId);
          * @endcode
          */
         RBACCommandResult GrantPermission(uint32 permissionId, int32 realmId = 0);
@@ -812,7 +836,7 @@ class RBACData
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 permissionId = 2;
          * if (rbac->DenyRole(permissionId) == RBAC_ID_DOES_NOT_EXISTS)
-         *     TC_LOG_DEBUG("entities.player", "Role Id %u does not exists", permissionId);
+         *     SF_LOG_DEBUG("entities.player", "Role Id %u does not exists", permissionId);
          * @endcode
          */
         RBACCommandResult DenyPermission(uint32 permissionId, int32 realmId = 0);
@@ -836,7 +860,7 @@ class RBACData
          * // previously defined "RBACData* rbac" with proper initialization
          * uint32 permissionId = 2;
          * if (rbac->RevokeRole(permissionId) == RBAC_OK)
-         *     TC_LOG_DEBUG("entities.player", "Permission %u succesfully removed", permissionId);
+         *     SF_LOG_DEBUG("entities.player", "Permission %u succesfully removed", permissionId);
          * @endcode
          */
         RBACCommandResult RevokePermission(uint32 permissionId, int32 realmId = 0);

@@ -4,8 +4,6 @@
 /**
  *  @file    Message_Block.h
  *
- *  $Id: Message_Block.h 95798 2012-05-31 07:58:55Z johnnyw $
- *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
 //==========================================================================
@@ -15,7 +13,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-lite.h"
+#include /**/ "ace/config-lite.h"
 #include /**/ "ace/ACE_export.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
@@ -717,7 +715,7 @@ public:
    */
   char *mark (void) const;
 
-  // = Message size is the total amount of space allotred.
+  // = Message size is the total amount of space allocated.
 
   /// Get the total amount of allotted space in the message.  The amount of
   /// allotted space may be less than allocated space.

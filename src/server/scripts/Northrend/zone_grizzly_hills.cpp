@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -90,7 +90,7 @@ public:
                     if (Unit::GetCreature(*me, _mrfloppyGUID))
                     {
                         Talk(SAY_WORGHAGGRO1);
-                        me->SummonCreature(NPC_HUNGRY_WORG, me->GetPositionX()+5, me->GetPositionY()+2, me->GetPositionZ()+1, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
+                        me->SummonCreature(NPC_HUNGRY_WORG, me->GetPositionX()+5, me->GetPositionY()+2, me->GetPositionZ()+1, 3.229f, TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000);
                     }
                     break;
                 case 11:
@@ -101,7 +101,7 @@ public:
                     if (Creature* Mrfloppy = Unit::GetCreature(*me, _mrfloppyGUID))
                         Mrfloppy->GetMotionMaster()->MovePoint(0, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     Talk(SAY_WORGRAGGRO3);
-                    if (Creature* RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
+                    if (Creature* RWORG = me->SummonCreature(NPC_RAVENOUS_WORG, me->GetPositionX()+10, me->GetPositionY()+8, me->GetPositionZ()+2, 3.229f, TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000))
                     {
                         RWORG->setFaction(35);
                         _RavenousworgGUID = RWORG->GetGUID();
@@ -150,7 +150,7 @@ public:
                             if (Creature* RWORG = Unit::GetCreature(*me, _RavenousworgGUID))
                                 RWORG->DisappearAndDie();
                             me->GetMotionMaster()->MovePoint(0, Mrfloppy->GetPositionX(), Mrfloppy->GetPositionY(), Mrfloppy->GetPositionZ());
-                            Mrfloppy->setDeathState(ALIVE);
+                            Mrfloppy->setDeathState(DeathState::ALIVE);
                             Mrfloppy->GetMotionMaster()->MoveFollow(me, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
                             Talk(SAY_VICTORY3);
                         }
@@ -477,7 +477,7 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
-            if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TYPEID_PLAYER
+            if (spell->Id == SPELL_RENEW_SKIRMISHER && caster->GetTypeId() == TypeID::TYPEID_PLAYER
                 && caster->ToPlayer()->GetQuestStatus(QUEST_OVERWHELMED) == QUEST_STATUS_INCOMPLETE)
             {
                 DoCast(caster, SPELL_KILL_CREDIT);
@@ -594,7 +594,7 @@ public:
 
         void SpellHit(Unit* caster, SpellInfo const* spell) OVERRIDE
         {
-            if (spell->Id == SPELL_SMOKE_BOMB && caster->GetTypeId() == TYPEID_PLAYER)
+            if (spell->Id == SPELL_SMOKE_BOMB && caster->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_PC);
                 me->SetReactState(REACT_PASSIVE);

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2019 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2019 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2019 MaNGOS <https://getmangos.com/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -45,12 +45,11 @@ class example_commandscript : public CommandScript
             return true;
         }
 
-        ChatCommand* GetCommands() const OVERRIDE
+        std::vector<ChatCommand> GetCommands() const OVERRIDE
         {
-            static ChatCommand HelloWorldCommandTable[] =
+            static std::vector<ChatCommand> HelloWorldCommandTable =
             {
-                { "hello",          SEC_PLAYER,         true,   &HandleHelloWorldCommand,        "", NULL },
-                { NULL,             0,                  false,  NULL,                            "", NULL }
+                { "hello",          SEC_PLAYER,         true,   &HandleHelloWorldCommand,        "", },
             };
             return HelloWorldCommandTable;
         }

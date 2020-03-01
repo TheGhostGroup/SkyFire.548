@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_GAMEOBJECT_H
-#define TRINITYCORE_GAMEOBJECT_H
+#ifndef SKYFIRESERVER_GAMEOBJECT_H
+#define SKYFIRESERVER_GAMEOBJECT_H
 
 #include "Common.h"
 #include "SharedDefines.h"
@@ -579,7 +579,7 @@ struct GameObjectLocale
 };
 
 // client side GO show states
-enum GOState
+enum class GOState
 {
     GO_STATE_ACTIVE             = 0,                        // show in world as used and not reset (closed door open)
     GO_STATE_READY              = 1,                        // show in world as ready (closed door close)
@@ -590,10 +590,13 @@ enum GOState
 // from `gameobject`
 struct GameObjectData
 {
-    explicit GameObjectData() : dbData(true) { }
+    explicit GameObjectData() : id(0), mapid(0), phaseid(0), phaseGroup(0), posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f),
+        rotation0(0.0f), rotation1(0.0f), rotation2(0.0f), rotation3(0.0f), spawntimesecs(0), animprogress(0), go_state(GOState::GO_STATE_ACTIVE),
+        spawnMask(0), artKit(0), dbData(true) { }
     uint32 id;                                              // entry in gamobject_template
     uint16 mapid;
-    uint32 phaseMask;
+    uint32 phaseid;
+    uint32 phaseGroup;
     float posX;
     float posY;
     float posZ;
@@ -605,7 +608,7 @@ struct GameObjectData
     int32  spawntimesecs;
     uint32 animprogress;
     GOState go_state;
-    uint8 spawnMask;
+    uint32 spawnMask;
     uint8 artKit;
     bool dbData;
 };
@@ -614,7 +617,7 @@ struct GameObjectData
 // For bobber:      GO_NOT_READY  ->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED-><deleted>
 // For door(closed):[GO_NOT_READY]->GO_READY (close)->GO_ACTIVATED (open) ->GO_JUST_DEACTIVATED->GO_READY(close) -> ...
 // For door(open):  [GO_NOT_READY]->GO_READY (open) ->GO_ACTIVATED (close)->GO_JUST_DEACTIVATED->GO_READY(open)  -> ...
-enum LootState
+enum class LootState
 {
     GO_NOT_READY = 0,
     GO_READY,                                               // can be ready but despawned, and then not possible activate until spawn
@@ -640,7 +643,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void RemoveFromWorld();
         void CleanupsBeforeDelete(bool finalCleanup = true);
 
-        bool Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
+        bool Create(uint32 guidlow, uint32 name_id, Map* map, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state, uint32 artKit = 0);
         void Update(uint32 p_time);
         static GameObject* GetGameObject(WorldObject& object, uint64 guid);
         GameObjectTemplate const* GetGOInfo() const { return m_goInfo; }
@@ -659,7 +662,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const;
 
         void SaveToDB();
-        void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
+        void SaveToDB(uint32 mapid, uint32 spawnMask);
         bool LoadFromDB(uint32 guid, Map* map) { return LoadGameObjectFromDB(guid, map, false); }
         bool LoadGameObjectFromDB(uint32 guid, Map* map, bool addToMap = true);
         void DeleteFromDB();
@@ -723,7 +726,7 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         void SetGoAnimProgress(uint8 animprogress) { SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 3, animprogress); }
         void SetGameobjectTransparence(uint8 transparency) { SetByteValue(GAMEOBJECT_FIELD_STATE_SPELL_VISUAL_ID, 0, transparency); }
         static void SetGoArtKit(uint8 artkit, GameObject* go, uint32 lowguid = 0);
-
+        bool SetPhased(uint32 id, bool update, bool apply);
         void SetPhaseMask(uint32 newPhaseMask, bool update);
         void EnableCollision(bool enable);
 
@@ -828,8 +831,12 @@ class GameObject : public WorldObject, public GridObject<GameObject>, public Map
         float GetStationaryZ() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetPositionZ(); return GetPositionZ(); }
         float GetStationaryO() const { if (GetGOInfo()->type != GAMEOBJECT_TYPE_MO_TRANSPORT) return m_stationaryPosition.GetOrientation(); return GetOrientation(); }
 
+        void UpdateModelPosition();
+
+        uint32 GetGOStateValue(GOState state);
     protected:
         bool AIM_Initialize();
+        GameObjectModel* CreateModel();
         void UpdateModel();                                 // updates model in case displayId were changed
         uint32      m_spellId;
         time_t      m_respawnTime;                          // (secs) time of next respawn (or despawn if GO have owner()),

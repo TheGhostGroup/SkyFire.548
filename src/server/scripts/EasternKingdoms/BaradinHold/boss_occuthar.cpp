@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -205,7 +205,7 @@ class npc_eyestalk : public CreatureScript
         }
 };
 
-class FocusedFireTargetSelector : public std::unary_function<Unit *, bool>
+class FocusedFireTargetSelector : public SF_UNARY_FUNCTION<Unit *, bool>
 {
     public:
         FocusedFireTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) { }
@@ -215,7 +215,7 @@ class FocusedFireTargetSelector : public std::unary_function<Unit *, bool>
             if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
                 return true;
 
-            if (target->GetTypeId() != TYPEID_PLAYER)
+            if (target->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return true;
 
             return false;
@@ -241,7 +241,7 @@ class spell_occuthar_focused_fire : public SpellScriptLoader
                     return;
 
                 targets.remove_if(FocusedFireTargetSelector(GetCaster()->ToCreature(), GetCaster()->GetVictim()));
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }
@@ -277,7 +277,7 @@ class spell_occuthar_eyes_of_occuthar : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -285,7 +285,7 @@ class spell_occuthar_eyes_of_occuthar : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }
@@ -359,7 +359,7 @@ class spell_occuthar_occuthars_destruction : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster() && GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster() && GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)

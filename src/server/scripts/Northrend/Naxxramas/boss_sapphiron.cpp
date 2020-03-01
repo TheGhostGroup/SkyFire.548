@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -265,7 +265,7 @@ class boss_sapphiron : public CreatureScript
                             case EVENT_BLIZZARD:
                             {
                                 //DoCastAOE(SPELL_SUMMON_BLIZZARD);
-                                if (Creature* summon = DoSummon(NPC_BLIZZARD, me, 0.0f, urand(25, 30) * IN_MILLISECONDS, TEMPSUMMON_TIMED_DESPAWN))
+                                if (Creature* summon = DoSummon(NPC_BLIZZARD, me, 0.0f, urand(25, 30) * IN_MILLISECONDS, TempSummonType::TEMPSUMMON_TIMED_DESPAWN))
                                     summon->GetMotionMaster()->MoveRandom(40);
                                 events.ScheduleEvent(EVENT_BLIZZARD, RAID_MODE(20, 7) * IN_MILLISECONDS, 0, PHASE_GROUND);
                                 break;
@@ -305,7 +305,7 @@ class boss_sapphiron : public CreatureScript
                                 std::vector<Unit*> targets;
                                 std::list<HostileReference*>::const_iterator i = me->getThreatManager().getThreatList().begin();
                                 for (; i != me->getThreatManager().getThreatList().end(); ++i)
-                                    if ((*i)->getTarget()->GetTypeId() == TYPEID_PLAYER && !(*i)->getTarget()->HasAura(SPELL_ICEBOLT))
+                                    if ((*i)->getTarget()->GetTypeId() == TypeID::TYPEID_PLAYER && !(*i)->getTarget()->HasAura(SPELL_ICEBOLT))
                                         targets.push_back((*i)->getTarget());
 
                                 if (targets.empty())
@@ -364,7 +364,7 @@ class boss_sapphiron : public CreatureScript
                 for (; i != me->getThreatManager().getThreatList().end(); ++i)
                 {
                     Unit* target = (*i)->getTarget();
-                    if (target->GetTypeId() != TYPEID_PLAYER)
+                    if (target->GetTypeId() != TypeID::TYPEID_PLAYER)
                         continue;
 
                     if (target->HasAura(SPELL_ICEBOLT))

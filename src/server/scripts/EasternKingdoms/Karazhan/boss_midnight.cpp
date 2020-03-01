@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -163,7 +163,7 @@ public:
             if (Phase == 1 && HealthBelowPct(95))
             {
                 Phase = 2;
-                if (Creature* attumen = me->SummonCreature(SUMMON_ATTUMEN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000))
+                if (Creature* attumen = me->SummonCreature(SUMMON_ATTUMEN, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000))
                 {
                     Attumen = attumen->GetGUID();
                     attumen->AI()->AttackStart(me->GetVictim());
@@ -306,7 +306,7 @@ void boss_attumen::boss_attumenAI::UpdateAI(uint32 diff)
         if (HealthBelowPct(25))
         {
             Creature* pMidnight = Unit::GetCreature(*me, Midnight);
-            if (pMidnight && pMidnight->GetTypeId() == TYPEID_UNIT)
+            if (pMidnight && pMidnight->GetTypeId() == TypeID::TYPEID_UNIT)
             {
                 CAST_AI(boss_midnight::boss_midnightAI, (pMidnight->AI()))->Mount(me);
                 me->SetHealth(pMidnight->GetHealth());

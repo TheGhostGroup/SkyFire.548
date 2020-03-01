@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -58,6 +58,7 @@ EndContentData */
 #include "CellImpl.h"
 #include "SpellAuras.h"
 #include "Pet.h"
+#include "BlackMarketMgr.h"
 
 /*########
 # npc_air_force_bots
@@ -141,14 +142,14 @@ public:
             }
 
             if (!SpawnAssoc)
-                TC_LOG_ERROR("sql.sql", "TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
+                SF_LOG_ERROR("sql.sql", "TCSR: Creature template entry %u has ScriptName npc_air_force_bots, but it's not handled by that script", creature->GetEntry());
             else
             {
                 CreatureTemplate const* spawnedTemplate = sObjectMgr->GetCreatureTemplate(SpawnAssoc->spawnedCreatureEntry);
 
                 if (!spawnedTemplate)
                 {
-                    TC_LOG_ERROR("sql.sql", "TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
+                    SF_LOG_ERROR("sql.sql", "TCSR: Creature template entry %u does not exist in DB, which is required by npc_air_force_bots", SpawnAssoc->spawnedCreatureEntry);
                     SpawnAssoc = NULL;
                     return;
                 }
@@ -162,13 +163,13 @@ public:
 
         Creature* SummonGuard()
         {
-            Creature* summoned = me->SummonCreature(SpawnAssoc->spawnedCreatureEntry, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+            Creature* summoned = me->SummonCreature(SpawnAssoc->spawnedCreatureEntry, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
 
             if (summoned)
                 SpawnedGUID = summoned->GetGUID();
             else
             {
-                TC_LOG_ERROR("sql.sql", "TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", SpawnAssoc->spawnedCreatureEntry);
+                SF_LOG_ERROR("sql.sql", "TCSR: npc_air_force_bots: wasn't able to spawn Creature %u", SpawnAssoc->spawnedCreatureEntry);
                 SpawnAssoc = NULL;
             }
 
@@ -668,7 +669,7 @@ public:
                             for (itr = Patients.begin(); itr != Patients.end(); ++itr)
                             {
                                 if (Creature* patient = Unit::GetCreature((*me), *itr))
-                                    patient->setDeathState(JUST_DIED);
+                                    patient->setDeathState(DeathState::JUST_DIED);
                             }
                         }
 
@@ -806,7 +807,7 @@ public:
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IN_COMBAT);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                me->setDeathState(JUST_DIED);
+                me->setDeathState(DeathState::JUST_DIED);
                 me->SetFlag(OBJECT_FIELD_DYNAMIC_FLAGS, 32);
 
                 if (DoctorGUID)
@@ -849,13 +850,13 @@ void npc_doctor::npc_doctorAI::UpdateAI(uint32 diff)
                     patientEntry = HordeSoldierId[rand() % 3];
                     break;
                 default:
-                    TC_LOG_ERROR("scripts", "Invalid entry for Triage doctor. Please check your database");
+                    SF_LOG_ERROR("scripts", "Invalid entry for Triage doctor. Please check your database");
                     return;
             }
 
             if (Location* point = *itr)
             {
-                if (Creature* Patient = me->SummonCreature(patientEntry, point->x, point->y, point->z, point->o, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                if (Creature* Patient = me->SummonCreature(patientEntry, point->x, point->y, point->z, point->o, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                 {
                     //303, this flag appear to be required for client side item->spell to work (TARGET_SINGLE_FRIEND)
                     Patient->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PVP_ATTACKABLE);
@@ -1270,7 +1271,7 @@ public:
         if (player->getClass() == CLASS_ROGUE)
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_HELLO_ROGUE4, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_UNLEARN_SPEC);
 
-        if (player->GetSpecsCount() == 1 && player->getLevel() >= sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL))
+        if (player->GetSpecsCount() == 1 && player->getLevel() >= sWorld->getIntConfig(WorldIntConfigs::CONFIG_MIN_DUALSPEC_LEVEL))
             player->ADD_GOSSIP_ITEM(GOSSIP_ICON_TRAINER, GOSSIP_HELLO_ROGUE3, GOSSIP_SENDER_MAIN, GOSSIP_OPTION_LEARNDUALSPEC);
 
         if (player->getClass() == CLASS_ROGUE && player->getLevel() >= 24 && !player->HasItemCount(17126) && !player->GetQuestRewardStatus(6681))
@@ -1304,7 +1305,7 @@ public:
                 player->SendTalentWipeConfirm(creature->GetGUID(), true);
                 break;
             case GOSSIP_OPTION_LEARNDUALSPEC:
-                if (player->GetSpecsCount() == 1 && !(player->getLevel() < sWorld->getIntConfig(CONFIG_MIN_DUALSPEC_LEVEL)))
+                if (player->GetSpecsCount() == 1 && !(player->getLevel() < sWorld->getIntConfig(WorldIntConfigs::CONFIG_MIN_DUALSPEC_LEVEL)))
                 {
                     if (!player->HasEnoughMoney(uint64(10000000)))
                     {
@@ -1561,7 +1562,7 @@ public:
             if (ExplosionTimer <= diff)
             {
                 DoCast(me, SPELL_TONK_MINE_DETONATE, true);
-                me->setDeathState(DEAD); // unsummon it
+                me->setDeathState(DeathState::DEAD); // unsummon it
             }
             else
                 ExplosionTimer -= diff;
@@ -1594,7 +1595,7 @@ class npc_brewfest_reveler : public CreatureScript
 
             void ReceiveEmote(Player* player, uint32 emote) OVERRIDE
             {
-                if (!IsHolidayActive(HOLIDAY_BREWFEST))
+                if (!IsHolidayActive(HolidayIds::HOLIDAY_BREWFEST))
                     return;
 
                 if (emote == TEXT_EMOTE_DANCE)
@@ -2323,7 +2324,7 @@ public:
                             case 1:
                             case 2:
                             case 3:
-                                if (Creature* minion = me->SummonCreature(NPC_MINION_OF_OMEN, me->GetPositionX()+frand(-5.0f, 5.0f), me->GetPositionY()+frand(-5.0f, 5.0f), me->GetPositionZ(), 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                                if (Creature* minion = me->SummonCreature(NPC_MINION_OF_OMEN, me->GetPositionX()+frand(-5.0f, 5.0f), me->GetPositionY()+frand(-5.0f, 5.0f), me->GetPositionZ(), 0.0f, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                                     minion->AI()->AttackStart(me->SelectNearestPlayer(20.0f));
                                 break;
                             case 9:
@@ -2477,17 +2478,28 @@ public:
     }
 };
 
-class npc_madam_goya : public CreatureScript
+class npc_training_target : public CreatureScript
 {
 public:
-    npc_madam_goya() : CreatureScript("npc_madam_goya") { }
+    npc_training_target() : CreatureScript("npc_training_target") { }
 
-    bool OnGossipHello(Player* player, Creature* creature)
+    struct npc_training_targetAI : ScriptedAI
     {
-        player->GetSession()->SendBlackMarketHello(creature->GetGUID());
-        return true;
+        npc_training_targetAI(Creature* creature) : ScriptedAI(creature)
+        {
+            SetCombatMovement(false);
+            entry = creature->GetEntry();
+        }
+
+        uint32 entry;
+    };
+
+    CreatureAI* GetAI(Creature* creature) const OVERRIDE
+    {
+        return new npc_training_targetAI(creature);
     }
 };
+
 
 void AddSC_npcs_special()
 {
@@ -2513,5 +2525,5 @@ void AddSC_npcs_special()
     new npc_firework();
     new npc_Spirit_of_Master_Shang_Xi();
     new npc_spring_rabbit();
-    new npc_madam_goya();
+    new npc_training_target();
 }

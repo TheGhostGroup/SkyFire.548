@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -132,7 +132,7 @@ class boss_anzu : public CreatureScript
                         case EVENT_SUMMON:
                             // TODO: Add pathing for Brood of Anzu
                             for (uint8 i = 0; i < 7; i++)
-                                me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[i], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46000);
+                                me->SummonCreature(NPC_BROOD_OF_ANZU, PosSummonBrood[i], TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 46000);
 
                             DoCast(me, SPELL_BANISH_SELF);
                             events.ScheduleEvent(EVENT_SPELL_BOMB, 12000);

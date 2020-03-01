@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,13 +40,14 @@ void WorldSession::HandeSetTalentSpecialization(WorldPacket& recvData)
         return;
 
     uint32 specializationId = GetClassSpecializations(_player->getClass())[specializationTabId];
+    uint32 specializationSpell = 0;
 
     _player->SetTalentSpecialization(_player->GetActiveSpec(), specializationId);
     _player->SetUInt32Value(PLAYER_FIELD_CURRENT_SPEC_ID, specializationId);
     _player->SendTalentsInfoData();
 
     std::list<uint32> learnList = GetSpellsForLevels(0, _player->getRaceMask(), _player->GetTalentSpecialization(_player->GetActiveSpec()), 0, _player->getLevel());
-    for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); iter++)
+    for (std::list<uint32>::const_iterator iter = learnList.begin(); iter != learnList.end(); ++iter)
     {
         if (!_player->HasSpell(*iter))
             _player->learnSpell(*iter, true);
@@ -74,12 +75,12 @@ void WorldSession::HandleLearnTalentOpcode(WorldPacket& recvData)
 
 void WorldSession::HandleLearnPreviewTalents(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS");
+    SF_LOG_DEBUG("network", "CMSG_LEARN_PREVIEW_TALENTS");
 }
 
 void WorldSession::HandleRespecWipeConfirmOpcode(WorldPacket& recvPacket)
 {
-    TC_LOG_DEBUG("network", "CMSG_CONFIRM_RESPEC_WIPE");
+    SF_LOG_DEBUG("network", "CMSG_CONFIRM_RESPEC_WIPE");
     ObjectGuid guid;
     uint8 RespecType = 0;
     uint32 Cost = 0;

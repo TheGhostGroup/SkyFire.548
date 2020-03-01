@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -81,7 +81,7 @@ class boss_kurinnaxx : public CreatureScript
             {
                 _JustDied();
                 if (Creature* Ossirian = me->GetMap()->GetCreature(instance->GetData64(DATA_OSSIRIAN)))
-                    sCreatureTextMgr->SendChat(Ossirian, SAY_KURINAXX_DEATH, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_ZONE);
+                    sCreatureTextMgr->SendChat(Ossirian, SAY_KURINAXX_DEATH, 0, ChatMsg::CHAT_MSG_ADDON, Language::LANG_ADDON, TEXT_RANGE_ZONE);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE

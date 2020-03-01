@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,11 +36,11 @@
 Weather::Weather(uint32 zone, WeatherData const* weatherChances)
     : m_zone(zone), m_weatherChances(weatherChances)
 {
-    m_timer.SetInterval(sWorld->getIntConfig(CONFIG_INTERVAL_CHANGEWEATHER));
+    m_timer.SetInterval(sWorld->getIntConfig(WorldIntConfigs::CONFIG_INTERVAL_CHANGEWEATHER));
     m_type = WEATHER_TYPE_FINE;
     m_grade = 0;
 
-    TC_LOG_INFO("misc", "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
+    SF_LOG_INFO("misc", "WORLD: Starting weather system for zone %u (change every %u minutes).", m_zone, (uint32)(m_timer.GetInterval() / (MINUTE*IN_MILLISECONDS)));
 }
 
 /// Launch a weather update
@@ -101,7 +101,7 @@ bool Weather::ReGenerate()
 
     static char const* seasonName[WEATHER_SEASONS] = { "spring", "summer", "fall", "winter" };
 
-    TC_LOG_INFO("misc", "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
+    SF_LOG_INFO("misc", "Generating a change in %s weather for zone %u.", seasonName[season], m_zone);
 
     if ((u < 60) && (m_grade < 0.33333334f))                // Get fair
     {
@@ -265,7 +265,7 @@ bool Weather::UpdateWeather()
             wthstr = "fine";
             break;
     }
-    TC_LOG_INFO("misc", "Change the weather of zone %u to %s.", m_zone, wthstr);
+    SF_LOG_INFO("misc", "Change the weather of zone %u to %s.", m_zone, wthstr);
 
     sScriptMgr->OnWeatherChange(this, state, m_grade);
     return true;

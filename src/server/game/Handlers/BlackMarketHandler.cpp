@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,88 +28,32 @@
 
 void WorldSession::HandleBlackMarketHelloOpcode(WorldPacket& recvData)
 {
-    ObjectGuid guid;
-
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[2] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[0]);
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[2]);
-
-    uint64 npcGuid = uint64(guid);
-    
+    ObjectGuid NpcGUID;
+    recvData.ReadGuidMask(NpcGUID, 4, 5, 2, 7, 0, 1, 3, 6);
+    recvData.ReadGuidBytes(NpcGUID, 4, 3, 0, 6, 2, 7, 5, 1);
+ 
     if (GetPlayer()->HasUnitState(UNIT_STATE_DIED))
         GetPlayer()->RemoveAurasByType(SPELL_AURA_FEIGN_DEATH);
-
-    SendBlackMarketHello(npcGuid);
+    
+    SendBlackMarketHello(NpcGUID, sBlackMarketMgr->isBlackMarketOpen());
 }
 
-void WorldSession::SendBlackMarketHello(uint64 npcGuid)
+void WorldSession::SendBlackMarketHello(ObjectGuid NpcGUID, bool Open)
 {
-    bool Open = sWorld->getBoolConfig(CONFIG_BLACK_MARKET_OPEN);
     WorldPacket data(SMSG_BLACKMARKET_HELLO, 9);
-
-    ObjectGuid UnitGUID = npcGuid;
-
-    data.WriteBit(UnitGUID[2]);
-    data.WriteBit(UnitGUID[0]);
-    data.WriteBit(UnitGUID[4]);
-    data.WriteBit(UnitGUID[1]);
-    data.WriteBit(UnitGUID[3]);
-    data.WriteBit(UnitGUID[6]);
-    data.WriteBit(UnitGUID[5]);
-    data.WriteBit(UnitGUID[7]);
-    data.WriteBit(Open);      // 
-
-    data.WriteByteSeq(UnitGUID[6]);
-    data.WriteByteSeq(UnitGUID[1]);
-    data.WriteByteSeq(UnitGUID[2]);
-    data.WriteByteSeq(UnitGUID[5]);
-    data.WriteByteSeq(UnitGUID[0]);
-    data.WriteByteSeq(UnitGUID[7]);
-    data.WriteByteSeq(UnitGUID[4]);
-    data.WriteByteSeq(UnitGUID[3]);
-
+    data.WriteGuidMask(NpcGUID, 2, 0, 4, 1, 3, 6, 5, 7);
+    data.WriteBit(Open); 
+    data.WriteGuidBytes(NpcGUID, 6, 1, 2, 5, 0, 7, 4, 3);
     SendPacket(&data);
 }
 
 void WorldSession::HandleBlackMarketRequestItemOpcode(WorldPacket& recvData)
 {
-    ObjectGuid guid;
+    ObjectGuid NpcGUID;
     uint32 Timestamp;
-
     recvData >> Timestamp;
-
-    guid[2] = recvData.ReadBit();
-    guid[6] = recvData.ReadBit();
-    guid[0] = recvData.ReadBit();
-    guid[3] = recvData.ReadBit();
-    guid[4] = recvData.ReadBit();
-    guid[5] = recvData.ReadBit();
-    guid[1] = recvData.ReadBit();
-    guid[7] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(guid[6]);
-    recvData.ReadByteSeq(guid[2]);
-    recvData.ReadByteSeq(guid[3]);
-    recvData.ReadByteSeq(guid[5]);
-    recvData.ReadByteSeq(guid[7]);
-    recvData.ReadByteSeq(guid[4]);
-    recvData.ReadByteSeq(guid[1]);
-    recvData.ReadByteSeq(guid[0]);
-
+    recvData.ReadGuidMask(NpcGUID, 2, 6, 0, 3, 4, 5, 1, 7);
+    recvData.ReadGuidBytes(NpcGUID, 6, 2, 3, 5, 7, 4, 1, 0);
     SendBlackMarketRequestItemsResult();
 }
 
@@ -124,33 +68,15 @@ void WorldSession::SendBlackMarketRequestItemsResult()
 
 void WorldSession::HandleBlackMarketBidOnItem(WorldPacket& recvData)
 {
-    ObjectGuid UnitGUID;
+    ObjectGuid NpcGUID;
     uint32 ItemID, MarketID;
     uint64 BidAmount;
 
     recvData >> ItemID >> MarketID >> BidAmount;
-
-    UnitGUID[0] = recvData.ReadBit();
-    UnitGUID[5] = recvData.ReadBit();
-    UnitGUID[4] = recvData.ReadBit();
-    UnitGUID[3] = recvData.ReadBit();
-    UnitGUID[7] = recvData.ReadBit();
-    UnitGUID[6] = recvData.ReadBit();
-    UnitGUID[1] = recvData.ReadBit();
-    UnitGUID[2] = recvData.ReadBit();
-
-    recvData.ReadByteSeq(UnitGUID[4]);
-    recvData.ReadByteSeq(UnitGUID[3]);
-    recvData.ReadByteSeq(UnitGUID[6]);
-    recvData.ReadByteSeq(UnitGUID[5]);
-    recvData.ReadByteSeq(UnitGUID[7]);
-    recvData.ReadByteSeq(UnitGUID[1]);
-    recvData.ReadByteSeq(UnitGUID[0]);
-    recvData.ReadByteSeq(UnitGUID[2]);
-
-    TC_LOG_DEBUG("blackMarket", ">> HandleBlackMarketBid >> MarketID : %u, BidAmount : %u, ItemID : %u", MarketID, BidAmount, ItemID);
-
-    uint64 npcGuid = uint64(UnitGUID);
+    recvData.ReadGuidMask(NpcGUID, 0, 5, 4, 3, 7, 6, 1, 2);
+    recvData.ReadGuidBytes(NpcGUID, 4, 3, 6, 5, 7, 1, 0, 2);
+    
+    SF_LOG_DEBUG("blackMarket", ">> HandleBlackMarketBid >> MarketID : %u, BidAmount : " UI64FMTD ", ItemID : %u", MarketID, BidAmount, ItemID);
 
     if (!BidAmount)
         return;
@@ -158,26 +84,26 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPacket& recvData)
     BlackMarketAuction *auction = sBlackMarketMgr->GetAuction(MarketID);
     if (!auction)
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Auction (MarketID: %u) not found.", MarketID);
+        SF_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Auction (MarketID: %u) not found.", MarketID);
         return;
     }
 
     if (auction->GetCurrentBidder() == GetPlayer()->GetGUIDLow())
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) is already the highest bidder.", GetPlayer()->GetGUIDLow());
+        SF_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) is already the highest bidder.", GetPlayer()->GetGUIDLow());
         return;
     }
 
     if (auction->GetCurrentBid() > BidAmount && BidAmount != auction->GetTemplate()->MinBid)
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) could not bid. The current bid (%u) is higher than the given amount (%u).", GetPlayer()->GetGUIDLow(), auction->GetCurrentBid(), BidAmount);
+        SF_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) could not bid. The current bid (%u) is higher than the given amount (" UI64FMTD ").", GetPlayer()->GetGUIDLow(), auction->GetCurrentBid(), BidAmount);
         return;
     }
 
     uint64 currentRequiredIncrement = auction->GetCurrentBid() + auction->GetMinIncrement();
     if (currentRequiredIncrement > BidAmount)
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) could not bid. The BidAmount (%u) is lower than the current requiredIncrement (%u).", GetPlayer()->GetGUIDLow(), BidAmount, currentRequiredIncrement);
+        SF_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) could not bid. The BidAmount (" UI64FMTD ") is lower than the current requiredIncrement (" UI64FMTD ").", GetPlayer()->GetGUIDLow(), BidAmount, currentRequiredIncrement);
         return;
     }
 
@@ -185,7 +111,7 @@ void WorldSession::HandleBlackMarketBidOnItem(WorldPacket& recvData)
 
     if (!GetPlayer()->ModifyMoney(-int64(BidAmount)))
     {
-        TC_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) has not enough money to bid.", GetPlayer()->GetGUIDLow());
+        SF_LOG_DEBUG("blackMarket", "HandleBlackMarketBid - Player (GUID: %u) has not enough money to bid.", GetPlayer()->GetGUIDLow());
         return;
     }
 

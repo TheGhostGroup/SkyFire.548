@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -57,7 +57,7 @@ void PetAI::_stopAttack()
 {
     if (!me->IsAlive())
     {
-        TC_LOG_DEBUG("misc", "Creature stoped attacking cuz his dead [guid=%u]", me->GetGUIDLow());
+        SF_LOG_DEBUG("misc", "Creature stoped attacking cuz his dead [guid=%u]", me->GetGUIDLow());
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveIdle();
         me->CombatStop();
@@ -98,7 +98,7 @@ void PetAI::UpdateAI(uint32 diff)
 
         if (_needToStop())
         {
-            TC_LOG_DEBUG("misc", "Pet AI stopped attacking [guid=%u]", me->GetGUIDLow());
+            SF_LOG_DEBUG("misc", "Pet AI stopped attacking [guid=%u]", me->GetGUIDLow());
             _stopAttack();
             return;
         }
@@ -235,10 +235,10 @@ void PetAI::UpdateAI(uint32 diff)
             if (!me->HasInArc(M_PI, target))
             {
                 me->SetInFront(target);
-                if (target && target->GetTypeId() == TYPEID_PLAYER)
+                if (target && target->GetTypeId() == TypeID::TYPEID_PLAYER)
                     me->SendUpdateToPlayer(target->ToPlayer());
 
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER)
+                if (owner && owner->GetTypeId() == TypeID::TYPEID_PLAYER)
                     me->SendUpdateToPlayer(owner->ToPlayer());
             }
 

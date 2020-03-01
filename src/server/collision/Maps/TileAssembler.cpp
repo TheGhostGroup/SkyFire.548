@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -117,7 +117,7 @@ namespace VMAP
 
             // write map tree file
             std::stringstream mapfilename;
-            mapfilename << iDestDir << '/' << std::setfill('0') << std::setw(3) << map_iter->first << ".vmtree";
+            mapfilename << iDestDir << '/' << std::setfill('0') << std::setw(4) << map_iter->first << ".vmtree";
             FILE* mapfile = fopen(mapfilename.str().c_str(), "wb");
             if (!mapfile)
             {
@@ -158,7 +158,7 @@ namespace VMAP
                 uint32 nSpawns = tileEntries.count(tile->first);
                 std::stringstream tilefilename;
                 tilefilename.fill('0');
-                tilefilename << iDestDir << '/' << std::setw(3) << map_iter->first << '_';
+                tilefilename << iDestDir << '/' << std::setw(4) << map_iter->first << '_';
                 uint32 x, y;
                 StaticMapTree::unpackTileID(tile->first, x, y);
                 tilefilename << std::setw(2) << x << '_' << std::setw(2) << y << ".vmtile";
@@ -374,7 +374,7 @@ namespace VMAP
             std::string model_name(buff, name_length);
 
             WorldModel_Raw raw_model;
-            if (!raw_model.Read((iSrcDir + "/" + model_name).c_str()) )
+            if (!raw_model.Read((iSrcDir + "/" + model_name).c_str()))
                 continue;
 
             spawnedModelFiles.insert(model_name);
@@ -395,6 +395,17 @@ namespace VMAP
                 }
             }
 
+            if (bounds.isEmpty())
+            {
+                std::cout << "\nModel " << std::string(buff, name_length) << " has empty bounding box" << std::endl;
+                continue;
+            }
+
+            if (!bounds.isFinite())
+            {
+                std::cout << "\nModel " << std::string(buff, name_length) << " has invalid bounding box" << std::endl;
+                continue;
+            }
             fwrite(&displayId, sizeof(uint32), 1, model_list_copy);
             fwrite(&name_length, sizeof(uint32), 1, model_list_copy);
             fwrite(&buff, sizeof(char), name_length, model_list_copy);

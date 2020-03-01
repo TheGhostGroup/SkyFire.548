@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -111,11 +111,11 @@ public:
                 case 2:
                    // Close these two doors on Blackhand Incarcerators aggro
                    if (GameObject* door1 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_IN)))
-                       if (door1->GetGoState() == GO_STATE_ACTIVE)
-                           door1->SetGoState(GO_STATE_READY);
+                       if (door1->GetGoState() == GOState::GO_STATE_ACTIVE)
+                           door1->SetGoState(GOState::GO_STATE_READY);
                    if (GameObject* door2 = me->GetMap()->GetGameObject(instance->GetData64(GO_DOORS)))
-                       if (door2->GetGoState() == GO_STATE_ACTIVE)
-                           door2->SetGoState(GO_STATE_READY);
+                       if (door2->GetGoState() == GOState::GO_STATE_ACTIVE)
+                           door2->SetGoState(GOState::GO_STATE_READY);
                     break;
                 case 3:
                     Reset();
@@ -138,7 +138,7 @@ public:
             if (instance)
             {
                 // Activate all the runes
-                UpdateRunes(GO_STATE_READY);
+                UpdateRunes(GOState::GO_STATE_READY);
                 // Opens all 3 doors
                 OpenDoors(true);
                 // Complete encounter
@@ -176,14 +176,14 @@ public:
        {
            // These two doors reopen on reset or boss kill
            if (GameObject* door1 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_IN)))
-               door1->SetGoState(GO_STATE_ACTIVE);
+               door1->SetGoState(GOState::GO_STATE_ACTIVE);
            if (GameObject* door2 = me->GetMap()->GetGameObject(instance->GetData64(GO_DOORS)))
-               door2->SetGoState(GO_STATE_ACTIVE);
+               door2->SetGoState(GOState::GO_STATE_ACTIVE);
 
            // This door opens on boss kill
            if (Boss_Killed)
                if (GameObject* door3 = me->GetMap()->GetGameObject(instance->GetData64(GO_EMBERSEER_OUT)))
-                    door3->SetGoState(GO_STATE_ACTIVE);
+                    door3->SetGoState(GOState::GO_STATE_ACTIVE);
        }
 
         void UpdateRunes(GOState state)

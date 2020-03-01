@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -60,7 +60,7 @@ public:
             float x, y, z;
             me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, 0.1f);
 
-            if (Unit* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TEMPSUMMON_DEAD_DESPAWN, 1000))
+            if (Unit* summon = me->SummonCreature(NPC_RAGECLAW, x, y, z, 0, TempSummonType::TEMPSUMMON_DEAD_DESPAWN, 1000))
             {
                 _rageclawGUID = summon->GetGUID();
                 LockRageclaw();
@@ -87,7 +87,7 @@ public:
             // pointer check not needed
             DoCast(rageclaw, SPELL_FREE_RAGECLAW, true);
 
-            me->setDeathState(DEAD);
+            me->setDeathState(DeathState::DEAD);
         }
 
         void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
@@ -103,7 +103,7 @@ public:
                         me->DespawnOrUnsummon();
                     }
                     else
-                        me->setDeathState(JUST_DIED);
+                        me->setDeathState(DeathState::JUST_DIED);
                 }
             }
         }
@@ -353,7 +353,7 @@ public:
                     switch (uiPhase)
                     {
                         case 1:
-                            if (Creature* summon = me->SummonCreature(NPC_ORINOKO_TUSKBREAKER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                            if (Creature* summon = me->SummonCreature(NPC_ORINOKO_TUSKBREAKER, SpawnPosition[0], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 1000))
                                 _summonGUID = summon->GetGUID();
                             uiPhase = 2;
                             uiTimer = 4000;
@@ -370,7 +370,7 @@ public:
                             uiPhase = 4;
                             break;
                         case 4:
-                            if (Creature* summon = me->SummonCreature(NPC_KORRAK_BLOODRAGER, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                            if (Creature* summon = me->SummonCreature(NPC_KORRAK_BLOODRAGER, SpawnPosition[0], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 1000))
                                 _summonGUID = summon->GetGUID();
                             uiTimer = 3000;
                             uiPhase = 0;
@@ -396,12 +396,12 @@ public:
                             uiPhase = 10;
                             break;
                         case 10:
-                            me->SummonCreature(NPC_YGGDRAS, SpawnPosition[1], TEMPSUMMON_CORPSE_DESPAWN, 1000);
+                            me->SummonCreature(NPC_YGGDRAS, SpawnPosition[1], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 1000);
                             Talk(EMOTE_YGGDRAS_SPAWN);
                             uiPhase = 0;
                             break;
                         case 11:
-                            if (Creature* creature = me->SummonCreature(NPC_STINKBEARD, SpawnPosition[0], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                            if (Creature* creature = me->SummonCreature(NPC_STINKBEARD, SpawnPosition[0], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 1000))
                                 creature->AI()->Talk(SAY_STINKBEARD_SPAWN);
                             uiPhase = 0;
                             break;
@@ -417,7 +417,7 @@ public:
                             break;
                         case 14:
                             _bossRandom = urand(0, 3);
-                            if (Creature* creature = me->SummonCreature(Boss[_bossRandom].uiBoss, SpawnPosition[2], TEMPSUMMON_CORPSE_DESPAWN, 1000))
+                            if (Creature* creature = me->SummonCreature(Boss[_bossRandom].uiBoss, SpawnPosition[2], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 1000))
                                 creature->AI()->SetData(1, _bossRandom);
                             uiPhase = 0;
                             break;
@@ -561,7 +561,7 @@ public:
                 Talk(SAY_CALL_FOR_HELP);
                 //DoCastVictim(SPELL_SUMMON_WHISKER); petai is not working correctly???
 
-                if (Creature* whisker = me->SummonCreature(NPC_WHISKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+                if (Creature* whisker = me->SummonCreature(NPC_WHISKER, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
                     _whiskerGUID = whisker->GetGUID();
                 _summoned = true;
             }
@@ -592,7 +592,7 @@ public:
                 if (Creature* whisker = me->GetCreature(*me, _whiskerGUID))
                     whisker->RemoveFromWorld();
 
-            if (killer->GetTypeId() == TYPEID_PLAYER)
+            if (killer->GetTypeId() == TypeID::TYPEID_PLAYER)
                 killer->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_TUSKARRMAGEDDON, killer);
 
         }
@@ -780,7 +780,7 @@ public:
             if (Unit* summoner = me->ToTempSummon()->GetSummoner())
             {
                 std::string sText = (std::string(killer->GetName()) + " has defeated Yg.. Yggg-really big worm!");
-                summoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
+                summoner->MonsterYell(sText.c_str(), Language::LANG_UNIVERSAL, 0);
             }
 
             if (Player* player = killer->GetCharmerOrOwnerPlayerOrPlayerItself())
@@ -920,7 +920,7 @@ public:
                 player->GetCharmerOrOwnerPlayerOrPlayerItself()->GroupEventHappens(QUEST_AMPHITHEATER_ANGUISH_MAGNATAUR, killer);
 
             std::string sText = ("And with AUTHORITY, " + std::string(killer->GetName()) + " dominates the magnataur lord! Stinkbeard's clan is gonna miss him back home in the Dragonblight!");
-            me->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
+            me->MonsterYell(sText.c_str(), Language::LANG_UNIVERSAL, 0);
         }
         private:
             bool   _enrage;
@@ -1070,7 +1070,7 @@ public:
             std::string sText = (std::string(killer->GetName()) + " is victorious once more!");
 
             if (Unit* summoner = me->ToTempSummon()->GetSummoner())
-                summoner->MonsterYell(sText.c_str(), LANG_UNIVERSAL, 0);
+                summoner->MonsterYell(sText.c_str(), Language::LANG_UNIVERSAL, 0);
         }
     };
 

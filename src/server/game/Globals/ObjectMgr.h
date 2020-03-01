@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,8 +43,8 @@
 #include <limits>
 #include "ConditionMgr.h"
 #include <functional>
-#include "PhaseMgr.h"
 #include "DB2Stores.h"
+#include "Containers.h"
 
 class Item;
 class PhaseMgr;
@@ -423,18 +423,18 @@ struct CellObjectGuids
 typedef UNORDERED_MAP<uint32/*cell_id*/, CellObjectGuids> CellObjectGuidsMap;
 typedef UNORDERED_MAP<uint32/*(mapid, spawnMode) pair*/, CellObjectGuidsMap> MapObjectGuids;
 
-// Trinity string ranges
-#define MIN_TRINITY_STRING_ID           1                    // 'trinity_string'
-#define MAX_TRINITY_STRING_ID           2000000000
-#define MIN_DB_SCRIPT_STRING_ID        MAX_TRINITY_STRING_ID // 'db_script_string'
+// Skyfire string ranges
+#define MIN_SKYFIRE_STRING_ID           1                    // 'skyfire_string'
+#define MAX_SKYFIRE_STRING_ID           2000000000
+#define MIN_DB_SCRIPT_STRING_ID        MAX_SKYFIRE_STRING_ID // 'db_script_string'
 #define MAX_DB_SCRIPT_STRING_ID        2000010000
 #define MIN_CREATURE_AI_TEXT_STRING_ID (-1)                 // 'creature_ai_texts'
 #define MAX_CREATURE_AI_TEXT_STRING_ID (-1000000)
 
-// Trinity Trainer Reference start range
-#define TRINITY_TRAINER_START_REF      200000
+// Skyfire Trainer Reference start range
+#define SKYFIRE_TRAINER_START_REF      200000
 
-struct TrinityStringLocale
+struct SkyFireStringLocale
 {
     StringVector Content;
 };
@@ -449,7 +449,7 @@ typedef UNORDERED_MAP<uint32, ItemLocale> ItemLocaleContainer;
 typedef UNORDERED_MAP<uint32, QuestLocale> QuestLocaleContainer;
 typedef UNORDERED_MAP<uint32, NpcTextLocale> NpcTextLocaleContainer;
 typedef UNORDERED_MAP<uint32, PageTextLocale> PageTextLocaleContainer;
-typedef UNORDERED_MAP<int32, TrinityStringLocale> TrinityStringLocaleContainer;
+typedef UNORDERED_MAP<int32, SkyFireStringLocale> SkyFireStringLocaleContainer;
 typedef UNORDERED_MAP<uint32, GossipMenuItemsLocale> GossipMenuItemsLocaleContainer;
 typedef UNORDERED_MAP<uint32, PointOfInterestLocale> PointOfInterestLocaleContainer;
 typedef UNORDERED_MAP<uint32, QuestObjectiveLocale> QuestObjectiveLocaleContainer;
@@ -459,9 +459,9 @@ typedef std::pair<QuestRelations::const_iterator, QuestRelations::const_iterator
 
 struct PetLevelInfo
 {
-    PetLevelInfo() : health(0), mana(0) { for (uint8 i=0; i < MAX_STATS; ++i) stats[i] = 0; }
+    PetLevelInfo() : health(0), mana(0), armor(0) { for (uint8 i = 0; i < MAX_STATS; ++i) stats[i] = 0; }
 
-    uint16 stats[MAX_STATS];
+    uint16 stats[MAX_STATS] = { };
     uint16 health;
     uint16 mana;
     uint16 armor;
@@ -620,7 +620,7 @@ struct LanguageDesc
 };
 
 extern LanguageDesc lang_description[LANGUAGES_COUNT];
-LanguageDesc const* GetLanguageDescByID(uint32 lang);
+LanguageDesc const* GetLanguageDescByID(Language lang);
 
 enum EncounterCreditType
 {
@@ -652,6 +652,46 @@ struct HotfixInfo
 typedef std::vector<HotfixInfo> HotfixData;
 typedef std::map<uint32, uint32> QuestObjectiveLookupMap;
 
+struct ResearchDigsiteInfo
+{
+    uint32 digsiteId;
+    uint32 branchId;
+    uint32 requiredSkillValue;
+    uint32 requiredLevel;
+};
+
+typedef std::list<ResearchDigsiteInfo> ResearchDigsiteList;
+typedef UNORDERED_MAP<uint32 /*mapId*/, ResearchDigsiteList> ResearchDigsiteContainer;
+
+struct ArchaeologyFindInfo
+{
+    uint32 guid;
+    uint32 goEntry;
+    float x;
+    float y;
+    float z;
+};
+
+typedef std::list<ArchaeologyFindInfo> ArchaeologyFindList;
+typedef UNORDERED_MAP<uint32 /*digsiteId*/, ArchaeologyFindList> ArchaeologyFindContainer;
+
+struct ResearchProjectRequirements
+{
+    uint32 requiredSkillValue;
+    float chance;
+};
+
+typedef UNORDERED_MAP<uint32, ResearchProjectRequirements> ResearchProjectRequirementContainer;
+
+struct PhaseInfoStruct
+{
+    uint32 id;
+    ConditionList Conditions;
+};
+
+typedef UNORDERED_MAP<uint32, std::vector<PhaseInfoStruct>> TerrainPhaseInfo;
+typedef UNORDERED_MAP<uint32, std::vector<uint32>> TerrainUIPhaseInfo;
+typedef UNORDERED_MAP<uint32, std::vector<PhaseInfoStruct>> PhaseInfo;
 class PlayerDumpReader;
 
 class ObjectMgr
@@ -782,7 +822,7 @@ class ObjectMgr
             return NULL;
         }
 
-        AccessRequirement const* GetAccessRequirement(uint32 mapid, Difficulty difficulty) const
+        AccessRequirement const* GetAccessRequirement(uint32 mapid, DifficultyID difficulty) const
         {
             AccessRequirementContainer::const_iterator itr = _accessRequirementStore.find(MAKE_PAIR32(mapid, difficulty));
             if (itr != _accessRequirementStore.end())
@@ -842,7 +882,7 @@ class ObjectMgr
 
         VehicleAccessoryList const* GetVehicleAccessoryList(Vehicle* veh) const;
 
-        DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, Difficulty difficulty)
+        DungeonEncounterList const* GetDungeonEncounterList(uint32 mapId, DifficultyID difficulty)
         {
             UNORDERED_MAP<uint32, DungeonEncounterList>::const_iterator itr = _dungeonEncounterStore.find(MAKE_PAIR32(mapId, difficulty));
             if (itr != _dungeonEncounterStore.end())
@@ -856,13 +896,13 @@ class ObjectMgr
         void LoadQuestObjectiveLocales();
         void LoadQuestStartersAndEnders()
         {
-            TC_LOG_INFO("server.loading", "Loading GO Start Quest Data...");
+            SF_LOG_INFO("server.loading", "Loading GO Start Quest Data...");
             LoadGameobjectQuestStarters();
-            TC_LOG_INFO("server.loading", "Loading GO End Quest Data...");
+            SF_LOG_INFO("server.loading", "Loading GO End Quest Data...");
             LoadGameobjectQuestEnders();
-            TC_LOG_INFO("server.loading", "Loading Creature Start Quest Data...");
+            SF_LOG_INFO("server.loading", "Loading Creature Start Quest Data...");
             LoadCreatureQuestStarters();
-            TC_LOG_INFO("server.loading", "Loading Creature End Quest Data...");
+            SF_LOG_INFO("server.loading", "Loading Creature End Quest Data...");
             LoadCreatureQuestEnders();
         }
         void LoadGameobjectQuestStarters();
@@ -907,8 +947,8 @@ class ObjectMgr
         void LoadSpellScriptNames();
         void ValidateSpellScripts();
 
-        bool LoadTrinityStrings(char const* table, int32 min_value, int32 max_value);
-        bool LoadTrinityStrings() { return LoadTrinityStrings("trinity_string", MIN_TRINITY_STRING_ID, MAX_TRINITY_STRING_ID); }
+        bool LoadSkyFireStrings(char const* table, int32 min_value, int32 max_value);
+        bool LoadSkyFireStrings() { return LoadSkyFireStrings("skyfire_string", MIN_SKYFIRE_STRING_ID, MAX_SKYFIRE_STRING_ID); }
         void LoadDbScriptStrings();
         void LoadCreatureClassLevelStats();
         void LoadCreatureLocales();
@@ -978,11 +1018,42 @@ class ObjectMgr
         void LoadTrainerSpell();
         void AddSpellToTrainer(uint32 entry, uint32 spell, uint32 spellCost, uint32 reqSkill, uint32 reqSkillValue, uint32 reqLevel);
 
-        void LoadPhaseDefinitions();
-        void LoadSpellPhaseInfo();
+        void LoadTerrainPhaseInfo();
+        void LoadTerrainSwapDefaults();
+        void LoadTerrainWorldMaps();
+        void LoadAreaPhases();
 
-        PhaseDefinitionStore const* GetPhaseDefinitionStore() { return &_PhaseDefinitionStore; }
-        SpellPhaseStore const* GetSpellPhaseStore() { return &_SpellPhaseStore; }
+        std::vector<PhaseInfoStruct> const* GetPhaseTerrainSwaps(uint32 phaseid) const
+        {
+            auto itr = _terrainPhaseInfoStore.find(phaseid);
+            return itr != _terrainPhaseInfoStore.end() ? &itr->second : nullptr;
+        }
+        std::vector<PhaseInfoStruct> const* GetDefaultTerrainSwaps(uint32 mapid) const
+        {
+            auto itr = _terrainMapDefaultStore.find(mapid);
+            return itr != _terrainMapDefaultStore.end() ? &itr->second : nullptr;
+        }
+        std::vector<uint32> const* GetTerrainWorldMaps(uint32 terrainId) const
+        {
+            auto itr = _terrainWorldMapStore.find(terrainId);
+            return itr != _terrainWorldMapStore.end() ? &itr->second : nullptr;
+        }
+        std::vector<PhaseInfoStruct> const* GetPhasesForArea(uint32 area) const
+        {
+            auto itr = _phases.find(area);
+            return itr != _phases.end() ? &itr->second : nullptr;
+        }
+        TerrainPhaseInfo const& GetDefaultTerrainSwapStore() const { return _terrainMapDefaultStore; }
+        PhaseInfo const& GetAreaPhases() const { return _phases; }
+
+        std::vector<PhaseInfoStruct>* GetPhasesForAreaForLoading(uint32 area)
+        {
+            auto itr = _phases.find(area);
+            return itr != _phases.end() ? &itr->second : nullptr;
+        }
+        TerrainPhaseInfo& GetPhaseTerrainSwapStoreForLoading() { return _terrainPhaseInfoStore; }
+        TerrainPhaseInfo& GetDefaultTerrainSwapStoreForLoading() { return _terrainMapDefaultStore; }
+        PhaseInfo & GetAreaPhasesForLoading() { return _phases; }
 
         void LoadBattlePetBreedData();
         void LoadBattlePetQualityData();
@@ -1132,14 +1203,14 @@ class ObjectMgr
         GameObjectData& NewGOData(uint32 guid) { return _gameObjectDataStore[guid]; }
         void DeleteGOData(uint32 guid);
 
-        TrinityStringLocale const* GetTrinityStringLocale(int32 entry) const
+        SkyFireStringLocale const* GetSkyFireStringLocale(int32 entry) const
         {
-            TrinityStringLocaleContainer::const_iterator itr = _trinityStringLocaleStore.find(entry);
+            SkyFireStringLocaleContainer::const_iterator itr = _trinityStringLocaleStore.find(entry);
             if (itr == _trinityStringLocaleStore.end()) return NULL;
             return &itr->second;
         }
-        const char *GetTrinityString(int32 entry, LocaleConstant locale_idx) const;
-        const char *GetTrinityStringForDBCLocale(int32 entry) const { return GetTrinityString(entry, DBCLocaleIndex); }
+        const char *GetSkyFireString(int32 entry, LocaleConstant locale_idx) const;
+        const char *GetSkyFireStringForDBCLocale(int32 entry) const { return GetSkyFireString(entry, DBCLocaleIndex); }
         LocaleConstant GetDBCLocaleIndex() const { return DBCLocaleIndex; }
         void SetDBCLocaleIndex(LocaleConstant locale) { DBCLocaleIndex = locale; }
 
@@ -1280,6 +1351,63 @@ class ObjectMgr
         bool QuestObjectiveExists(uint32 objectiveId) const;
         uint32 GetQuestObjectiveQuestId(uint32 objectiveId) const;
 
+        void LoadResearchDigsiteInfo();
+        void LoadArchaeologyFindInfo();
+        void LoadResearchProjectRequirements();
+
+        ResearchDigsiteInfo const* GetResearchDigsiteInfo(uint32 digsiteId) const
+        {
+            for (ResearchDigsiteContainer::const_iterator itr = _researchDigsiteStore.begin(); itr != _researchDigsiteStore.end(); ++itr)
+                for (ResearchDigsiteList::const_iterator digsite = itr->second.begin(); digsite != itr->second.end(); ++digsite)
+                    if (digsite->digsiteId == digsiteId)
+                        return &(*digsite);
+
+            return NULL;
+        }
+
+        ResearchDigsiteList const* GetResearchDigsitesForContinent(uint32 mapId) const
+        {
+            ResearchDigsiteContainer::const_iterator iter = _researchDigsiteStore.find(mapId);
+            if (iter != _researchDigsiteStore.end())
+                return &iter->second;
+
+            return NULL;
+        }
+
+        ArchaeologyFindInfo const* GetArchaeologyFindInfo(uint32 findGUID, uint32 digsiteId)
+        {
+            ArchaeologyFindContainer::const_iterator itr = _archaeologyFindStore.find(digsiteId);
+            if (itr == _archaeologyFindStore.end())
+                return NULL;
+
+            for (ArchaeologyFindList::const_iterator find = itr->second.begin(); find != itr->second.end(); ++find)
+                if (find->guid == findGUID)
+                    return &(*find);
+
+            return NULL;
+        }
+
+        ArchaeologyFindInfo const* GetRandomArchaeologyFindForDigsite(uint32 digsiteId)
+        {
+            ArchaeologyFindContainer::const_iterator itr = _archaeologyFindStore.find(digsiteId);
+            if (itr == _archaeologyFindStore.end())
+                return NULL;
+
+            if (itr->second.empty())
+                return NULL;
+
+            return &Skyfire::Containers::SelectRandomContainerElement(itr->second);
+        }
+
+        ResearchProjectRequirements const* GetResearchProjectRequirements(uint32 projectId) const
+        {
+            ResearchProjectRequirementContainer::const_iterator iter = _researchProjectRequirementStore.find(projectId);
+            if (iter != _researchProjectRequirementStore.end())
+                return &iter->second;
+
+            return NULL;
+        }
+
     private:
         // first free id for selected id type
         uint32 _auctionId;
@@ -1354,9 +1482,11 @@ class ObjectMgr
         PageTextContainer _pageTextStore;
         InstanceTemplateContainer _instanceTemplateStore;
 
-        PhaseDefinitionStore _PhaseDefinitionStore;
-        SpellPhaseStore _SpellPhaseStore;
-
+        TerrainPhaseInfo _terrainPhaseInfoStore;
+        TerrainPhaseInfo _terrainMapDefaultStore;
+        TerrainUIPhaseInfo _terrainWorldMapStore;
+        PhaseInfo _phases;
+        
         typedef std::set<uint8> BattleBetBreedSet;
         typedef UNORDERED_MAP<uint16, BattleBetBreedSet> BattlePetBreedXSpeciesMap;
         typedef std::set<uint8> BattlePetQualitySet;
@@ -1416,7 +1546,7 @@ class ObjectMgr
         QuestLocaleContainer _questLocaleStore;
         NpcTextLocaleContainer _npcTextLocaleStore;
         PageTextLocaleContainer _pageTextLocaleStore;
-        TrinityStringLocaleContainer _trinityStringLocaleStore;
+        SkyFireStringLocaleContainer _trinityStringLocaleStore;
         GossipMenuItemsLocaleContainer _gossipMenuItemsLocaleStore;
         PointOfInterestLocaleContainer _pointOfInterestLocaleStore;
         QuestObjectiveLocaleContainer m_questObjectiveLocaleStore;
@@ -1426,8 +1556,8 @@ class ObjectMgr
 
         GraveyardOrientationContainer _graveyardOrientations;
 
-        std::set<uint32> _difficultyEntries[MAX_DIFFICULTY - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
-        std::set<uint32> _hasDifficultyEntries[MAX_DIFFICULTY - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
+        std::set<uint32> _difficultyEntries[4 - 1]; // already loaded difficulty 1 value in creatures, used in CheckCreatureTemplate
+        std::set<uint32> _hasDifficultyEntries[4 - 1]; // already loaded creatures with difficulty 1 values, used in CheckCreatureTemplate
 
         enum CreatureLinkedRespawnType
         {
@@ -1437,11 +1567,15 @@ class ObjectMgr
             GO_TO_CREATURE          // GO is dependant on creature
         };
         HotfixData _hotfixData;
+
+        ResearchDigsiteContainer _researchDigsiteStore;
+        ArchaeologyFindContainer _archaeologyFindStore;
+        ResearchProjectRequirementContainer _researchProjectRequirementStore;
 };
 
 #define sObjectMgr ACE_Singleton<ObjectMgr, ACE_Null_Mutex>::instance()
 
 // scripting access functions
-bool LoadTrinityStrings(char const* table, int32 start_value = MAX_CREATURE_AI_TEXT_STRING_ID, int32 end_value = std::numeric_limits<int32>::min());
+bool LoadSkyFireStrings(char const* table, int32 start_value = MAX_CREATURE_AI_TEXT_STRING_ID, int32 end_value = std::numeric_limits<int32>::min());
 
 #endif

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,42 +39,38 @@ class disable_commandscript : public CommandScript
 public:
     disable_commandscript() : CommandScript("disable_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand removeDisableCommandTable[] =
+        static std::vector<ChatCommand> removeDisableCommandTable =
         {
-            { "spell",                rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_SPELL,                true, &HandleRemoveDisableSpellCommand,               "", NULL },
-            { "quest",                rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_QUEST,                true, &HandleRemoveDisableQuestCommand,               "", NULL },
-            { "map",                  rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_MAP,                  true, &HandleRemoveDisableMapCommand,                 "", NULL },
-            { "battleground",         rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_BATTLEGROUND,         true, &HandleRemoveDisableBattlegroundCommand,        "", NULL },
-            { "achievement_criteria", rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_ACHIEVEMENT_CRITERIA, true, &HandleRemoveDisableAchievementCriteriaCommand, "", NULL },
-            { "outdoorpvp",           rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_OUTDOORPVP,           true, &HandleRemoveDisableOutdoorPvPCommand,          "", NULL },
-            { "vmap",                 rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_VMAP,                 true, &HandleRemoveDisableVmapCommand,                "", NULL },
-            { "mmap",                 rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_MMAP,                 true, &HandleRemoveDisableMMapCommand,                "", NULL },
-            { NULL,                   0,                                                 false, NULL,                                           "", NULL }
+            { "spell",                rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_SPELL,                true, &HandleRemoveDisableSpellCommand,               "", },
+            { "quest",                rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_QUEST,                true, &HandleRemoveDisableQuestCommand,               "", },
+            { "map",                  rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_MAP,                  true, &HandleRemoveDisableMapCommand,                 "", },
+            { "battleground",         rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_BATTLEGROUND,         true, &HandleRemoveDisableBattlegroundCommand,        "", },
+            { "achievement_criteria", rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_ACHIEVEMENT_CRITERIA, true, &HandleRemoveDisableAchievementCriteriaCommand, "", },
+            { "outdoorpvp",           rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_OUTDOORPVP,           true, &HandleRemoveDisableOutdoorPvPCommand,          "", },
+            { "vmap",                 rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_VMAP,                 true, &HandleRemoveDisableVmapCommand,                "", },
+            { "mmap",                 rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE_MMAP,                 true, &HandleRemoveDisableMMapCommand,                "", },
         };
-        static ChatCommand addDisableCommandTable[] =
+        static std::vector<ChatCommand> addDisableCommandTable =
         {
-            { "spell",                rbac::RBAC_PERM_COMMAND_DISABLE_ADD_SPELL,                true, &HandleAddDisableSpellCommand,                  "", NULL },
-            { "quest",                rbac::RBAC_PERM_COMMAND_DISABLE_ADD_QUEST,                true, &HandleAddDisableQuestCommand,                  "", NULL },
-            { "map",                  rbac::RBAC_PERM_COMMAND_DISABLE_ADD_MAP,                  true, &HandleAddDisableMapCommand,                    "", NULL },
-            { "battleground",         rbac::RBAC_PERM_COMMAND_DISABLE_ADD_BATTLEGROUND,         true, &HandleAddDisableBattlegroundCommand,           "", NULL },
-            { "achievement_criteria", rbac::RBAC_PERM_COMMAND_DISABLE_ADD_ACHIEVEMENT_CRITERIA, true, &HandleAddDisableAchievementCriteriaCommand,    "", NULL },
-            { "outdoorpvp",           rbac::RBAC_PERM_COMMAND_DISABLE_ADD_OUTDOORPVP,           true, &HandleAddDisableOutdoorPvPCommand,             "", NULL },
-            { "vmap",                 rbac::RBAC_PERM_COMMAND_DISABLE_ADD_VMAP,                 true, &HandleAddDisableVmapCommand,                   "", NULL },
-            { "mmap",                 rbac::RBAC_PERM_COMMAND_DISABLE_ADD_MMAP,                 true, &HandleAddDisableMMapCommand,                   "", NULL },
-            { NULL,                   0,                                                 false,  NULL,                                           "", NULL }
+            { "spell",                rbac::RBAC_PERM_COMMAND_DISABLE_ADD_SPELL,                true, &HandleAddDisableSpellCommand,                  "", },
+            { "quest",                rbac::RBAC_PERM_COMMAND_DISABLE_ADD_QUEST,                true, &HandleAddDisableQuestCommand,                  "", },
+            { "map",                  rbac::RBAC_PERM_COMMAND_DISABLE_ADD_MAP,                  true, &HandleAddDisableMapCommand,                    "", },
+            { "battleground",         rbac::RBAC_PERM_COMMAND_DISABLE_ADD_BATTLEGROUND,         true, &HandleAddDisableBattlegroundCommand,           "", },
+            { "achievement_criteria", rbac::RBAC_PERM_COMMAND_DISABLE_ADD_ACHIEVEMENT_CRITERIA, true, &HandleAddDisableAchievementCriteriaCommand,    "", },
+            { "outdoorpvp",           rbac::RBAC_PERM_COMMAND_DISABLE_ADD_OUTDOORPVP,           true, &HandleAddDisableOutdoorPvPCommand,             "", },
+            { "vmap",                 rbac::RBAC_PERM_COMMAND_DISABLE_ADD_VMAP,                 true, &HandleAddDisableVmapCommand,                   "", },
+            { "mmap",                 rbac::RBAC_PERM_COMMAND_DISABLE_ADD_MMAP,                 true, &HandleAddDisableMMapCommand,                   "", },
         };
-        static ChatCommand disableCommandTable[] =
+        static std::vector<ChatCommand> disableCommandTable =
         {
             { "add",    rbac::RBAC_PERM_COMMAND_DISABLE_ADD,    true, NULL, "", addDisableCommandTable },
             { "remove", rbac::RBAC_PERM_COMMAND_DISABLE_REMOVE, true, NULL, "", removeDisableCommandTable },
-            { NULL,     0,                               false, NULL, "", NULL }
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "disable", rbac::RBAC_PERM_COMMAND_DISABLE, false, NULL, "", disableCommandTable },
-            { NULL,      0,                         false, NULL, "", NULL }
         };
         return commandTable;
     }

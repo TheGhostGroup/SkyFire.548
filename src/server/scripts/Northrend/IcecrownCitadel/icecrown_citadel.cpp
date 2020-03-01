@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -781,10 +781,10 @@ class boss_sister_svalna : public CreatureScript
             {
                 switch (victim->GetTypeId())
                 {
-                    case TYPEID_PLAYER:
+                    case TypeID::TYPEID_PLAYER:
                         Talk(SAY_SVALNA_KILL);
                         break;
-                    case TYPEID_UNIT:
+                    case TypeID::TYPEID_UNIT:
                         switch (victim->GetEntry())
                         {
                             case NPC_CAPTAIN_ARNATH:
@@ -1069,7 +1069,7 @@ class npc_crok_scourgebane : public CreatureScript
                         // get all nearby vrykul
                         std::list<Creature*> temp;
                         FrostwingVrykulSearcher check(me, 80.0f);
-                        Trinity::CreatureListSearcher<FrostwingVrykulSearcher> searcher(me, temp, check);
+                        Skyfire::CreatureListSearcher<FrostwingVrykulSearcher> searcher(me, temp, check);
                         me->VisitNearbyGridObject(80.0f, searcher);
 
                         _aliveTrash.clear();
@@ -1095,8 +1095,8 @@ class npc_crok_scourgebane : public CreatureScript
                 {
                     _wipeCheckTimer = 1000;
                     Player* player = NULL;
-                    Trinity::AnyPlayerInObjectRangeCheck check(me, 60.0f);
-                    Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
+                    Skyfire::AnyPlayerInObjectRangeCheck check(me, 60.0f);
+                    Skyfire::PlayerSearcher<Skyfire::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
                     me->VisitNearbyWorldObject(60.0f, searcher);
                     // wipe
                     if (!player)
@@ -1105,7 +1105,7 @@ class npc_crok_scourgebane : public CreatureScript
                         if (damage >= me->GetHealth())
                         {
                             FrostwingGauntletRespawner respawner;
-                            Trinity::CreatureWorker<FrostwingGauntletRespawner> worker(me, respawner);
+                            Skyfire::CreatureWorker<FrostwingGauntletRespawner> worker(me, respawner);
                             me->VisitNearbyGridObject(333.0f, worker);
                             Talk(SAY_CROK_DEATH);
                         }
@@ -1236,7 +1236,7 @@ struct npc_argent_captainAI : public ScriptedAI
 
         void KilledUnit(Unit* victim) OVERRIDE
         {
-            if (victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                 Talk(SAY_CAPTAIN_KILL);
         }
 
@@ -1300,7 +1300,7 @@ struct npc_argent_captainAI : public ScriptedAI
             if (spell->Id == SPELL_REVIVE_CHAMPION && !IsUndead)
             {
                 IsUndead = true;
-                me->setDeathState(JUST_RESPAWNED);
+                me->setDeathState(DeathState::JUST_RESPAWNED);
                 uint32 newEntry = 0;
                 switch (me->GetEntry())
                 {
@@ -1380,7 +1380,7 @@ class npc_captain_arnath : public CreatureScript
                         case EVENT_ARNATH_PW_SHIELD:
                         {
                             std::list<Creature*> targets = DoFindFriendlyMissingBuff(40.0f, SPELL_POWER_WORD_SHIELD);
-                            DoCast(Trinity::Containers::SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
+                            DoCast(Skyfire::Containers::SelectRandomContainerElement(targets), SPELL_POWER_WORD_SHIELD);
                             Events.ScheduleEvent(EVENT_ARNATH_PW_SHIELD, urand(15000, 20000));
                             break;
                         }
@@ -1405,8 +1405,8 @@ class npc_captain_arnath : public CreatureScript
             Creature* FindFriendlyCreature() const
             {
                 Creature* target = NULL;
-                Trinity::MostHPMissingInRange u_check(me, 60.0f, 0);
-                Trinity::CreatureLastSearcher<Trinity::MostHPMissingInRange> searcher(me, target, u_check);
+                Skyfire::MostHPMissingInRange u_check(me, 60.0f, 0);
+                Skyfire::CreatureLastSearcher<Skyfire::MostHPMissingInRange> searcher(me, target, u_check);
                 me->VisitNearbyGridObject(60.0f, searcher);
                 return target;
             }
@@ -1806,7 +1806,7 @@ class spell_icc_sprit_alarm : public SpellScriptLoader
 
                 std::list<Creature*> wards;
                 GetCaster()->GetCreatureListWithEntryInGrid(wards, NPC_DEATHBOUND_WARD, 150.0f);
-                wards.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                wards.sort(Skyfire::ObjectDistanceOrderPred(GetCaster()));
                 for (std::list<Creature*>::iterator itr = wards.begin(); itr != wards.end(); ++itr)
                 {
                     if ((*itr)->IsAlive() && (*itr)->HasAura(SPELL_STONEFORM))
@@ -1842,7 +1842,7 @@ class DeathPlagueTargetSelector
             if (object == _caster)
                 return true;
 
-            if (object->GetTypeId() != TYPEID_PLAYER)
+            if (object->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return true;
 
             if (object->ToUnit()->HasAura(SPELL_RECENTLY_INFECTED) || object->ToUnit()->HasAura(SPELL_DEATH_PLAGUE_AURA))
@@ -1884,7 +1884,7 @@ class spell_frost_giant_death_plague : public SpellScriptLoader
                 targets.remove_if(DeathPlagueTargetSelector(GetCaster()));
                 if (!targets.empty())
                 {
-                    WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                    WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                     targets.clear();
                     targets.push_back(target);
                 }
@@ -1973,7 +1973,7 @@ class spell_svalna_revive_champion : public SpellScriptLoader
             void RemoveAliveTarget(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(AliveCheck());
-                Trinity::Containers::RandomResizeList(targets, 2);
+                Skyfire::Containers::RandomResizeList(targets, 2);
             }
 
             void Land(SpellEffIndex /*effIndex*/)
@@ -2084,7 +2084,7 @@ class at_icc_saurfang_portal : public AreaTriggerScript
                 instance->SetData(DATA_COLDFLAME_JETS, IN_PROGRESS);
                 std::list<Creature*> traps;
                 GetCreatureListWithEntryInGrid(traps, player, NPC_FROST_FREEZE_TRAP, 120.0f);
-                traps.sort(Trinity::ObjectDistanceOrderPred(player));
+                traps.sort(Skyfire::ObjectDistanceOrderPred(player));
                 bool instant = false;
                 for (std::list<Creature*>::iterator itr = traps.begin(); itr != traps.end(); ++itr)
                 {

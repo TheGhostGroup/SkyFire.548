@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -58,7 +58,7 @@ class npc_pet_gen_mojo : public CreatureScript
             {
                 me->HandleEmoteCommand(emote);
                 Unit* owner = me->GetOwner();
-                if (emote != TEXT_EMOTE_KISS || !owner || owner->GetTypeId() != TYPEID_PLAYER ||
+                if (emote != TEXT_EMOTE_KISS || !owner || owner->GetTypeId() != TypeID::TYPEID_PLAYER ||
                     owner->ToPlayer()->GetTeam() != player->GetTeam())
                 {
                     return;

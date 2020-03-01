@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -336,7 +336,7 @@ public:
                         SaveToDB();
                         uiMainEventPhase = DONE;
                         if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
-                            pMainDoor->SetGoState(GO_STATE_ACTIVE);
+                            pMainDoor->SetGoState(GOState::GO_STATE_ACTIVE);
                     }
                     break;
                 case DATA_WAVE_COUNT:
@@ -364,16 +364,16 @@ public:
                 case DATA_MAIN_DOOR:
                     if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
                     {
-                        switch (data)
+                        switch (GOState(data))
                         {
-                            case GO_STATE_ACTIVE:
-                                pMainDoor->SetGoState(GO_STATE_ACTIVE);
+                            case GOState::GO_STATE_ACTIVE:
+                                pMainDoor->SetGoState(GOState::GO_STATE_ACTIVE);
                                 break;
-                            case GO_STATE_READY:
-                                pMainDoor->SetGoState(GO_STATE_READY);
+                            case GOState::GO_STATE_READY:
+                                pMainDoor->SetGoState(GOState::GO_STATE_READY);
                                 break;
-                            case GO_STATE_ACTIVE_ALTERNATIVE:
-                                pMainDoor->SetGoState(GO_STATE_ACTIVE_ALTERNATIVE);
+                            case GOState::GO_STATE_ACTIVE_ALTERNATIVE:
+                                pMainDoor->SetGoState(GOState::GO_STATE_ACTIVE_ALTERNATIVE);
                                 break;
                         }
                     }
@@ -397,7 +397,7 @@ public:
                     if (data == IN_PROGRESS) // Start event
                     {
                         if (GameObject* mainDoor = instance->GetGameObject(uiMainDoor))
-                            mainDoor->SetGoState(GO_STATE_READY);
+                            mainDoor->SetGoState(GOState::GO_STATE_READY);
                         uiWaveCount = 1;
                         bActive = true;
                         for (int i = 0; i < 4; ++i)
@@ -477,7 +477,7 @@ public:
         {
             SetData(DATA_PORTAL_LOCATION, (GetData(DATA_PORTAL_LOCATION) + urand(1, 5))%6);
             if (Creature* pSinclari = instance->GetCreature(uiSinclari))
-                if (Creature* portal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, PortalLocation[GetData(DATA_PORTAL_LOCATION)], TEMPSUMMON_CORPSE_DESPAWN))
+                if (Creature* portal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, PortalLocation[GetData(DATA_PORTAL_LOCATION)], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
                     uiTeleportationPortal = portal->GetGUID();
         }
 
@@ -579,9 +579,9 @@ public:
                         uiFirstBoss = urand(1, 6);
                     if (Creature* pSinclari = instance->GetCreature(uiSinclari))
                     {
-                        if (Creature* pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, MiddleRoomPortalSaboLocation, TEMPSUMMON_CORPSE_DESPAWN))
+                        if (Creature* pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, MiddleRoomPortalSaboLocation, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
                             uiSaboteurPortal = pPortal->GetGUID();
-                        if (Creature* pAzureSaboteur = pSinclari->SummonCreature(CREATURE_SABOTEOUR, MiddleRoomLocation, TEMPSUMMON_DEAD_DESPAWN))
+                        if (Creature* pAzureSaboteur = pSinclari->SummonCreature(CREATURE_SABOTEOUR, MiddleRoomLocation, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                             pAzureSaboteur->CastSpell(pAzureSaboteur, SABOTEUR_SHIELD_EFFECT, false);
                     }
                     break;
@@ -593,9 +593,9 @@ public:
                         } while (uiSecondBoss == uiFirstBoss);
                     if (Creature* pSinclari = instance->GetCreature(uiSinclari))
                     {
-                        if (Creature* pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, MiddleRoomPortalSaboLocation, TEMPSUMMON_CORPSE_DESPAWN))
+                        if (Creature* pPortal = pSinclari->SummonCreature(CREATURE_TELEPORTATION_PORTAL, MiddleRoomPortalSaboLocation, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
                             uiSaboteurPortal = pPortal->GetGUID();
-                        if (Creature* pAzureSaboteur = pSinclari->SummonCreature(CREATURE_SABOTEOUR, MiddleRoomLocation, TEMPSUMMON_DEAD_DESPAWN))
+                        if (Creature* pAzureSaboteur = pSinclari->SummonCreature(CREATURE_SABOTEOUR, MiddleRoomLocation, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                             pAzureSaboteur->CastSpell(pAzureSaboteur, SABOTEUR_SHIELD_EFFECT, false);
                     }
                     break;
@@ -603,13 +603,13 @@ public:
                 {
                     Creature* pSinclari = instance->GetCreature(uiSinclari);
                     if (pSinclari)
-                        pSinclari->SummonCreature(CREATURE_CYANIGOSA, CyanigosasSpawnLocation, TEMPSUMMON_DEAD_DESPAWN);
+                        pSinclari->SummonCreature(CREATURE_CYANIGOSA, CyanigosasSpawnLocation, TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
                     break;
                 }
                 case 1:
                 {
                     if (GameObject* pMainDoor = instance->GetGameObject(uiMainDoor))
-                        pMainDoor->SetGoState(GO_STATE_READY);
+                        pMainDoor->SetGoState(GOState::GO_STATE_READY);
                     DoUpdateWorldState(WORLD_STATE_VH_PRISON_STATE, 100);
                     // no break
                 }
@@ -709,7 +709,7 @@ public:
                 StartBossEncounter(uiFirstBoss, false);
                 StartBossEncounter(uiSecondBoss, false);
 
-                SetData(DATA_MAIN_DOOR, GO_STATE_ACTIVE);
+                SetData(DATA_MAIN_DOOR, uint32(GOState::GO_STATE_ACTIVE));
                 SetData(DATA_WAVE_COUNT, 0);
                 uiMainEventPhase = NOT_STARTED;
 
@@ -790,7 +790,7 @@ public:
                 // else set door state to active (means door will open and group have failed to sustain mob invasion on the door)
                 else
                 {
-                    SetData(DATA_MAIN_DOOR, GO_STATE_ACTIVE);
+                    SetData(DATA_MAIN_DOOR, uint32(GOState::GO_STATE_ACTIVE));
                     uiMainEventPhase = FAIL;
                 }
             }
@@ -808,7 +808,7 @@ public:
                 return;
 
             // the orb
-            TempSummon* trigger = invoker->SummonCreature(NPC_DEFENSE_SYSTEM, ArcaneSphere, TEMPSUMMON_MANUAL_DESPAWN, 0);
+            TempSummon* trigger = invoker->SummonCreature(NPC_DEFENSE_SYSTEM, ArcaneSphere, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN, 0);
             if (!trigger)
                 return;
 

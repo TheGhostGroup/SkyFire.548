@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,14 +93,8 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             return DIMINISHING_NONE;
         case SPELLFAMILY_MAGE:
         {
-            // Frostbite
-            if (spellproto->SpellFamilyFlags[1] & 0x80000000)
-                return DIMINISHING_ROOT;
-            // Shattered Barrier
-            else if (spellproto->SpellVisual[0] == 12297)
-                return DIMINISHING_ROOT;
             // Deep Freeze
-            else if (spellproto->SpellIconID == 2939 && spellproto->SpellVisual[0] == 9963)
+            if (spellproto->SpellIconID == 2939 && spellproto->SpellVisual[0] == 9963)
                 return DIMINISHING_CONTROLLED_STUN;
             // Frost Nova / Freeze (Water Elemental)
             else if (spellproto->SpellIconID == 193)
@@ -142,7 +136,6 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             else if (spellproto->SpellFamilyFlags[1] & 0x20)
                 return DIMINISHING_CYCLONE;
             // Entangling Roots
-            // Nature's Grasp
             else if (spellproto->SpellFamilyFlags[0] & 0x00000200)
                 return DIMINISHING_CONTROLLED_ROOT;
             // Faerie Fire
@@ -180,36 +173,13 @@ DiminishingGroup GetDiminishingReturnsGroupForSpell(SpellInfo const* spellproto,
             // Wyvern Sting mechanic is MECHANIC_SLEEP but the diminishing is DIMINISHING_DISORIENT
             else if ((spellproto->SpellFamilyFlags[1] & 0x1000) && spellproto->SpellIconID == 1721)
                 return DIMINISHING_DISORIENT;
-            // Freezing Arrow
-            else if (spellproto->SpellFamilyFlags[0] & 0x8)
-                return DIMINISHING_DISORIENT;
             break;
         }
         case SPELLFAMILY_PALADIN:
         {
-            // Judgement of Justice - limit duration to 10s in PvP
-            if (spellproto->SpellFamilyFlags[0] & 0x100000)
-                return DIMINISHING_LIMITONLY;
             // Turn Evil
-            else if ((spellproto->SpellFamilyFlags[1] & 0x804000) && spellproto->SpellIconID == 309)
+            if ((spellproto->SpellFamilyFlags[1] & 0x804000) && spellproto->SpellIconID == 309)
                 return DIMINISHING_FEAR;
-            break;
-        }
-        case SPELLFAMILY_SHAMAN:
-        {
-            // Storm, Earth and Fire - Earthgrab
-            if (spellproto->SpellFamilyFlags[2] & 0x4000)
-                return DIMINISHING_NONE;
-            break;
-        }
-        case SPELLFAMILY_DEATHKNIGHT:
-        {
-            // Hungering Cold (no flags)
-            if (spellproto->SpellIconID == 2797)
-                return DIMINISHING_DISORIENT;
-            // Mark of Blood
-            else if ((spellproto->SpellFamilyFlags[0] & 0x10000000) && spellproto->SpellIconID == 2285)
-                return DIMINISHING_LIMITONLY;
             break;
         }
         default:
@@ -389,7 +359,7 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
                             if (player)
                                 ChatHandler(player->GetSession()).PSendSysMessage("Craft spell %u not have create item entry.", spellInfo->Id);
                             else
-                                TC_LOG_ERROR("sql.sql", "Craft spell %u not have create item entry.", spellInfo->Id);
+                                SF_LOG_ERROR("sql.sql", "Craft spell %u not have create item entry.", spellInfo->Id);
                         }
                         return false;
                     }
@@ -403,7 +373,7 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
                         if (player)
                             ChatHandler(player->GetSession()).PSendSysMessage("Craft spell %u create not-exist in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Effects[i].ItemType);
                         else
-                            TC_LOG_ERROR("sql.sql", "Craft spell %u create not-exist in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Effects[i].ItemType);
+                            SF_LOG_ERROR("sql.sql", "Craft spell %u create not-exist in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Effects[i].ItemType);
                     }
                     return false;
                 }
@@ -421,7 +391,7 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
                         if (player)
                             ChatHandler(player->GetSession()).PSendSysMessage("Spell %u learn to broken spell %u, and then...", spellInfo->Id, spellInfo->Effects[i].TriggerSpell);
                         else
-                            TC_LOG_ERROR("sql.sql", "Spell %u learn to invalid spell %u, and then...", spellInfo->Id, spellInfo->Effects[i].TriggerSpell);
+                            SF_LOG_ERROR("sql.sql", "Spell %u learn to invalid spell %u, and then...", spellInfo->Id, spellInfo->Effects[i].TriggerSpell);
                     }
                     return false;
                 }
@@ -441,7 +411,7 @@ bool SpellMgr::IsSpellValid(SpellInfo const* spellInfo, Player* player, bool msg
                     if (player)
                         ChatHandler(player->GetSession()).PSendSysMessage("Craft spell %u have not-exist reagent in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Reagent[j]);
                     else
-                        TC_LOG_ERROR("sql.sql", "Craft spell %u have not-exist reagent in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Reagent[j]);
+                        SF_LOG_ERROR("sql.sql", "Craft spell %u have not-exist reagent in DB item (Entry: %u) and then...", spellInfo->Id, spellInfo->Reagent[j]);
                 }
                 return false;
             }
@@ -467,13 +437,13 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
     if (!GetSpellInfo(spellId))
         return spellId;
 
-    if (!caster || !caster->GetMap() || !caster->GetMap()->IsDungeon())
+    if (!caster || !caster->GetMap() || !caster->GetMap()->IsInstance())
         return spellId;
 
     uint32 mode = uint32(caster->GetMap()->GetSpawnMode());
-    if (mode >= MAX_DIFFICULTY)
+    if (mode >= 14)
     {
-        TC_LOG_ERROR("spells", "SpellMgr::GetSpellIdForDifficulty: Incorrect Difficulty for spell %u.", spellId);
+        SF_LOG_ERROR("spells", "SpellMgr::GetSpellIdForDifficulty: Incorrect DifficultyID for spell %u.", spellId);
         return spellId; //return source spell
     }
 
@@ -484,23 +454,23 @@ uint32 SpellMgr::GetSpellIdForDifficulty(uint32 spellId, Unit const* caster) con
     SpellDifficultyEntry const* difficultyEntry = sSpellDifficultyStore.LookupEntry(difficultyId);
     if (!difficultyEntry)
     {
-        TC_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: SpellDifficultyEntry not found for spell %u. This should never happen.", spellId);
+        SF_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: SpellDifficultyEntry not found for spell %u. This should never happen.", spellId);
         return spellId; //return source spell
     }
 
-    if (difficultyEntry->SpellID[mode] <= 0 && mode > DUNGEON_DIFFICULTY_HEROIC)
+    if (difficultyEntry->SpellID[mode] <= 0 && mode > DIFFICULTY_HEROIC)
     {
-        TC_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is NULL, using mode %u", spellId, mode, mode - 2);
+        SF_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is NULL, using mode %u", spellId, mode, mode - 2);
         mode -= 2;
     }
 
     if (difficultyEntry->SpellID[mode] <= 0)
     {
-        TC_LOG_ERROR("sql.sql", "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spellId, mode);
+        SF_LOG_ERROR("sql.sql", "SpellMgr::GetSpellIdForDifficulty: spell %u mode %u spell is 0. Check spelldifficulty_dbc!", spellId, mode);
         return spellId;
     }
 
-    TC_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: spellid for spell %u in mode %u is %d", spellId, mode, difficultyEntry->SpellID[mode]);
+    SF_LOG_DEBUG("spells", "SpellMgr::GetSpellIdForDifficulty: spellid for spell %u in mode %u is %d", spellId, mode, difficultyEntry->SpellID[mode]);
     return uint32(difficultyEntry->SpellID[mode]);
 }
 
@@ -513,11 +483,11 @@ SpellInfo const* SpellMgr::GetSpellForDifficultyFromSpell(SpellInfo const* spell
     SpellInfo const* newSpell = GetSpellInfo(newSpellId);
     if (!newSpell)
     {
-        TC_LOG_DEBUG("spells", "SpellMgr::GetSpellForDifficultyFromSpell: spell %u not found. Check spelldifficulty_dbc!", newSpellId);
+        SF_LOG_DEBUG("spells", "SpellMgr::GetSpellForDifficultyFromSpell: spell %u not found. Check spelldifficulty_dbc!", newSpellId);
         return spell;
     }
 
-    TC_LOG_DEBUG("spells", "SpellMgr::GetSpellForDifficultyFromSpell: Spell id for instance mode is %u (original %u)", newSpell->Id, spell->Id);
+    SF_LOG_DEBUG("spells", "SpellMgr::GetSpellForDifficultyFromSpell: Spell id for instance mode is %u (original %u)", newSpell->Id, spell->Id);
     return newSpell;
 }
 
@@ -1194,11 +1164,11 @@ void SpellMgr::LoadSpellRanks()
     uint32 oldMSTime = getMSTime();
 
     //                                                     0             1      2
-    QueryResult result = WorldDatabase.Query("SELECT first_spell_id, spell_id, rank from spell_ranks ORDER BY first_spell_id, rank");
+    QueryResult result = WorldDatabase.Query("SELECT first_spell_id, spell_id, spell_rank from spell_ranks ORDER BY first_spell_id, spell_rank");
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell rank records. DB table `spell_ranks` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell rank records. DB table `spell_ranks` is empty.");
         return;
     }
 
@@ -1237,13 +1207,13 @@ void SpellMgr::LoadSpellRanks()
         SpellInfo const* first = GetSpellInfo(lastSpell);
         if (!first)
         {
-            TC_LOG_ERROR("sql.sql", "Spell rank identifier(first_spell_id) %u listed in `spell_ranks` does not exist!", lastSpell);
+            SF_LOG_ERROR("sql.sql", "Spell rank identifier(first_spell_id) %u listed in `spell_ranks` does not exist!", lastSpell);
             continue;
         }
         // check if chain is long enough
         if (rankChain.size() < 2)
         {
-            TC_LOG_ERROR("sql.sql", "There is only 1 spell rank for identifier(first_spell_id) %u in `spell_ranks`, entry is not needed!", lastSpell);
+            SF_LOG_ERROR("sql.sql", "There is only 1 spell rank for identifier(first_spell_id) %u in `spell_ranks`, entry is not needed!", lastSpell);
             continue;
         }
         int32 curRank = 0;
@@ -1254,14 +1224,14 @@ void SpellMgr::LoadSpellRanks()
             SpellInfo const* spell = GetSpellInfo(itr->first);
             if (!spell)
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u (rank %u) listed in `spell_ranks` for chain %u does not exist!", itr->first, itr->second, lastSpell);
+                SF_LOG_ERROR("sql.sql", "Spell %u (rank %u) listed in `spell_ranks` for chain %u does not exist!", itr->first, itr->second, lastSpell);
                 valid = false;
                 break;
             }
             ++curRank;
             if (itr->second != curRank)
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u (rank %u) listed in `spell_ranks` for chain %u does not have proper rank value(should be %u)!", itr->first, itr->second, lastSpell, curRank);
+                SF_LOG_ERROR("sql.sql", "Spell %u (rank %u) listed in `spell_ranks` for chain %u does not have proper rank value(should be %u)!", itr->first, itr->second, lastSpell, curRank);
                 valid = false;
                 break;
             }
@@ -1277,7 +1247,7 @@ void SpellMgr::LoadSpellRanks()
             int32 addedSpell = itr->first;
 
             if (mSpellInfoMap[addedSpell]->ChainEntry)
-                TC_LOG_ERROR("sql.sql", "Spell %u (rank: %u, first: %u) listed in `spell_ranks` has already ChainEntry from dbc.", addedSpell, itr->second, lastSpell);
+                SF_LOG_ERROR("sql.sql", "Spell %u (rank: %u, first: %u) listed in `spell_ranks` has already ChainEntry from dbc.", addedSpell, itr->second, lastSpell);
 
             mSpellChains[addedSpell].first = GetSpellInfo(lastSpell);
             mSpellChains[addedSpell].last = GetSpellInfo(rankChain.back().first);
@@ -1299,7 +1269,7 @@ void SpellMgr::LoadSpellRanks()
     }
     while (!finished);
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u spell rank records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u spell rank records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellRequired()
@@ -1314,7 +1284,7 @@ void SpellMgr::LoadSpellRequired()
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell required records. DB table `spell_required` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell required records. DB table `spell_required` is empty.");
 
         return;
     }
@@ -1331,26 +1301,26 @@ void SpellMgr::LoadSpellRequired()
         SpellInfo const* spell = GetSpellInfo(spell_id);
         if (!spell)
         {
-            TC_LOG_ERROR("sql.sql", "spell_id %u in `spell_required` table is not found in dbcs, skipped", spell_id);
+            SF_LOG_ERROR("sql.sql", "spell_id %u in `spell_required` table is not found in dbcs, skipped", spell_id);
             continue;
         }
 
         SpellInfo const* reqSpell = GetSpellInfo(spell_req);
         if (!reqSpell)
         {
-            TC_LOG_ERROR("sql.sql", "req_spell %u in `spell_required` table is not found in dbcs, skipped", spell_req);
+            SF_LOG_ERROR("sql.sql", "req_spell %u in `spell_required` table is not found in dbcs, skipped", spell_req);
             continue;
         }
 
         if (spell->IsRankOf(reqSpell))
         {
-            TC_LOG_ERROR("sql.sql", "req_spell %u and spell_id %u in `spell_required` table are ranks of the same spell, entry not needed, skipped", spell_req, spell_id);
+            SF_LOG_ERROR("sql.sql", "req_spell %u and spell_id %u in `spell_required` table are ranks of the same spell, entry not needed, skipped", spell_req, spell_id);
             continue;
         }
 
         if (IsSpellRequiringSpell(spell_id, spell_req))
         {
-            TC_LOG_ERROR("sql.sql", "duplicated entry of req_spell %u and spell_id %u in `spell_required`, skipped", spell_req, spell_id);
+            SF_LOG_ERROR("sql.sql", "duplicated entry of req_spell %u and spell_id %u in `spell_required`, skipped", spell_req, spell_id);
             continue;
         }
 
@@ -1359,7 +1329,7 @@ void SpellMgr::LoadSpellRequired()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u spell required records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u spell required records in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 
 }
 
@@ -1397,7 +1367,7 @@ void SpellMgr::LoadSpellLearnSkills()
         }
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u Spell Learn Skills from DBC in %u ms", dbc_count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u Spell Learn Skills from DBC in %u ms", dbc_count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellLearnSpells()
@@ -1410,7 +1380,7 @@ void SpellMgr::LoadSpellLearnSpells()
     QueryResult result = WorldDatabase.Query("SELECT entry, SpellID, Active FROM spell_learn_spell");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell learn spells. DB table `spell_learn_spell` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell learn spells. DB table `spell_learn_spell` is empty.");
         return;
     }
 
@@ -1428,19 +1398,19 @@ void SpellMgr::LoadSpellLearnSpells()
 
         if (!GetSpellInfo(spell_id))
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` does not exist", spell_id);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` does not exist", spell_id);
             continue;
         }
 
         if (!GetSpellInfo(node.spell))
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` learning not existed spell %u", spell_id, node.spell);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` learning not existed spell %u", spell_id, node.spell);
             continue;
         }
 
         if (GetTalentSpellCost(node.spell))
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` attempt learning talent spell %u, skipped", spell_id, node.spell);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_learn_spell` attempt learning talent spell %u, skipped", spell_id, node.spell);
             continue;
         }
 
@@ -1485,7 +1455,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 {
                     if (itr->second.spell == dbc_node.spell)
                     {
-                        TC_LOG_ERROR("sql.sql", "Spell %u auto-learn spell %u in spell.dbc then the record in `spell_learn_spell` is redundant, please fix DB.",
+                        SF_LOG_ERROR("sql.sql", "Spell %u auto-learn spell %u in spell.dbc then the record in `spell_learn_spell` is redundant, please fix DB.",
                             spell, dbc_node.spell);
                         found = true;
                         break;
@@ -1527,7 +1497,7 @@ void SpellMgr::LoadSpellLearnSpells()
                 {
                     if (itr->second.spell == mastery)
                     {
-                        TC_LOG_ERROR("sql.sql", "Found redundant record (entry: %u, SpellID: %u) in `spell_learn_spell`, spell added automatically as mastery learned spell from TalentTab.dbc", masteryMainSpell, mastery);
+                        SF_LOG_ERROR("sql.sql", "Found redundant record (entry: %u, SpellID: %u) in `spell_learn_spell`, spell added automatically as mastery learned spell from TalentTab.dbc", masteryMainSpell, mastery);
                         found = true;
                         break;
                     }
@@ -1562,7 +1532,7 @@ void SpellMgr::LoadSpellLearnSpells()
         }
     }
     */
-    TC_LOG_INFO("server.loading", ">> Loaded %u spell learn spells, %u found in Spell.dbc and %u from TalentTab.dbc in %u ms", count, dbc_count, 0, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u spell learn spells, %u found in Spell.dbc and %u from TalentTab.dbc in %u ms", count, dbc_count, 0, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellTargetPositions()
@@ -1575,7 +1545,7 @@ void SpellMgr::LoadSpellTargetPositions()
     QueryResult result = WorldDatabase.Query("SELECT id, effIndex, target_map, target_position_x, target_position_y, target_position_z, target_orientation FROM spell_target_position");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell target coordinates. DB table `spell_target_position` is empty.");
         return;
     }
 
@@ -1598,20 +1568,20 @@ void SpellMgr::LoadSpellTargetPositions()
         MapEntry const* mapEntry = sMapStore.LookupEntry(st.target_mapId);
         if (!mapEntry)
         {
-            TC_LOG_ERROR("sql.sql", "Spell (Id: %u, effIndex: %u) target map (ID: %u) does not exist in `Map.dbc`.", Spell_ID, effIndex, st.target_mapId);
+            SF_LOG_ERROR("sql.sql", "Spell (Id: %u, effIndex: %u) target map (ID: %u) does not exist in `Map.dbc`.", Spell_ID, effIndex, st.target_mapId);
             continue;
         }
 
         if (st.target_X==0 && st.target_Y==0 && st.target_Z==0)
         {
-            TC_LOG_ERROR("sql.sql", "Spell (Id: %u, effIndex: %u) target coordinates not provided.", Spell_ID, effIndex);
+            SF_LOG_ERROR("sql.sql", "Spell (Id: %u, effIndex: %u) target coordinates not provided.", Spell_ID, effIndex);
             continue;
         }
 
         SpellInfo const* spellInfo = GetSpellInfo(Spell_ID);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Spell (Id: %u) listed in `spell_target_position` does not exist.", Spell_ID);
+            SF_LOG_ERROR("sql.sql", "Spell (Id: %u) listed in `spell_target_position` does not exist.", Spell_ID);
             continue;
         }
 
@@ -1623,7 +1593,7 @@ void SpellMgr::LoadSpellTargetPositions()
         }
         else
         {
-            TC_LOG_ERROR("sql.sql", "Spell (Id: %u, effIndex: %u) listed in `spell_target_position` does not have target TARGET_DEST_DB (17).", Spell_ID, effIndex);
+            SF_LOG_ERROR("sql.sql", "Spell (Id: %u, effIndex: %u) listed in `spell_target_position` does not have target TARGET_DEST_DB (17).", Spell_ID, effIndex);
             continue;
         }
 
@@ -1660,11 +1630,11 @@ void SpellMgr::LoadSpellTargetPositions()
         if (found)
         {
             if (!sSpellMgr->GetSpellTargetPosition(i))
-                TC_LOG_DEBUG("spells", "Spell (ID: %u) does not have record in `spell_target_position`", i);
+                SF_LOG_DEBUG("spells", "Spell (ID: %u) does not have record in `spell_target_position`", i);
         }
     }*/
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u spell teleport coordinates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u spell teleport coordinates in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellGroups()
@@ -1678,7 +1648,7 @@ void SpellMgr::LoadSpellGroups()
     QueryResult result = WorldDatabase.Query("SELECT id, spell_id FROM spell_group");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell group definitions. DB table `spell_group` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell group definitions. DB table `spell_group` is empty.");
         return;
     }
 
@@ -1691,7 +1661,7 @@ void SpellMgr::LoadSpellGroups()
         uint32 group_id = fields[0].GetUInt32();
         if (group_id <= SPELL_GROUP_DB_RANGE_MIN && group_id >= SPELL_GROUP_CORE_RANGE_MAX)
         {
-            TC_LOG_ERROR("sql.sql", "SpellGroup id %u listed in `spell_group` is in core range, but is not defined in core!", group_id);
+            SF_LOG_ERROR("sql.sql", "SpellGroup id %u listed in `spell_group` is in core range, but is not defined in core!", group_id);
             continue;
         }
         int32 spell_id = fields[1].GetInt32();
@@ -1707,7 +1677,7 @@ void SpellMgr::LoadSpellGroups()
         {
             if (groups.find(abs(itr->second)) == groups.end())
             {
-                TC_LOG_ERROR("sql.sql", "SpellGroup id %u listed in `spell_group` does not exist", abs(itr->second));
+                SF_LOG_ERROR("sql.sql", "SpellGroup id %u listed in `spell_group` does not exist", abs(itr->second));
                 mSpellGroupSpell.erase(itr++);
             }
             else
@@ -1719,12 +1689,12 @@ void SpellMgr::LoadSpellGroups()
 
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_group` does not exist", itr->second);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_group` does not exist", itr->second);
                 mSpellGroupSpell.erase(itr++);
             }
             else if (spellInfo->GetRank() > 1)
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_group` is not first rank of spell", itr->second);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_group` is not first rank of spell", itr->second);
                 mSpellGroupSpell.erase(itr++);
             }
             else
@@ -1744,7 +1714,7 @@ void SpellMgr::LoadSpellGroups()
         }
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u spell group definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u spell group definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellGroupStackRules()
@@ -1757,7 +1727,7 @@ void SpellMgr::LoadSpellGroupStackRules()
     QueryResult result = WorldDatabase.Query("SELECT group_id, stack_rule FROM spell_group_stack_rules");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell group stack rules. DB table `spell_group_stack_rules` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell group stack rules. DB table `spell_group_stack_rules` is empty.");
         return;
     }
 
@@ -1770,7 +1740,7 @@ void SpellMgr::LoadSpellGroupStackRules()
         uint8 stack_rule = fields[1].GetInt8();
         if (stack_rule >= SPELL_GROUP_STACK_RULE_MAX)
         {
-            TC_LOG_ERROR("sql.sql", "SpellGroupStackRule %u listed in `spell_group_stack_rules` does not exist", stack_rule);
+            SF_LOG_ERROR("sql.sql", "SpellGroupStackRule %u listed in `spell_group_stack_rules` does not exist", stack_rule);
             continue;
         }
 
@@ -1778,7 +1748,7 @@ void SpellMgr::LoadSpellGroupStackRules()
 
         if (spellGroup.first == spellGroup.second)
         {
-            TC_LOG_ERROR("sql.sql", "SpellGroup id %u listed in `spell_group_stack_rules` does not exist", group_id);
+            SF_LOG_ERROR("sql.sql", "SpellGroup id %u listed in `spell_group_stack_rules` does not exist", group_id);
             continue;
         }
 
@@ -1787,7 +1757,7 @@ void SpellMgr::LoadSpellGroupStackRules()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u spell group stack rules in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u spell group stack rules in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellProcEvents()
@@ -1800,7 +1770,7 @@ void SpellMgr::LoadSpellProcEvents()
     QueryResult result = WorldDatabase.Query("SELECT entry, SchoolMask, SpellFamilyName, SpellFamilyMask0, SpellFamilyMask1, SpellFamilyMask2, SpellFamilyMask3, procFlags, procEx, ppmRate, CustomChance, Cooldown FROM spell_proc_event");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell proc event conditions. DB table `spell_proc_event` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell proc event conditions. DB table `spell_proc_event` is empty.");
         return;
     }
 
@@ -1823,18 +1793,18 @@ void SpellMgr::LoadSpellProcEvents()
         SpellInfo const* spellInfo = GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc_event` does not exist", spellId);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc_event` does not exist", spellId);
             continue;
         }
 
         if (allRanks)
         {
             if (!spellInfo->IsRanked())
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc_event` with all ranks, but spell has no ranks.", spellId);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc_event` with all ranks, but spell has no ranks.", spellId);
 
             if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc_event` is not first rank of spell.", spellId);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc_event` is not first rank of spell.", spellId);
                 continue;
             }
         }
@@ -1857,12 +1827,12 @@ void SpellMgr::LoadSpellProcEvents()
         {
             if (mSpellProcEventMap.find(spellInfo->Id) != mSpellProcEventMap.end())
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc_event` already has its first rank in table.", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc_event` already has its first rank in table.", spellInfo->Id);
                 break;
             }
 
             if (!spellInfo->ProcFlags && !spellProcEvent.procFlags)
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc_event` probably not triggered spell", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc_event` probably not triggered spell", spellInfo->Id);
 
             mSpellProcEventMap[spellInfo->Id] = spellProcEvent;
 
@@ -1876,7 +1846,7 @@ void SpellMgr::LoadSpellProcEvents()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u extra spell proc event conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u extra spell proc event conditions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellProcs()
@@ -1889,7 +1859,7 @@ void SpellMgr::LoadSpellProcs()
     QueryResult result = WorldDatabase.Query("SELECT spellId, schoolMask, spellFamilyName, spellFamilyMask0, spellFamilyMask1, spellFamilyMask2, typeMask, spellTypeMask, spellPhaseMask, hitMask, attributesMask, ratePerMinute, chance, cooldown, charges FROM spell_proc");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell proc conditions and data. DB table `spell_proc` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell proc conditions and data. DB table `spell_proc` is empty.");
         return;
     }
 
@@ -1910,18 +1880,18 @@ void SpellMgr::LoadSpellProcs()
         SpellInfo const* spellInfo = GetSpellInfo(spellId);
         if (!spellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc` does not exist", spellId);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc` does not exist", spellId);
             continue;
         }
 
         if (allRanks)
         {
             if (!spellInfo->IsRanked())
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc` with all ranks, but spell has no ranks.", spellId);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc` with all ranks, but spell has no ranks.", spellId);
 
             if (spellInfo->GetFirstRankSpell()->Id != uint32(spellId))
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc` is not first rank of spell.", spellId);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc` is not first rank of spell.", spellId);
                 continue;
             }
         }
@@ -1948,7 +1918,7 @@ void SpellMgr::LoadSpellProcs()
         {
             if (mSpellProcMap.find(spellInfo->Id) != mSpellProcMap.end())
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc` already has its first rank in table.", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_proc` already has its first rank in table.", spellInfo->Id);
                 break;
             }
 
@@ -1964,47 +1934,47 @@ void SpellMgr::LoadSpellProcs()
 
             // validate data
             if (procEntry.schoolMask & ~SPELL_SCHOOL_MASK_ALL)
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `schoolMask` set: %u", spellInfo->Id, procEntry.schoolMask);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `schoolMask` set: %u", spellInfo->Id, procEntry.schoolMask);
             if (procEntry.spellFamilyName && (procEntry.spellFamilyName < 3 || procEntry.spellFamilyName > 17 || procEntry.spellFamilyName == 14 || procEntry.spellFamilyName == 16))
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `spellFamilyName` set: %u", spellInfo->Id, procEntry.spellFamilyName);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `spellFamilyName` set: %u", spellInfo->Id, procEntry.spellFamilyName);
             if (procEntry.chance < 0)
             {
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in `chance` field", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in `chance` field", spellInfo->Id);
                 procEntry.chance = 0;
             }
             if (procEntry.ratePerMinute < 0)
             {
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in `ratePerMinute` field", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in `ratePerMinute` field", spellInfo->Id);
                 procEntry.ratePerMinute = 0;
             }
             if (cooldown < 0)
             {
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in `cooldown` field", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has negative value in `cooldown` field", spellInfo->Id);
                 procEntry.cooldown = 0;
             }
             if (procEntry.chance == 0 && procEntry.ratePerMinute == 0)
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u doesn't have `chance` and `ratePerMinute` values defined, proc will not be triggered", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u doesn't have `chance` and `ratePerMinute` values defined, proc will not be triggered", spellInfo->Id);
             if (procEntry.charges > 99)
             {
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has too big value in `charges` field", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has too big value in `charges` field", spellInfo->Id);
                 procEntry.charges = 99;
             }
             if (!procEntry.typeMask)
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u doesn't have `typeMask` value defined, proc will not be triggered", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u doesn't have `typeMask` value defined, proc will not be triggered", spellInfo->Id);
             if (procEntry.spellTypeMask & ~PROC_SPELL_TYPE_MASK_ALL)
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `spellTypeMask` set: %u", spellInfo->Id, procEntry.spellTypeMask);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `spellTypeMask` set: %u", spellInfo->Id, procEntry.spellTypeMask);
             if (procEntry.spellTypeMask && !(procEntry.typeMask & (SPELL_PROC_FLAG_MASK | PERIODIC_PROC_FLAG_MASK)))
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has `spellTypeMask` value defined, but it won't be used for defined `typeMask` value", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has `spellTypeMask` value defined, but it won't be used for defined `typeMask` value", spellInfo->Id);
             if (!procEntry.spellPhaseMask && procEntry.typeMask & REQ_SPELL_PHASE_PROC_FLAG_MASK)
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u doesn't have `spellPhaseMask` value defined, but it's required for defined `typeMask` value, proc will not be triggered", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u doesn't have `spellPhaseMask` value defined, but it's required for defined `typeMask` value, proc will not be triggered", spellInfo->Id);
             if (procEntry.spellPhaseMask & ~PROC_SPELL_PHASE_MASK_ALL)
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `spellPhaseMask` set: %u", spellInfo->Id, procEntry.spellPhaseMask);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `spellPhaseMask` set: %u", spellInfo->Id, procEntry.spellPhaseMask);
             if (procEntry.spellPhaseMask && !(procEntry.typeMask & REQ_SPELL_PHASE_PROC_FLAG_MASK))
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has `spellPhaseMask` value defined, but it won't be used for defined `typeMask` value", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has `spellPhaseMask` value defined, but it won't be used for defined `typeMask` value", spellInfo->Id);
             if (procEntry.hitMask & ~PROC_HIT_MASK_ALL)
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `hitMask` set: %u", spellInfo->Id, procEntry.hitMask);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has wrong `hitMask` set: %u", spellInfo->Id, procEntry.hitMask);
             if (procEntry.hitMask && !(procEntry.typeMask & TAKEN_HIT_PROC_FLAG_MASK || (procEntry.typeMask & DONE_HIT_PROC_FLAG_MASK && (!procEntry.spellPhaseMask || procEntry.spellPhaseMask & (PROC_SPELL_PHASE_HIT | PROC_SPELL_PHASE_FINISH)))))
-                TC_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has `hitMask` value defined, but it won't be used for defined `typeMask` and `spellPhaseMask` values", spellInfo->Id);
+                SF_LOG_ERROR("sql.sql", "`spell_proc` table entry for spellId %u has `hitMask` value defined, but it won't be used for defined `typeMask` and `spellPhaseMask` values", spellInfo->Id);
 
             mSpellProcMap[spellInfo->Id] = procEntry;
 
@@ -2017,7 +1987,7 @@ void SpellMgr::LoadSpellProcs()
     }
     while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u spell proc conditions and data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u spell proc conditions and data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellBonusess()
@@ -2030,7 +2000,7 @@ void SpellMgr::LoadSpellBonusess()
     QueryResult result = WorldDatabase.Query("SELECT entry, direct_bonus, dot_bonus, ap_bonus, ap_dot_bonus FROM spell_bonus_data");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell bonus data. DB table `spell_bonus_data` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell bonus data. DB table `spell_bonus_data` is empty.");
         return;
     }
 
@@ -2043,7 +2013,7 @@ void SpellMgr::LoadSpellBonusess()
         SpellInfo const* spell = GetSpellInfo(entry);
         if (!spell)
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_bonus_data` does not exist", entry);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_bonus_data` does not exist", entry);
             continue;
         }
 
@@ -2056,7 +2026,7 @@ void SpellMgr::LoadSpellBonusess()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u extra spell bonus data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u extra spell bonus data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellThreats()
@@ -2069,7 +2039,7 @@ void SpellMgr::LoadSpellThreats()
     QueryResult result = WorldDatabase.Query("SELECT entry, flatMod, pctMod, apPctMod FROM spell_threat");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 aggro generating spells. DB table `spell_threat` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 aggro generating spells. DB table `spell_threat` is empty.");
         return;
     }
 
@@ -2082,7 +2052,7 @@ void SpellMgr::LoadSpellThreats()
 
         if (!GetSpellInfo(entry))
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_threat` does not exist", entry);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_threat` does not exist", entry);
             continue;
         }
 
@@ -2095,7 +2065,7 @@ void SpellMgr::LoadSpellThreats()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u SpellThreatEntries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u SpellThreatEntries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSkillLineAbilityMap()
@@ -2116,7 +2086,7 @@ void SpellMgr::LoadSkillLineAbilityMap()
         ++count;
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u SkillLineAbility MultiMap Data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u SkillLineAbility MultiMap Data in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellPetAuras()
@@ -2129,7 +2099,7 @@ void SpellMgr::LoadSpellPetAuras()
     QueryResult result = WorldDatabase.Query("SELECT spell, effectId, pet, aura FROM spell_pet_auras");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell pet auras. DB table `spell_pet_auras` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell pet auras. DB table `spell_pet_auras` is empty.");
         return;
     }
 
@@ -2151,21 +2121,21 @@ void SpellMgr::LoadSpellPetAuras()
             SpellInfo const* spellInfo = GetSpellInfo(spell);
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_pet_auras` does not exist", spell);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_pet_auras` does not exist", spell);
                 continue;
             }
             if (spellInfo->Effects[eff].Effect != SPELL_EFFECT_DUMMY &&
                (spellInfo->Effects[eff].Effect != SPELL_EFFECT_APPLY_AURA ||
                 spellInfo->Effects[eff].ApplyAuraName != SPELL_AURA_DUMMY))
             {
-                TC_LOG_ERROR("spells", "Spell %u listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);
+                SF_LOG_ERROR("spells", "Spell %u listed in `spell_pet_auras` does not have dummy aura or dummy effect", spell);
                 continue;
             }
 
             SpellInfo const* spellInfo2 = GetSpellInfo(aura);
             if (!spellInfo2)
             {
-                TC_LOG_ERROR("sql.sql", "Aura %u listed in `spell_pet_auras` does not exist", aura);
+                SF_LOG_ERROR("sql.sql", "Aura %u listed in `spell_pet_auras` does not exist", aura);
                 continue;
             }
 
@@ -2176,7 +2146,7 @@ void SpellMgr::LoadSpellPetAuras()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u spell pet auras in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u spell pet auras in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 // Fill custom data about enchancments
@@ -2216,7 +2186,7 @@ void SpellMgr::LoadEnchantCustomAttr()
         }
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u custom enchant attributes in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u custom enchant attributes in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellEnchantProcData()
@@ -2229,7 +2199,7 @@ void SpellMgr::LoadSpellEnchantProcData()
     QueryResult result = WorldDatabase.Query("SELECT entry, customChance, PPMChance, procEx FROM spell_enchant_proc_data");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell enchant proc event conditions. DB table `spell_enchant_proc_data` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell enchant proc event conditions. DB table `spell_enchant_proc_data` is empty.");
         return;
     }
 
@@ -2243,7 +2213,7 @@ void SpellMgr::LoadSpellEnchantProcData()
         SpellItemEnchantmentEntry const* ench = sSpellItemEnchantmentStore.LookupEntry(enchantId);
         if (!ench)
         {
-            TC_LOG_ERROR("sql.sql", "Enchancment %u listed in `spell_enchant_proc_data` does not exist", enchantId);
+            SF_LOG_ERROR("sql.sql", "Enchancment %u listed in `spell_enchant_proc_data` does not exist", enchantId);
             continue;
         }
 
@@ -2258,7 +2228,7 @@ void SpellMgr::LoadSpellEnchantProcData()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u enchant proc data definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u enchant proc data definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellLinked()
@@ -2271,7 +2241,7 @@ void SpellMgr::LoadSpellLinked()
     QueryResult result = WorldDatabase.Query("SELECT spell_trigger, spell_effect, type FROM spell_linked_spell");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 linked spells. DB table `spell_linked_spell` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 linked spells. DB table `spell_linked_spell` is empty.");
         return;
     }
 
@@ -2287,13 +2257,13 @@ void SpellMgr::LoadSpellLinked()
         SpellInfo const* spellInfo = GetSpellInfo(abs(trigger));
         if (!spellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_linked_spell` does not exist", abs(trigger));
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_linked_spell` does not exist", abs(trigger));
             continue;
         }
         spellInfo = GetSpellInfo(abs(effect));
         if (!spellInfo)
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_linked_spell` does not exist", abs(effect));
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_linked_spell` does not exist", abs(effect));
             continue;
         }
 
@@ -2309,7 +2279,7 @@ void SpellMgr::LoadSpellLinked()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u linked spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u linked spells in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadPetLevelupSpellMap()
@@ -2365,7 +2335,7 @@ void SpellMgr::LoadPetLevelupSpellMap()
         }
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u pet levelup and default spells for %u families in %u ms", count, family_count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u pet levelup and default spells for %u families in %u ms", count, family_count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 bool LoadPetDefaultSpells_helper(CreatureTemplate const* cInfo, PetDefaultSpellsEntry& petDefSpells)
@@ -2449,9 +2419,9 @@ void SpellMgr::LoadPetDefaultSpells()
         }
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded addition spells for %u pet spell data entries in %u ms", countData, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded addition spells for %u pet spell data entries in %u ms", countData, GetMSTimeDiffToNow(oldMSTime));
 
-    TC_LOG_INFO("server.loading", "Loading summonable creature templates...");
+    SF_LOG_INFO("server.loading", "Loading summonable creature templates...");
     oldMSTime = getMSTime();
 
     // different summon spells
@@ -2492,7 +2462,7 @@ void SpellMgr::LoadPetDefaultSpells()
         }
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u summonable creature templates in %u ms", countCreature, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u summonable creature templates in %u ms", countCreature, GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellAreas()
@@ -2508,7 +2478,7 @@ void SpellMgr::LoadSpellAreas()
     QueryResult result = WorldDatabase.Query("SELECT spell, area, quest_start, quest_start_status, quest_end_status, quest_end, aura_spell, racemask, gender, autocast FROM spell_area");
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 spell area requirements. DB table `spell_area` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 spell area requirements. DB table `spell_area` is empty.");
 
         return;
     }
@@ -2538,7 +2508,7 @@ void SpellMgr::LoadSpellAreas()
         }
         else
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` does not exist", spell);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` does not exist", spell);
             continue;
         }
 
@@ -2567,20 +2537,20 @@ void SpellMgr::LoadSpellAreas()
 
             if (!ok)
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` already listed with similar requirements.", spell);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` already listed with similar requirements.", spell);
                 continue;
             }
         }
 
         if (spellArea.areaId && !GetAreaEntryByAreaID(spellArea.areaId))
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong area (%u) requirement", spell, spellArea.areaId);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong area (%u) requirement", spell, spellArea.areaId);
             continue;
         }
 
         if (spellArea.questStart && !sObjectMgr->GetQuestTemplate(spellArea.questStart))
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong start quest (%u) requirement", spell, spellArea.questStart);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong start quest (%u) requirement", spell, spellArea.questStart);
             continue;
         }
 
@@ -2588,7 +2558,7 @@ void SpellMgr::LoadSpellAreas()
         {
             if (!sObjectMgr->GetQuestTemplate(spellArea.questEnd))
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong end quest (%u) requirement", spell, spellArea.questEnd);
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong end quest (%u) requirement", spell, spellArea.questEnd);
                 continue;
             }
         }
@@ -2598,13 +2568,13 @@ void SpellMgr::LoadSpellAreas()
             SpellInfo const* spellInfo = GetSpellInfo(abs(spellArea.auraSpell));
             if (!spellInfo)
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong aura spell (%u) requirement", spell, abs(spellArea.auraSpell));
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong aura spell (%u) requirement", spell, abs(spellArea.auraSpell));
                 continue;
             }
 
             if (uint32(abs(spellArea.auraSpell)) == spellArea.spellId)
             {
-                TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have aura spell (%u) requirement for itself", spell, abs(spellArea.auraSpell));
+                SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have aura spell (%u) requirement for itself", spell, abs(spellArea.auraSpell));
                 continue;
             }
 
@@ -2624,7 +2594,7 @@ void SpellMgr::LoadSpellAreas()
 
                 if (chain)
                 {
-                    TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have aura spell (%u) requirement that itself autocast from aura", spell, spellArea.auraSpell);
+                    SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have aura spell (%u) requirement that itself autocast from aura", spell, spellArea.auraSpell);
                     continue;
                 }
 
@@ -2640,7 +2610,7 @@ void SpellMgr::LoadSpellAreas()
 
                 if (chain)
                 {
-                    TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have aura spell (%u) requirement that itself autocast from aura", spell, spellArea.auraSpell);
+                    SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have aura spell (%u) requirement that itself autocast from aura", spell, spellArea.auraSpell);
                     continue;
                 }
             }
@@ -2648,13 +2618,13 @@ void SpellMgr::LoadSpellAreas()
 
         if (spellArea.raceMask && (spellArea.raceMask & RACEMASK_ALL_PLAYABLE) == 0)
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong race mask (%u) requirement", spell, spellArea.raceMask);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong race mask (%u) requirement", spell, spellArea.raceMask);
             continue;
         }
 
         if (spellArea.gender != GENDER_NONE && spellArea.gender != GENDER_FEMALE && spellArea.gender != GENDER_MALE)
         {
-            TC_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong gender (%u) requirement", spell, spellArea.gender);
+            SF_LOG_ERROR("sql.sql", "Spell %u listed in `spell_area` have wrong gender (%u) requirement", spell, spellArea.gender);
             continue;
         }
 
@@ -2679,7 +2649,7 @@ void SpellMgr::LoadSpellAreas()
         ++count;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u spell area requirements in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u spell area requirements in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 // Temporary structure to hold spell effect entries for faster loading
@@ -2716,7 +2686,7 @@ void SpellMgr::LoadSpellInfoStore()
         if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(i))
             mSpellInfoMap[i] = new SpellInfo(spellEntry, effectsBySpell[i].effects);
 
-    TC_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded SpellInfo store in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::UnloadSpellInfoStore()
@@ -2852,73 +2822,21 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         switch (spellInfo->Id)
         {
             case 1776: // Gouge
-            case 1777:
-            case 8629:
-            case 11285:
-            case 11286:
-            case 12540:
             case 13579:
             case 24698:
             case 28456:
             case 29425:
             case 34940:
             case 36862:
-            case 38764:
             case 38863:
             case 52743: // Head Smack
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_TARGET_FACING_CASTER;
                 break;
             case 53: // Backstab
-            case 2589:
-            case 2590:
-            case 2591:
-            case 8721:
-            case 11279:
-            case 11280:
-            case 11281:
-            case 25300:
-            case 26863:
-            case 48656:
-            case 48657:
-            case 703: // Garrote
-            case 8631:
-            case 8632:
-            case 8633:
-            case 11289:
-            case 11290:
-            case 26839:
-            case 26884:
-            case 48675:
-            case 48676:
             case 5221: // Shred
-            case 6800:
-            case 8992:
-            case 9829:
-            case 9830:
-            case 27001:
-            case 27002:
-            case 48571:
-            case 48572:
             case 8676: // Ambush
-            case 8724:
-            case 8725:
-            case 11267:
-            case 11268:
-            case 11269:
-            case 27441:
-            case 48689:
-            case 48690:
-            case 48691:
             case 6785: // Ravage
-            case 6787:
-            case 9866:
-            case 9867:
-            case 27005:
-            case 48578:
-            case 48579:
             case 21987: // Lash of Pain
-            case 23959: // Test Stab R50
-            case 24825: // Test Backstab
             case 58563: // Assassinate Restless Lookout
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_REQ_CASTER_BEHIND_TARGET;
                 break;
@@ -2928,9 +2846,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 43215: // Flame Breath
             case 70461: // Coldflame Trap
             case 72133: // Pain and Suffering
-            case 73788: // Pain and Suffering
-            case 73789: // Pain and Suffering
-            case 73790: // Pain and Suffering
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_CONE_LINE;
                 break;
             case 24340: // Meteor
@@ -2952,9 +2867,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 72373: // Shared Suffering
             case 71904: // Chaos Bane
             case 70492: // Ooze Eruption
-            case 72505: // Ooze Eruption
-            case 72624: // Ooze Eruption
-            case 72625: // Ooze Eruption
                 // ONLY SPELLS WITH SPELLFAMILY_GENERIC and EFFECT_SCHOOL_DAMAGE
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_SHARE_DAMAGE;
                 break;
@@ -2968,10 +2880,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 64777: // Machine Gun
             case 65239: // Machine Gun
             case 65919: // Impale
-            case 67858: // Impale
-            case 67859: // Impale
-            case 67860: // Impale
-            case 69293: // Wing Buffet
             case 74439: // Machine Gun
             case 63278: // Mark of the Faceless (General Vezax)
             case 62544: // Thrust (Argent Tournament)
@@ -2992,9 +2900,6 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
             case 63010: // Charge (Argent Tournament, NPC)
             case 68321: // Charge (Argent Tournament, NPC)
             case 72255: // Mark of the Fallen Champion (Deathbringer Saurfang)
-            case 72444: // Mark of the Fallen Champion (Deathbringer Saurfang)
-            case 72445: // Mark of the Fallen Champion (Deathbringer Saurfang)
-            case 72446: // Mark of the Fallen Champion (Deathbringer Saurfang)
                 spellInfo->AttributesCu |= SPELL_ATTR0_CU_IGNORE_ARMOR;
                 break;
             case 64422: // Sonic Screech (Auriaya)
@@ -3027,7 +2932,7 @@ void SpellMgr::LoadSpellInfoCustomAttributes()
         spellInfo->_InitializeExplicitTargetMask();
     }
 
-    TC_LOG_INFO("server.loading", ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded SpellInfo custom attributes in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
 void SpellMgr::LoadSpellInfoCorrections()
@@ -3125,11 +3030,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 5308: // Execute
                 spellInfo->AttributesEx3 |= SPELL_ATTR3_CANT_TRIGGER_PROC;
                 break;
-            case 59725: // Improved Spell Reflection - aoe aura
-                // Target entry seems to be wrong for this spell :/
-                spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER_AREA_PARTY);
-                spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_10_YARDS_2);
-                break;
+            
             case 31347: // Doom
             case 39365: // Thundering Storm
             case 41071: // Raise Dead (HACK)
@@ -3205,7 +3106,8 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 22008: // Netherwind Focus
             case 34477: // Misdirection
             case 34936: // Backlash
-            case 48108: // Hot Streak
+            case 48107: // Heating Up
+            case 48108: // Pyroblast!
             case 51124: // Killing Machine
             case 54741: // Firestarter
             case 57761: // Fireball!
@@ -3216,10 +3118,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 44544: // Fingers of Frost
                 spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(685904631, 1151048, 0, 0);
                 break;
-            case 74396: // Fingers of Frost visual buff
-                spellInfo->ProcCharges = 2;
-                spellInfo->StackAmount = 0;
-                break;
+            
             case 28200: // Ascendance (Talisman of Ascendance trinket)
                 spellInfo->ProcCharges = 6;
                 break;
@@ -3237,18 +3136,7 @@ void SpellMgr::LoadSpellInfoCorrections()
             case 51912: // Crafty's Ultra-Advanced Proto-Typical Shortening Blaster
                 spellInfo->Effects[EFFECT_0].ApplyAuraTickCount = 3000;
                 break;
-            // Master Shapeshifter: missing stance data for forms other than bear - bear version has correct data
-            // To prevent aura staying on target after talent unlearned
-            case 48420: // Master Shapeshifter
-            case 24900: // Heart of the Wild - Cat Effect
-                spellInfo->Stances = 1 << (FORM_CAT - 1);
-                break;
-            case 24899: // Heart of the Wild - Bear Effect
-                spellInfo->Stances = 1 << (FORM_BEAR - 1);
-                break;
-            case 48421: // Master Shapeshifter
-                spellInfo->Stances = 1 << (FORM_MOONKIN - 1);
-                break;
+            
             case 51466: // Elemental Oath (Rank 1)
             case 51470: // Elemental Oath (Rank 2)
                 spellInfo->Effects[EFFECT_1].Effect = SPELL_EFFECT_APPLY_AURA;
@@ -3256,10 +3144,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_1].MiscValue = SPELLMOD_EFFECT2;
                 spellInfo->Effects[EFFECT_1].SpellClassMask = flag128(0x00000000, 0x00004000, 0x00000000, 0x00000000);
                 break;
-            case 47569: // Improved Shadowform (Rank 1)
-                // with this spell atrribute aura can be stacked several times
-                spellInfo->Attributes &= ~SPELL_ATTR0_NOT_SHAPESHIFT;
-                break;
+            
             case 64904: // Hymn of Hope
                 spellInfo->Effects[EFFECT_1].ApplyAuraName = SPELL_AURA_MOD_INCREASE_ENERGY_PERCENT;
                 break;
@@ -3284,9 +3169,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
                 spellInfo->Effects[EFFECT_1].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_SRC_AREA_ALLY);
                 break;
-            case 63675: // Improved Devouring Plague
-                spellInfo->AttributesEx3 |= SPELL_ATTR3_NO_DONE_BONUS;
-                break;
+            
             case 8145: // Tremor Totem (instant pulse)
             case 6474: // Earthbind Totem (instant pulse)
                 spellInfo->AttributesEx5 |= SPELL_ATTR5_START_PERIODIC_AT_APPLY;
@@ -3310,31 +3193,7 @@ void SpellMgr::LoadSpellInfoCorrections()
                 spellInfo->Effects[EFFECT_0].TargetA = SpellImplicitTargetInfo(TARGET_UNIT_CASTER);
                 spellInfo->Effects[EFFECT_0].TargetB = SpellImplicitTargetInfo(TARGET_UNIT_MASTER);
                 break;
-            case 54800: // Sigil of the Frozen Conscience - change class mask to custom extended flags of Icy Touch
-                        // this is done because another spell also uses the same SpellFamilyFlags as Icy Touch
-                        // SpellFamilyFlags[0] & 0x00000040 in SPELLFAMILY_DEATHKNIGHT is currently unused (3.3.5a)
-                        // this needs research on modifier applying rules, does not seem to be in Attributes fields
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x00000040, 0x00000000, 0x00000000, 0x00000000);
-                break;
-            case 64949: // Idol of the Flourishing Life
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x00000000, 0x02000000, 0x00000000, 0x00000000);
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                break;
-            case 34231: // Libram of the Lightbringer
-            case 60792: // Libram of Tolerance
-            case 64956: // Libram of the Resolute
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x80000000, 0x00000000, 0x00000000, 0x00000000);
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                break;
-            case 28851: // Libram of Light
-            case 28853: // Libram of Divinity
-            case 32403: // Blessed Book of Nagrand
-                spellInfo->Effects[EFFECT_0].SpellClassMask = flag128(0x40000000, 0x00000000, 0x00000000, 0x00000000);
-                spellInfo->Effects[EFFECT_0].ApplyAuraName = SPELL_AURA_ADD_FLAT_MODIFIER;
-                break;
-            case 45602: // Ride Carpet
-                spellInfo->Effects[EFFECT_0].BasePoints = 0; // force seat 0, vehicle doesn't have the required seat flags for "no seat specified (-1)"
-                break;
+            
             case 61719: // Easter Lay Noblegarden Egg Aura - Interrupt flags copied from aura which this aura is linked with
                 spellInfo->AuraInterruptFlags = AURA_INTERRUPT_FLAG_HITBYSPELL | AURA_INTERRUPT_FLAG_TAKE_DAMAGE;
                 break;
@@ -3721,20 +3580,6 @@ void SpellMgr::LoadSpellInfoCorrections()
             default:
                 break;
         }
-
-        switch (spellInfo->SpellFamilyName)
-        {
-            case SPELLFAMILY_PALADIN:
-                // Seals of the Pure should affect Seal of Righteousness
-                if (spellInfo->SpellIconID == 25 && spellInfo->Attributes & SPELL_ATTR0_PASSIVE)
-                    spellInfo->Effects[EFFECT_0].SpellClassMask[1] |= 0x20000000;
-                break;
-            case SPELLFAMILY_DEATHKNIGHT:
-                // Icy Touch - extend FamilyFlags (unused value) for Sigil of the Frozen Conscience to use
-                if (spellInfo->SpellIconID == 2721 && spellInfo->SpellFamilyFlags[0] & 0x2)
-                    spellInfo->SpellFamilyFlags[0] |= 0x40;
-                break;
-        }
     }
 
     if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(121)))
@@ -3742,5 +3587,5 @@ void SpellMgr::LoadSpellInfoCorrections()
     if (SummonPropertiesEntry* properties = const_cast<SummonPropertiesEntry*>(sSummonPropertiesStore.LookupEntry(647))) // 52893
         properties->Type = SUMMON_TYPE_TOTEM;
 
-    TC_LOG_INFO("server.loading", ">> Loaded SpellInfo corrections in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded SpellInfo corrections in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }

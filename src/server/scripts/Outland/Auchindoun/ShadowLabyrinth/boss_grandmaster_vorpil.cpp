@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -101,7 +101,7 @@ class boss_grandmaster_vorpil : public CreatureScript
             void SummonPortals()
             {
                 for (uint8 i = 0; i < 5; ++i)
-                    if (Creature* portal = me->SummonCreature(NPC_VOID_PORTAL, VoidPortalCoords[i][0], VoidPortalCoords[i][1], VoidPortalCoords[i][2], 0, TEMPSUMMON_CORPSE_DESPAWN, 3000000))
+                    if (Creature* portal = me->SummonCreature(NPC_VOID_PORTAL, VoidPortalCoords[i][0], VoidPortalCoords[i][1], VoidPortalCoords[i][2], 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 3000000))
                         portal->CastSpell(portal, SPELL_VOID_PORTAL_VISUAL, true);
 
                 events.ScheduleEvent(EVENT_SUMMON_TRAVELER, 5000);
@@ -110,7 +110,7 @@ class boss_grandmaster_vorpil : public CreatureScript
             void spawnVoidTraveler()
             {
                 uint8 pos = urand(0, 4);
-                me->SummonCreature(NPC_VOID_TRAVELER, VoidPortalCoords[pos][0], VoidPortalCoords[pos][1], VoidPortalCoords[pos][2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
+                me->SummonCreature(NPC_VOID_TRAVELER, VoidPortalCoords[pos][0], VoidPortalCoords[pos][1], VoidPortalCoords[pos][2], 0, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000);
                 if (!_helpYell)
                 {
                     Talk(SAY_HELP);
@@ -120,7 +120,7 @@ class boss_grandmaster_vorpil : public CreatureScript
 
             void KilledUnit(Unit* who) OVERRIDE
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 

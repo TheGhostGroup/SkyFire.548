@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CREATUREAI_H
-#define TRINITY_CREATUREAI_H
+#ifndef SKYFIRE_CREATUREAI_H
+#define SKYFIRE_CREATUREAI_H
 
 #include "Creature.h"
 #include "UnitAI.h"
@@ -74,13 +74,14 @@ class CreatureAI : public UnitAI
 
         void SetGazeOn(Unit* target);
 
-        Creature* DoSummon(uint32 entry, Position const& pos, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-        Creature* DoSummon(uint32 entry, WorldObject* obj, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
-        Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+        Creature* DoSummon(uint32 entry, Position const& pos, uint32 despawnTime = 30000, TempSummonType summonType = TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+        Creature* DoSummon(uint32 entry, WorldObject* obj, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+        Creature* DoSummonFlyer(uint32 entry, WorldObject* obj, float flightZ, float radius = 5.0f, uint32 despawnTime = 30000, TempSummonType summonType = TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN);
 
     public:
         void Talk(uint8 id, WorldObject const* whisperTarget = NULL);
-        explicit CreatureAI(Creature* creature) : UnitAI(creature), me(creature), m_MoveInLineOfSight_locked(false) { }
+        explicit CreatureAI(Creature* creature) : UnitAI(creature), me(creature), m_MoveInLineOfSight_locked(false), m_canSeeEvenInPassiveMode(false)
+        { }
 
         virtual ~CreatureAI() { }
 
@@ -89,6 +90,9 @@ class CreatureAI : public UnitAI
         // Called if IsVisible(Unit* who) is true at each who move, reaction at visibility zone enter
         void MoveInLineOfSight_Safe(Unit* who);
 
+		bool CanSeeEvenInPassiveMode() { return m_canSeeEvenInPassiveMode; }
+        void SetCanSeeEvenInPassiveMode(bool canSeeEvenInPassiveMode) { m_canSeeEvenInPassiveMode = canSeeEvenInPassiveMode; }
+		
         // Called in Creature::Update when deathstate = DEAD. Inherited classes may maniuplate the ability to respawn based on scripted events.
         virtual bool CanRespawn() { return true; }
 
@@ -180,6 +184,7 @@ class CreatureAI : public UnitAI
 
     private:
         bool m_MoveInLineOfSight_locked;
+        bool m_canSeeEvenInPassiveMode;
 };
 
 enum Permitions

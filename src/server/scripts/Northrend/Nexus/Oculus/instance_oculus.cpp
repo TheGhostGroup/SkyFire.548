@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -180,9 +180,9 @@ public:
             {
                 case GO_DRAGON_CAGE_DOOR:
                     if (GetBossState(DATA_DRAKOS_EVENT) == DONE)
-                        go->SetGoState(GO_STATE_ACTIVE);
+                        go->SetGoState(GOState::GO_STATE_ACTIVE);
                     else
-                        go->SetGoState(GO_STATE_READY);
+                        go->SetGoState(GOState::GO_STATE_READY);
                     gameObjectList.push_back(go->GetGUID());
                     break;
                 case GO_EREGOS_CACHE_N:
@@ -280,7 +280,7 @@ public:
             for (std::list<uint64>::const_iterator itr = gameObjectList.begin(); itr != gameObjectList.end(); ++itr)
             {
                 if (GameObject* go = instance->GetGameObject(*itr))
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    go->SetGoState(GOState::GO_STATE_ACTIVE);
             }
         }
 

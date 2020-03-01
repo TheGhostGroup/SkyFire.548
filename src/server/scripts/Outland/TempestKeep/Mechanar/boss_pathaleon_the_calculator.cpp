@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -127,7 +127,7 @@ class boss_pathaleon_the_calculator : public CreatureScript
                             {
                                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 {
-                                    if (Creature* Wraith = me->SummonCreature(NPC_NETHER_WRAITH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                                    if (Creature* Wraith = me->SummonCreature(NPC_NETHER_WRAITH, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
                                         Wraith->AI()->AttackStart(target);
                                 }
                             }
@@ -222,7 +222,7 @@ class npc_nether_wraith : public CreatureScript
                 {
                     if (Die_Timer <= diff)
                     {
-                        me->setDeathState(JUST_DIED);
+                        me->setDeathState(DeathState::JUST_DIED);
                         me->RemoveCorpse();
                     }
                     else

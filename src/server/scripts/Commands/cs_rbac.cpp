@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,28 +51,25 @@ class rbac_commandscript : public CommandScript
 public:
     rbac_commandscript() : CommandScript("rbac_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    std::vector<ChatCommand> GetCommands() const
     {
-        static ChatCommand rbacAccountCommandTable[] =
+        static std::vector<ChatCommand> rbacAccountCommandTable =
         {
-            {        "list", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_LIST,   true, &HandleRBACPermListCommand,    "", NULL },
-            {       "grant", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT,  true, &HandleRBACPermGrantCommand,   "", NULL },
-            {        "deny", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY,   true, &HandleRBACPermDenyCommand,    "", NULL },
-            {      "revoke", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE, true, &HandleRBACPermRevokeCommand,  "", NULL },
-            {          NULL, 0, false, NULL, "", NULL }
+            {        "list", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_LIST,   true, &HandleRBACPermListCommand,    "", },
+            {       "grant", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_GRANT,  true, &HandleRBACPermGrantCommand,   "", },
+            {        "deny", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_DENY,   true, &HandleRBACPermDenyCommand,    "", },
+            {      "revoke", rbac::RBAC_PERM_COMMAND_RBAC_ACC_PERM_REVOKE, true, &HandleRBACPermRevokeCommand,  "", },
         };
 
-        static ChatCommand rbacCommandTable[] =
+        static std::vector<ChatCommand> rbacCommandTable =
         {
-            {    "account", rbac::RBAC_PERM_COMMAND_RBAC_ACC,  true, NULL, "", rbacAccountCommandTable },
-            {       "list", rbac::RBAC_PERM_COMMAND_RBAC_LIST, true, &HandleRBACListPermissionsCommand, "", NULL },
-            {         NULL, 0, false, NULL, "", NULL }
+            {    "account", rbac::RBAC_PERM_COMMAND_RBAC_ACC, true, NULL, "", rbacAccountCommandTable },
+            {    "list", rbac::RBAC_PERM_COMMAND_RBAC_LIST,   true, &HandleRBACListPermissionsCommand, "", },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             {       "rbac", rbac::RBAC_PERM_COMMAND_RBAC, true, NULL, "", rbacCommandTable },
-            {         NULL, 0, false, NULL, "", NULL }
         };
 
         return commandTable;
@@ -162,7 +159,7 @@ public:
 
         if (!rdata)
         {
-            data->rbac = new rbac::RBACData(accountId, accountName, realmID, AccountMgr::GetSecurity(accountId, realmID));
+            data->rbac = new rbac::RBACData(accountId, accountName, realmID, uint8(AccountMgr::GetSecurity(accountId, realmID)));
             data->rbac->LoadFromDB();
             data->needDelete = true;
         }
@@ -189,19 +186,19 @@ public:
 
         switch (result)
         {
-            case rbac::RBAC_CANT_ADD_ALREADY_ADDED:
+            case rbac::RBACCommandResult::RBAC_CANT_ADD_ALREADY_ADDED:
                 handler->PSendSysMessage(LANG_RBAC_PERM_GRANTED_IN_LIST, command->id, permission->GetName().c_str(),
                     command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
                 break;
-            case rbac::RBAC_IN_DENIED_LIST:
+            case rbac::RBACCommandResult::RBAC_IN_DENIED_LIST:
                 handler->PSendSysMessage(LANG_RBAC_PERM_GRANTED_IN_DENIED_LIST, command->id, permission->GetName().c_str(),
                     command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
                 break;
-            case rbac::RBAC_OK:
+            case rbac::RBACCommandResult::RBAC_OK:
                 handler->PSendSysMessage(LANG_RBAC_PERM_GRANTED, command->id, permission->GetName().c_str(),
                     command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
                 break;
-            case rbac::RBAC_ID_DOES_NOT_EXISTS:
+            case rbac::RBACCommandResult::RBAC_ID_DOES_NOT_EXISTS:
                 handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, command->id);
                 break;
             default:
@@ -228,19 +225,19 @@ public:
 
         switch (result)
         {
-            case rbac::RBAC_CANT_ADD_ALREADY_ADDED:
+            case rbac::RBACCommandResult::RBAC_CANT_ADD_ALREADY_ADDED:
                 handler->PSendSysMessage(LANG_RBAC_PERM_DENIED_IN_LIST, command->id, permission->GetName().c_str(),
                     command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
                 break;
-            case rbac::RBAC_IN_GRANTED_LIST:
+            case rbac::RBACCommandResult::RBAC_IN_GRANTED_LIST:
                 handler->PSendSysMessage(LANG_RBAC_PERM_DENIED_IN_GRANTED_LIST, command->id, permission->GetName().c_str(),
                     command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
                 break;
-            case rbac::RBAC_OK:
+            case rbac::RBACCommandResult::RBAC_OK:
                 handler->PSendSysMessage(LANG_RBAC_PERM_DENIED, command->id, permission->GetName().c_str(),
                     command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
                 break;
-            case rbac::RBAC_ID_DOES_NOT_EXISTS:
+            case rbac::RBACCommandResult::RBAC_ID_DOES_NOT_EXISTS:
                 handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, command->id);
                 break;
             default:
@@ -267,15 +264,15 @@ public:
 
         switch (result)
         {
-            case rbac::RBAC_CANT_REVOKE_NOT_IN_LIST:
+            case rbac::RBACCommandResult::RBAC_CANT_REVOKE_NOT_IN_LIST:
                 handler->PSendSysMessage(LANG_RBAC_PERM_REVOKED_NOT_IN_LIST, command->id, permission->GetName().c_str(),
                     command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
                 break;
-            case rbac::RBAC_OK:
+            case rbac::RBACCommandResult::RBAC_OK:
                 handler->PSendSysMessage(LANG_RBAC_PERM_REVOKED, command->id, permission->GetName().c_str(),
                     command->realmId, command->rbac->GetId(), command->rbac->GetName().c_str());
                 break;
-            case rbac::RBAC_ID_DOES_NOT_EXISTS:
+            case rbac::RBACCommandResult::RBAC_ID_DOES_NOT_EXISTS:
                 handler->PSendSysMessage(LANG_RBAC_WRONG_PARAMETER_ID, command->id);
                 break;
             default:
@@ -300,7 +297,7 @@ public:
         handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_GRANTED, command->rbac->GetId(), command->rbac->GetName().c_str());
         rbac::RBACPermissionContainer const& granted = command->rbac->GetGrantedPermissions();
         if (granted.empty())
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
+            handler->PSendSysMessage("%s", handler->GetSkyFireString(LANG_RBAC_LIST_EMPTY));
         else
         {
             for (rbac::RBACPermissionContainer::const_iterator itr = granted.begin(); itr != granted.end(); ++itr)
@@ -313,7 +310,7 @@ public:
         handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_DENIED, command->rbac->GetId(), command->rbac->GetName().c_str());
         rbac::RBACPermissionContainer const& denied = command->rbac->GetDeniedPermissions();
         if (denied.empty())
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
+            handler->PSendSysMessage("%s", handler->GetSkyFireString(LANG_RBAC_LIST_EMPTY));
         else
         {
             for (rbac::RBACPermissionContainer::const_iterator itr = denied.begin(); itr != denied.end(); ++itr)
@@ -325,7 +322,7 @@ public:
         handler->PSendSysMessage(LANG_RBAC_LIST_HEADER_DENIED, command->rbac->GetId(), command->rbac->GetName().c_str());
         rbac::RBACPermissionContainer const& defaultPermissions = sAccountMgr->GetRBACDefaultPermissions(command->rbac->GetSecurityLevel());
         if (defaultPermissions.empty())
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_EMPTY));
+            handler->PSendSysMessage("%s", handler->GetSkyFireString(LANG_RBAC_LIST_EMPTY));
         else
         {
             for (rbac::RBACPermissionContainer::const_iterator itr = defaultPermissions.begin(); itr != defaultPermissions.end(); ++itr)
@@ -349,7 +346,7 @@ public:
         if (!id)
         {
             rbac::RBACPermissionsContainer const& permissions = sAccountMgr->GetRBACPermissionList();
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMISSIONS_HEADER));
+            handler->PSendSysMessage("%s", handler->GetSkyFireString(LANG_RBAC_LIST_PERMISSIONS_HEADER));
             for (rbac::RBACPermissionsContainer::const_iterator it = permissions.begin(); it != permissions.end(); ++it)
             {
                 rbac::RBACPermission const* permission = it->second;
@@ -366,9 +363,9 @@ public:
                 return false;
             }
 
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMISSIONS_HEADER));
+            handler->PSendSysMessage("%s", handler->GetSkyFireString(LANG_RBAC_LIST_PERMISSIONS_HEADER));
             handler->PSendSysMessage(LANG_RBAC_LIST_ELEMENT, permission->GetId(), permission->GetName().c_str());
-            handler->PSendSysMessage("%s", handler->GetTrinityString(LANG_RBAC_LIST_PERMS_LINKED_HEADER));
+            handler->PSendSysMessage("%s", handler->GetSkyFireString(LANG_RBAC_LIST_PERMS_LINKED_HEADER));
             rbac::RBACPermissionContainer const& permissions = permission->GetLinkedPermissions();
             for (rbac::RBACPermissionContainer::const_iterator it = permissions.begin(); it != permissions.end(); ++it)
                 if (rbac::RBACPermission const* permission = sAccountMgr->GetRBACPermission(*it))

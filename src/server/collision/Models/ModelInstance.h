@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -64,7 +64,7 @@ namespace VMAP
     class ModelInstance: public ModelSpawn
     {
         public:
-            ModelInstance(): iInvScale(0.0f), iModel(0) { }
+            ModelInstance() : iInvScale(0.0f), iModel(0) { }
             ModelInstance(const ModelSpawn &spawn, WorldModel* model);
             void setUnloaded() { iModel = 0; }
             bool intersectRay(const G3D::Ray& pRay, float& pMaxDist, bool pStopAtFirstHit) const;

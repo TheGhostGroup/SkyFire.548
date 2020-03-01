@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@
 
 #include "Define.h"
 
+#include <memory>
 namespace VMAP
 {
     class WorldModel;
@@ -35,19 +36,32 @@ namespace VMAP
 class GameObject;
 struct GameObjectDisplayInfoEntry;
 
+class GameObjectModelOwnerBase
+{
+public:
+    virtual bool isSpawned() const { return false; }
+    virtual uint32 GetDisplayId() const { return 0; }
+    virtual uint32 GetPhaseMask() const { return 0; }
+    virtual G3D::Vector3 GetPosition() const { return G3D::Vector3::zero(); }
+    virtual float GetOrientation() const { return 0.0f; }
+    virtual float GetScale() const { return 1.0f; }
+    virtual void DebugVisualizeCorner(G3D::Vector3 const& /*corner*/) const { }
+};
+
 class GameObjectModel /*, public Intersectable*/
 {
+    GameObjectModel() : phasemask(0), iInvScale(0), iScale(0), iModel(NULL) { }
+private:
+    bool initialize(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
+
     uint32 phasemask;
     G3D::AABox iBound;
     G3D::Matrix3 iInvRot;
     G3D::Vector3 iPos;
-    //G3D::Vector3 iRot;
     float iInvScale;
     float iScale;
     VMAP::WorldModel* iModel;
-
-    GameObjectModel() : phasemask(0), iModel(NULL) { }
-    bool initialize(const GameObject& go, const GameObjectDisplayInfoEntry& info);
+    std::unique_ptr<GameObjectModelOwnerBase> owner;
 
 public:
     std::string name;
@@ -66,7 +80,8 @@ public:
 
     bool intersectRay(const G3D::Ray& Ray, float& MaxDist, bool StopAtFirstHit, uint32 ph_mask) const;
 
-    static GameObjectModel* Create(const GameObject& go);
+    static GameObjectModel* Create(std::unique_ptr<GameObjectModelOwnerBase> modelOwner, std::string const& dataPath);
+    bool Relocate();
 };
 
 #endif // _GAMEOBJECT_MODEL_H

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,18 +32,12 @@ public:
     typedef UNORDERED_MAP<uint32, ArenaTeam*> ArenaTeamContainer;
 
     ArenaTeam* GetArenaTeamById(uint32 arenaTeamId) const;
-    ArenaTeam* GetArenaTeamByName(std::string const& arenaTeamName) const;
-    ArenaTeam* GetArenaTeamByCaptain(uint64 guid) const;
 
-    void LoadArenaTeams();
     void AddArenaTeam(ArenaTeam* arenaTeam);
     void RemoveArenaTeam(uint32 Id);
 
     ArenaTeamContainer::iterator GetArenaTeamMapBegin() { return ArenaTeamStore.begin(); }
     ArenaTeamContainer::iterator GetArenaTeamMapEnd()   { return ArenaTeamStore.end(); }
-
-    uint32 GenerateArenaTeamId();
-    void SetNextArenaTeamId(uint32 Id) { NextArenaTeamId = Id; }
 
 protected:
     uint32 NextArenaTeamId;

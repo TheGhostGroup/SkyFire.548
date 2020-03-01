@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -211,6 +211,14 @@ enum SpellEffectHandleMode
     SPELL_EFFECT_HANDLE_HIT_TARGET
 };
 
+struct SpellResearchData
+{
+    uint32 keystoneItemId;
+    uint32 keystoneCount;
+    uint32 fragmentCurrencyId;
+    uint32 fragmentCount;
+};
+
 class Spell
 {
     friend void Unit::SetCurrentCastedSpell(Spell* pSpell);
@@ -283,6 +291,7 @@ class Spell
         void EffectEnchantHeldItem(SpellEffIndex effIndex);
         void EffectSummonObject(SpellEffIndex effIndex);
         void EffectResurrect(SpellEffIndex effIndex);
+        void EffectDodge(SpellEffIndex effIndex);
         void EffectParry(SpellEffIndex effIndex);
         void EffectBlock(SpellEffIndex effIndex);
         void EffectLeap(SpellEffIndex effIndex);
@@ -463,6 +472,7 @@ class Spell
         SpellCastTargets m_targets;
         int8 m_comboPointGain;
         SpellCustomErrors m_customError;
+        SpellResearchData const* m_researchData;
 
         UsedSpellMods m_appliedMods;
 
@@ -693,9 +703,12 @@ class Spell
         double rand_norm()                      { return m_caster->GetMap()->mtRand.randExc(); }
         double rand_chance()                    { return m_caster->GetMap()->mtRand.randExc(100.0); }
 #endif
+    private:
+        Spell(Spell const& right) = delete;
+        Spell & operator=(Spell const& right) = delete;
 };
 
-namespace Trinity
+namespace Skyfire
 {
     struct WorldObjectSpellTargetCheck
     {

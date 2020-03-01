@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -162,7 +162,7 @@ class boss_anomalus : public CreatureScript
                     Phase = 1;
                     Talk(SAY_SHIELD);
                     DoCast(me, SPELL_RIFT_SHIELD);
-                    if (Creature* Rift = me->SummonCreature(NPC_CHAOTIC_RIFT, RiftLocation[urand(0, 5)], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
+                    if (Creature* Rift = me->SummonCreature(NPC_CHAOTIC_RIFT, RiftLocation[urand(0, 5)], TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
                     {
                         //DoCast(Rift, SPELL_CHARGE_RIFT);
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -239,7 +239,7 @@ class npc_chaotic_rift : public CreatureScript
 
                 if (uiSummonCrazedManaWraithTimer <= diff)
                 {
-                    if (Creature* Wraith = me->SummonCreature(NPC_CRAZED_MANA_WRAITH, me->GetPositionX() + 1, me->GetPositionY() + 1, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
+                    if (Creature* Wraith = me->SummonCreature(NPC_CRAZED_MANA_WRAITH, me->GetPositionX() + 1, me->GetPositionY() + 1, me->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000))
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             Wraith->AI()->AttackStart(target);
                     Creature* Anomalus = ObjectAccessor::GetCreature(*me, instance->GetData64(DATA_ANOMALUS));

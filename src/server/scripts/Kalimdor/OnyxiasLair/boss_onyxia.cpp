@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -281,7 +281,7 @@ public:
                 (Spell->Id >= 21135 && Spell->Id <= 21139) ||
                 (Spell->Id >= 22191 && Spell->Id <= 22202) ||
                 (Spell->Id >= 22267 && Spell->Id <= 22268)) &&
-                (target->GetTypeId() == TYPEID_PLAYER))
+                (target->GetTypeId() == TypeID::TYPEID_PLAYER))
             {
                 if (instance)
                 {
@@ -351,8 +351,8 @@ public:
                             DoCastVictim(SPELL_BELLOWING_ROAR);
                             // Eruption
                             GameObject* Floor = NULL;
-                            Trinity::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
-                            Trinity::GameObjectLastSearcher<Trinity::GameObjectInRangeCheck> searcher(me, Floor, check);
+                            Skyfire::GameObjectInRangeCheck check(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 15);
+                            Skyfire::GameObjectLastSearcher<Skyfire::GameObjectInRangeCheck> searcher(me, Floor, check);
                             me->VisitNearbyGridObject(30, searcher);
                             if (instance && Floor)
                                 instance->SetData64(DATA_FLOOR_ERUPTION_GUID, Floor->GetGUID());
@@ -440,12 +440,12 @@ public:
                             }
                             break;
                         case EVENT_LAIR_GUARD:       // Phase PHASE_BREATH
-                             me->SummonCreature(NPC_LAIRGUARD, SpawnLocations[2], TEMPSUMMON_CORPSE_DESPAWN);
+                             me->SummonCreature(NPC_LAIRGUARD, SpawnLocations[2], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
                             events.ScheduleEvent(EVENT_LAIR_GUARD, 30000);
                             break;
                         case EVENT_WHELP_SPAWN:      // Phase PHASE_BREATH
-                            me->SummonCreature(NPC_WHELP, SpawnLocations[0], TEMPSUMMON_CORPSE_DESPAWN);
-                            me->SummonCreature(NPC_WHELP, SpawnLocations[1], TEMPSUMMON_CORPSE_DESPAWN);
+                            me->SummonCreature(NPC_WHELP, SpawnLocations[0], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
+                            me->SummonCreature(NPC_WHELP, SpawnLocations[1], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
                             if (SummonWhelpCount >= RAID_MODE(20, 40))
                             {
                                 SummonWhelpCount = 0;

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -147,11 +147,11 @@ class boss_moam : public CreatureScript
                             {
                                 const std::list<HostileReference*>& threatlist = me->getThreatManager().getThreatList();
                                 for (std::list<HostileReference*>::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
-                                    if ((*itr)->getTarget()->GetTypeId() == TYPEID_PLAYER && (*itr)->getTarget()->getPowerType() == POWER_MANA)
+                                    if ((*itr)->getTarget()->GetTypeId() == TypeID::TYPEID_PLAYER && (*itr)->getTarget()->getPowerType() == POWER_MANA)
                                         targetList.push_back((*itr)->getTarget());
                             }
 
-                            Trinity::Containers::RandomResizeList(targetList, 5);
+                            Skyfire::Containers::RandomResizeList(targetList, 5);
 
                             for (std::list<Unit*>::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
                                 DoCast(*itr, SPELL_DRAIN_MANA);

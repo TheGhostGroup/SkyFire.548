@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <mutex>
 #include <string>
 #include <sstream>
 #include "VMapManager2.h"
@@ -68,7 +69,7 @@ namespace VMAP
     std::string VMapManager2::getMapFileName(unsigned int mapId)
     {
         std::stringstream fname;
-        fname.width(3);
+        fname.width(4);
         fname << std::setfill('0') << mapId << std::string(MAP_FILENAME_EXTENSION2);
 
         return fname.str();
@@ -89,7 +90,7 @@ namespace VMAP
     }
 
     // load one tile (internal use only)
-    bool VMapManager2::_loadMap(unsigned int mapId, const std::string& basePath, uint32 tileX, uint32 tileY)
+    bool VMapManager2::_loadMap(uint32 mapId, const std::string& basePath, uint32 tileX, uint32 tileY)
     {
         InstanceTreeMap::iterator instanceTree = iInstanceMapTrees.find(mapId);
         if (instanceTree == iInstanceMapTrees.end())
@@ -253,7 +254,7 @@ namespace VMAP
     WorldModel* VMapManager2::acquireModelInstance(const std::string& basepath, const std::string& filename)
     {
         //! Critical section, thread safe access to iLoadedModelFiles
-        TRINITY_GUARD(ACE_Thread_Mutex, LoadedModelFilesLock);
+        std::lock_guard<std::mutex> guard(LoadedModelFilesLock);
 
         ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())
@@ -276,7 +277,7 @@ namespace VMAP
     void VMapManager2::releaseModelInstance(const std::string &filename)
     {
         //! Critical section, thread safe access to iLoadedModelFiles
-        TRINITY_GUARD(ACE_Thread_Mutex, LoadedModelFilesLock);
+        std::lock_guard<std::mutex> guard(LoadedModelFilesLock);
 
         ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
         if (model == iLoadedModelFiles.end())

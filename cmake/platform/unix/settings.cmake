@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2014 Project SkyFire <http://www.projectskyfire.org/>
-# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2011-2019 Project SkyFire <http://www.projectskyfire.org/
+# Copyright (C) 2008-2019 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -45,7 +45,12 @@ message(STATUS "UNIX: Created uninstall target")
 
 message(STATUS "UNIX: Detected compiler: ${CMAKE_C_COMPILER}")
 if(CMAKE_C_COMPILER MATCHES "gcc" OR CMAKE_C_COMPILER_ID STREQUAL "GNU")
-  include(${CMAKE_SOURCE_DIR}/cmake/compiler/gcc/settings.cmake)
+  execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+  if (NOT (GCC_VERSION VERSION_GREATER 8.0 OR GCC_VERSION VERSION_EQUAL 8.0))
+    message(FATAL_ERROR "GCC: Compiler doesnt support c++17, requires g++ 8.0 or greater.")
+  elseif(GCC_VERSION VERSION_GREATER 8.0 OR GCC_VERSION VERSION_EQUAL 8.0)
+    include(${CMAKE_SOURCE_DIR}/cmake/compiler/gcc/settings.cmake)
+  endif()
 elseif(CMAKE_C_COMPILER MATCHES "icc")
   include(${CMAKE_SOURCE_DIR}/cmake/compiler/icc/settings.cmake)
 elseif(CMAKE_C_COMPILER MATCHES "clang")

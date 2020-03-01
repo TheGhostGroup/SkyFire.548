@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -479,7 +479,7 @@ public:
                 if (!rune)
                     continue;
 
-                if (rune->GetGoState() == GO_STATE_ACTIVE)
+                if (rune->GetGoState() == GOState::GO_STATE_ACTIVE)
                 {
                     for (uint8 ii = 0; ii < 5; ++ii)
                     {
@@ -489,7 +489,7 @@ public:
                     }
                 }
 
-                if (!_mobAlive && rune->GetGoState() == GO_STATE_ACTIVE)
+                if (!_mobAlive && rune->GetGoState() == GOState::GO_STATE_ACTIVE)
                 {
                     HandleGameObject(0, false, rune);
 

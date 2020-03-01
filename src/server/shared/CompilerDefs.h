@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_COMPILERDEFS_H
-#define TRINITY_COMPILERDEFS_H
+#ifndef SKYFIRE_COMPILERDEFS_H
+#define SKYFIRE_COMPILERDEFS_H
 
 #define PLATFORM_WINDOWS 0
 #define PLATFORM_UNIX    1
@@ -43,6 +43,11 @@
 #define COMPILER_BORLAND   2
 #define COMPILER_INTEL     3
 
+#if defined _MSC_VER && _MSC_VER >= 1910
+#include <stack>
+#include <ratio>
+#endif
+
 #ifdef _MSC_VER
 #  define COMPILER COMPILER_MICROSOFT
 #elif defined( __BORLANDC__ )
@@ -60,6 +65,22 @@
 #  define COMPILER_HAS_CPP11_SUPPORT 1
 #else
 #  define COMPILER_HAS_CPP11_SUPPORT 0
+#endif
+
+#if defined(__cplusplus) && __cplusplus == 201402L
+#  define COMPILER_HAS_CPP14_SUPPORT 1
+#else
+#  define COMPILER_HAS_CPP14_SUPPORT 0
+#endif
+
+#if COMPILER == COMPILER_MICROSOFT && _MSC_VER >= 1910 && _HAS_CXX17
+#define ACE_LACKS_AUTO_PTR 1
+#endif
+
+#ifdef __clang__
+#  if !defined (ACE_HAS_GCC_ATOMIC_BUILTINS)
+#    define ACE_HAS_GCC_ATOMIC_BUILTINS 1
+#  endif
 #endif
 
 #endif

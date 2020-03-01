@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -192,7 +192,7 @@ class boss_anubarak_trial : public CreatureScript
                 std::list<Creature*> FrostSphereList;
                 me->GetCreatureListWithEntryInGrid(FrostSphereList, NPC_FROST_SPHERE, 150.0f);
                 if (!FrostSphereList.empty())
-                    for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); itr++)
+                    for (std::list<Creature*>::iterator itr = FrostSphereList.begin(); itr != FrostSphereList.end(); ++itr)
                         (*itr)->DespawnOrUnsummon();
 
                 _burrowGUID.clear();
@@ -200,7 +200,7 @@ class boss_anubarak_trial : public CreatureScript
 
             void KilledUnit(Unit* who) OVERRIDE
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
                     Talk(SAY_KILL_PLAYER);
                     if (instance)
@@ -241,7 +241,7 @@ class boss_anubarak_trial : public CreatureScript
                 me->GetCreatureListWithEntryInGrid(AddList, NPC_FROST_SPHERE, 150.0f);
                 me->GetCreatureListWithEntryInGrid(AddList, NPC_BURROWER, 150.0f);
                 if (!AddList.empty())
-                    for (std::list<Creature*>::iterator itr = AddList.begin(); itr != AddList.end(); itr++)
+                    for (std::list<Creature*>::iterator itr = AddList.begin(); itr != AddList.end(); ++itr)
                         (*itr)->DespawnOrUnsummon();
             }
 
@@ -683,7 +683,7 @@ class npc_anubarak_spike : public CreatureScript
 
             bool CanAIAttack(Unit const* victim) const OVERRIDE
             {
-                return victim->GetTypeId() == TYPEID_PLAYER;
+                return victim->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void EnterCombat(Unit* who) OVERRIDE

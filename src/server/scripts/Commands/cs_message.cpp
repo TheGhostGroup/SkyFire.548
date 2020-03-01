@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,29 +36,26 @@ class message_commandscript : public CommandScript
 public:
     message_commandscript() : CommandScript("message_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    std::vector<ChatCommand> GetCommands() const
     {
-        static ChatCommand channelSetCommandTable[] =
+        static std::vector<ChatCommand> channelSetCommandTable =
         {
-            { "ownership", rbac::RBAC_PERM_COMMAND_CHANNEL_SET_OWNERSHIP, false, &HandleChannelSetOwnership, "", NULL },
-            { NULL,        0,                                       false, NULL,                       "", NULL }
+            { "ownership", rbac::RBAC_PERM_COMMAND_CHANNEL_SET_OWNERSHIP, false, &HandleChannelSetOwnership, "", },
         };
-        static ChatCommand channelCommandTable[] =
+        static std::vector<ChatCommand> channelCommandTable =
         {
             { "set", rbac::RBAC_PERM_COMMAND_CHANNEL_SET, true, NULL, "", channelSetCommandTable },
-            { NULL,  0,                            false, NULL, "", NULL }
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "channel",        rbac::RBAC_PERM_COMMAND_CHANNEL,        true, NULL,                         "", channelCommandTable  },
-            { "nameannounce",   rbac::RBAC_PERM_COMMAND_NAMEANNOUNCE,   true, &HandleNameAnnounceCommand,   "", NULL },
-            { "gmnameannounce", rbac::RBAC_PERM_COMMAND_GMNAMEANNOUNCE, true, &HandleGMNameAnnounceCommand, "", NULL },
-            { "announce",       rbac::RBAC_PERM_COMMAND_ANNOUNCE,       true, &HandleAnnounceCommand,       "", NULL },
-            { "gmannounce",     rbac::RBAC_PERM_COMMAND_GMANNOUNCE,     true, &HandleGMAnnounceCommand,     "", NULL },
-            { "notify",         rbac::RBAC_PERM_COMMAND_NOTIFY,         true, &HandleNotifyCommand,         "", NULL },
-            { "gmnotify",       rbac::RBAC_PERM_COMMAND_GMNOTIFY,       true, &HandleGMNotifyCommand,       "", NULL },
-            { "whispers",       rbac::RBAC_PERM_COMMAND_WHISPERS,      false, &HandleWhispersCommand,       "", NULL },
-            { NULL,             0,                               false, NULL,                         "", NULL }
+            { "nameannounce",   rbac::RBAC_PERM_COMMAND_NAMEANNOUNCE,   true, &HandleNameAnnounceCommand,   "", },
+            { "gmnameannounce", rbac::RBAC_PERM_COMMAND_GMNAMEANNOUNCE, true, &HandleGMNameAnnounceCommand, "", },
+            { "announce",       rbac::RBAC_PERM_COMMAND_ANNOUNCE,       true, &HandleAnnounceCommand,       "", },
+            { "gmannounce",     rbac::RBAC_PERM_COMMAND_GMANNOUNCE,     true, &HandleGMAnnounceCommand,     "", },
+            { "notify",         rbac::RBAC_PERM_COMMAND_NOTIFY,         true, &HandleNotifyCommand,         "", },
+            { "gmnotify",       rbac::RBAC_PERM_COMMAND_GMNOTIFY,       true, &HandleGMNotifyCommand,       "", },
+            { "whispers",       rbac::RBAC_PERM_COMMAND_WHISPERS,      false, &HandleWhispersCommand,       "", },
         };
         return commandTable;
     }
@@ -137,7 +134,7 @@ public:
             return false;
 
         char buff[2048];
-        sprintf(buff, handler->GetTrinityString(LANG_SYSTEMMESSAGE), args);
+        snprintf(buff, sizeof(buff), handler->GetSkyFireString(LANG_SYSTEMMESSAGE), args);
         sWorld->SendServerMessage(SERVER_MSG_STRING, buff);
         return true;
     }
@@ -156,7 +153,7 @@ public:
         if (!*args)
             return false;
 
-        std::string msg = handler->GetTrinityString(LANG_GLOBAL_NOTIFY);
+        std::string msg = handler->GetSkyFireString(LANG_GLOBAL_NOTIFY);
         msg += args;
 
         WorldPacket data(SMSG_NOTIFICATION, 2 + msg.length());
@@ -173,7 +170,7 @@ public:
         if (!*args)
             return false;
 
-        std::string str = handler->GetTrinityString(LANG_GM_NOTIFY);
+        std::string str = handler->GetSkyFireString(LANG_GM_NOTIFY);
         str += args;
 
         WorldPacket data(SMSG_NOTIFICATION, (str.size()+1));
@@ -187,7 +184,7 @@ public:
     {
         if (!*args)
         {
-            handler->PSendSysMessage(LANG_COMMAND_WHISPERACCEPTING, handler->GetSession()->GetPlayer()->isAcceptWhispers() ?  handler->GetTrinityString(LANG_ON) : handler->GetTrinityString(LANG_OFF));
+            handler->PSendSysMessage(LANG_COMMAND_WHISPERACCEPTING, handler->GetSession()->GetPlayer()->isAcceptWhispers() ?  handler->GetSkyFireString(LANG_ON) : handler->GetSkyFireString(LANG_OFF));
             return true;
         }
 

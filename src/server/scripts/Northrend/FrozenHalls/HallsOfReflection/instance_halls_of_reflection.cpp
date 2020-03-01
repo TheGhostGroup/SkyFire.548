@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -384,15 +384,15 @@ public:
                             uint64 bossGuid = i <= 3 ? _falricGUID : _marwynGUID;
 
                             if (!i)
-                                Trinity::Containers::RandomResizeList(tempList, 3);
+                                Skyfire::Containers::RandomResizeList(tempList, 3);
                             else if (i < 6 && i != 3)
-                                Trinity::Containers::RandomResizeList(tempList, 4);
+                                Skyfire::Containers::RandomResizeList(tempList, 4);
 
                             for (std::list<uint32>::const_iterator itr = tempList.begin(); itr != tempList.end(); ++itr)
                             {
                                 if (Creature* boss = instance->GetCreature(bossGuid))
                                 {
-                                    if (Creature* temp = boss->SummonCreature(*itr, SpawnPos[posIndex], TEMPSUMMON_DEAD_DESPAWN))
+                                    if (Creature* temp = boss->SummonCreature(*itr, SpawnPos[posIndex], TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                                     {
                                         temp->AI()->SetData(0, i);
                                         waveGuidList[i].insert(temp->GetGUID());
@@ -520,7 +520,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(char const* in) OVERRIDE OVERRIDE
+        void Load(char const* in) OVERRIDE
         {
             if (!in)
             {

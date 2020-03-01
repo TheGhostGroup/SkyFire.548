@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -261,7 +261,7 @@ public:
                 if (i == 0) {nx += 10; ny -= 5; o=2.5f;}
                 if (i == 1) {nx -= 8; ny -= 7; o=0.9f;}
                 if (i == 2) {nx -= 3; ny += 9; o=5.0f;}
-                Creature* binder = me->SummonCreature(NPC_SPELLBINDER, nx, ny, z, o, TEMPSUMMON_DEAD_DESPAWN, 0);
+                Creature* binder = me->SummonCreature(NPC_SPELLBINDER, nx, ny, z, o, TempSummonType::TEMPSUMMON_DEAD_DESPAWN, 0);
                 if (binder)
                     SpellBinderGUID[i] = binder->GetGUID();
             }
@@ -388,7 +388,7 @@ public:
 
         void KilledUnit(Unit* victim) OVERRIDE
         {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
+            if (victim->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return;
 
             Talk(DemonForm ? SAY_DEMON_SLAY : SAY_NIGHTELF_SLAY);
@@ -524,7 +524,7 @@ public:
                     for (ThreatContainer::StorageType::const_iterator itr = ThreatList.begin(); itr != ThreatList.end(); ++itr)
                     {
                         Unit* tempTarget = Unit::GetUnit(*me, (*itr)->getUnitGuid());
-                        if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != me->GetVictim()->GetGUID() && TargetList.size()<5)
+                        if (tempTarget && tempTarget->GetTypeId() == TypeID::TYPEID_PLAYER && tempTarget->GetGUID() != me->GetVictim()->GetGUID() && TargetList.size()<5)
                             TargetList.push_back(tempTarget);
                     }
                     //SpellInfo* spell = GET_SPELL(SPELL_INSIDIOUS_WHISPER);
@@ -532,7 +532,7 @@ public:
                     {
                         if ((*itr) && (*itr)->IsAlive())
                         {
-                            Creature* demon = me->SummonCreature(INNER_DEMON_ID, (*itr)->GetPositionX()+10, (*itr)->GetPositionY()+10, (*itr)->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                            Creature* demon = me->SummonCreature(INNER_DEMON_ID, (*itr)->GetPositionX()+10, (*itr)->GetPositionY()+10, (*itr)->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                             if (demon)
                             {
                                 demon->AI()->AttackStart((*itr));
@@ -579,7 +579,7 @@ public:
                 CastConsumingMadness();
                 DespawnDemon();
                 Creature* Copy = NULL;
-                Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000);
+                Copy = DoSpawnCreature(DEMON_FORM, 0, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 6000);
                 if (Copy)
                  {
                      Demon = Copy->GetGUID();
@@ -629,7 +629,7 @@ public:
 
         void KilledUnit(Unit* victim) OVERRIDE
         {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
+            if (victim->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return;
 
             Talk(SAY_DEMON_SLAY);

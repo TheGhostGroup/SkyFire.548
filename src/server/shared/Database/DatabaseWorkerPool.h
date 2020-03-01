@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,8 +51,7 @@ class DatabaseWorkerPool
 {
     public:
         /* Activity state */
-        DatabaseWorkerPool() :
-        _queue(new ACE_Activation_Queue())
+        DatabaseWorkerPool() : _queue(new ACE_Activation_Queue()), _connectionInfo(NULL)
         {
             memset(_connectionCount, 0, sizeof(_connectionCount));
             _connections.resize(IDX_SIZE);
@@ -68,16 +67,16 @@ class DatabaseWorkerPool
         bool Open(const std::string& infoString, uint8 async_threads, uint8 synch_threads)
         {
             bool res = true;
-            _connectionInfo = MySQLConnectionInfo(infoString);
+            _connectionInfo = new MySQLConnectionInfo(infoString);
 
-            TC_LOG_INFO("sql.driver", "Opening DatabasePool '%s'. Asynchronous connections: %u, synchronous connections: %u.",
+            SF_LOG_INFO("sql.driver", "Opening DatabasePool '%s'. Asynchronous connections: %u, synchronous connections: %u.",
                 GetDatabaseName(), async_threads, synch_threads);
 
             //! Open asynchronous connections (delayed operations)
             _connections[IDX_ASYNC].resize(async_threads);
             for (uint8 i = 0; i < async_threads; ++i)
             {
-                T* t = new T(_queue, _connectionInfo);
+                T* t = new T(_queue, *_connectionInfo);
                 res &= t->Open();
                 if (res) // only check mysql version if connection is valid
                     WPFatal(mysql_get_server_version(t->GetHandle()) >= MIN_MYSQL_SERVER_VERSION, "TrinityCore does not support MySQL versions below 5.1");
@@ -89,24 +88,24 @@ class DatabaseWorkerPool
             _connections[IDX_SYNCH].resize(synch_threads);
             for (uint8 i = 0; i < synch_threads; ++i)
             {
-                T* t = new T(_connectionInfo);
+                T* t = new T(*_connectionInfo);
                 res &= t->Open();
                 _connections[IDX_SYNCH][i] = t;
                 ++_connectionCount[IDX_SYNCH];
             }
 
             if (res)
-                TC_LOG_INFO("sql.driver", "DatabasePool '%s' opened successfully. %u total connections running.", GetDatabaseName(),
+                SF_LOG_INFO("sql.driver", "DatabasePool '%s' opened successfully. %u total connections running.", GetDatabaseName(),
                     (_connectionCount[IDX_SYNCH] + _connectionCount[IDX_ASYNC]));
             else
-                TC_LOG_ERROR("sql.driver", "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
+                SF_LOG_ERROR("sql.driver", "DatabasePool %s NOT opened. There were errors opening the MySQL connections. Check your SQLDriverLogFile "
                     "for specific errors.", GetDatabaseName());
             return res;
         }
 
         void Close()
         {
-            TC_LOG_INFO("sql.driver", "Closing down DatabasePool '%s'.", GetDatabaseName());
+            SF_LOG_INFO("sql.driver", "Closing down DatabasePool '%s'.", GetDatabaseName());
 
             //! Shuts down delaythreads for this connection pool by underlying deactivate().
             //! The next dequeue attempt in the worker thread tasks will result in an error,
@@ -122,7 +121,7 @@ class DatabaseWorkerPool
                 t->Close();         //! Closes the actualy MySQL connection.
             }
 
-            TC_LOG_INFO("sql.driver", "Asynchronous connections on DatabasePool '%s' terminated. Proceeding with synchronous connections.",
+            SF_LOG_INFO("sql.driver", "Asynchronous connections on DatabasePool '%s' terminated. Proceeding with synchronous connections.",
                 GetDatabaseName());
 
             //! Shut down the synchronous connections
@@ -135,7 +134,9 @@ class DatabaseWorkerPool
             //! Deletes the ACE_Activation_Queue object and its underlying ACE_Message_Queue
             delete _queue;
 
-            TC_LOG_INFO("sql.driver", "All connections on DatabasePool '%s' closed.", GetDatabaseName());
+            SF_LOG_INFO("sql.driver", "All connections on DatabasePool '%s' closed.", GetDatabaseName());
+            delete _connectionInfo;
+            _connectionInfo = NULL;
         }
 
         /**
@@ -361,22 +362,22 @@ class DatabaseWorkerPool
         //! were appended to the transaction will be respected during execution.
         void CommitTransaction(SQLTransaction transaction)
         {
-            #ifdef TRINITY_DEBUG
+            #ifdef SKYFIRE_DEBUG
             //! Only analyze transaction weaknesses in Debug mode.
             //! Ideally we catch the faults in Debug mode and then correct them,
             //! so there's no need to waste these CPU cycles in Release mode.
             switch (transaction->GetSize())
             {
                 case 0:
-                    TC_LOG_DEBUG("sql.driver", "Transaction contains 0 queries. Not executing.");
+                    SF_LOG_DEBUG("sql.driver", "Transaction contains 0 queries. Not executing.");
                     return;
                 case 1:
-                    TC_LOG_DEBUG("sql.driver", "Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
+                    SF_LOG_DEBUG("sql.driver", "Warning: Transaction only holds 1 query, consider removing Transaction context in code.");
                     break;
                 default:
                     break;
             }
-            #endif // TRINITY_DEBUG
+            #endif // SKYFIRE_DEBUG
 
             Enqueue(new TransactionTask(transaction));
         }
@@ -510,7 +511,7 @@ class DatabaseWorkerPool
 
         char const* GetDatabaseName() const
         {
-            return _connectionInfo.database.c_str();
+            return _connectionInfo->database.c_str();
         }
 
     private:
@@ -524,7 +525,7 @@ class DatabaseWorkerPool
         ACE_Activation_Queue*           _queue;             //! Queue shared by async worker threads.
         std::vector< std::vector<T*> >  _connections;
         uint32                          _connectionCount[2];       //! Counter of MySQL connections;
-        MySQLConnectionInfo             _connectionInfo;
+        MySQLConnectionInfo*            _connectionInfo;
 };
 
 #endif

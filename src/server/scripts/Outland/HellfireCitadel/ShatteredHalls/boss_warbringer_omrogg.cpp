@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -146,13 +146,13 @@ class boss_warbringer_omrogg : public CreatureScript
             {
                 if (Unit* LeftHead  = Unit::GetUnit(*me, LeftHeadGUID))
                 {
-                    LeftHead->setDeathState(JUST_DIED);
+                    LeftHead->setDeathState(DeathState::JUST_DIED);
                     LeftHeadGUID = 0;
                 }
 
                 if (Unit* RightHead  = Unit::GetUnit(*me, RightHeadGUID))
                 {
-                    RightHead->setDeathState(JUST_DIED);
+                    RightHead->setDeathState(DeathState::JUST_DIED);
                     RightHeadGUID = 0;
                 }
 
@@ -193,8 +193,8 @@ class boss_warbringer_omrogg : public CreatureScript
 
             void EnterCombat(Unit* /*who*/) OVERRIDE
             {
-                me->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
-                me->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_DEAD_DESPAWN, 0);
+                me->SummonCreature(NPC_LEFT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_DEAD_DESPAWN, 0);
+                me->SummonCreature(NPC_RIGHT_HEAD, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_DEAD_DESPAWN, 0);
 
                 if (Creature* LeftHead = Creature::GetCreature(*me, LeftHeadGUID))
                 {
@@ -429,7 +429,7 @@ class npc_omrogg_heads : public CreatureScript
                 if (events.ExecuteEvent() == EVENT_DEATH_YELL)
                 {
                     Talk(YELL_DIE_R);
-                    me->setDeathState(JUST_DIED);
+                    me->setDeathState(DeathState::JUST_DIED);
                 }
             }
 

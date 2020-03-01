@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -384,7 +384,7 @@ public:
                 case 1:
                     Talk(SAY_WP_3);
                     me->CastSpell(5918.33f, 5372.91f, -98.770f, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);     //approx 3 to 4 seconds
+                    me->SummonGameObject(184743, 5918.33f, 5372.91f, -98.770f, 0, 0, 0, 0, 0, 4000);     //approx 3 to 4 seconds
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                     break;
                 case 2:
@@ -395,7 +395,7 @@ public:
                     break;
                 case 8:
                     me->CastSpell(5887.37f, 5379.39f, -91.289f, SPELL_EXPLODE_CRYSTAL, true);
-                    me->SummonGameObject(184743, 5887.37f, 5379.39f, -91.289f, 0, 0, 0, 0, 0, TEMPSUMMON_MANUAL_DESPAWN);      //approx 3 to 4 seconds
+                    me->SummonGameObject(184743, 5887.37f, 5379.39f, -91.289f, 0, 0, 0, 0, 0, 4000);      //approx 3 to 4 seconds
                     me->HandleEmoteCommand(EMOTE_ONESHOT_LAUGH);
                     break;
                 case 9:
@@ -624,7 +624,7 @@ public:
                 return;
 
             player->KilledMonsterCredit(me->GetEntry(), 0);
-            player->Say(SAY_OFFER, LANG_UNIVERSAL);
+            player->Say(SAY_OFFER, Language::LANG_UNIVERSAL);
             sayStep = 1;
         }
 
@@ -1016,7 +1016,7 @@ public:
 
         void PassengerBoarded(Unit* passenger, int8 /*seatId*/, bool apply) OVERRIDE
         {
-            if (apply && passenger->GetTypeId() == TYPEID_PLAYER)
+            if (apply && passenger->GetTypeId() == TypeID::TYPEID_PLAYER)
                 me->GetMotionMaster()->MovePath(NPC_PLANE, false);
         }
 
@@ -1061,7 +1061,7 @@ public:
             if (spell->Id == SPELL_LAND)
             {
                 Unit* passenger = me->GetVehicleKit()->GetPassenger(1); // player should be on seat 1
-                if (passenger && passenger->GetTypeId() == TYPEID_PLAYER)
+                if (passenger && passenger->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
                     passenger->CastSpell(passenger, SPELL_CREDIT, true);
                     passenger->ExitVehicle();

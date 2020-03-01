@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_GAMEEVENT_MGR_H
-#define TRINITY_GAMEEVENT_MGR_H
+#ifndef SKYFIRE_GAMEEVENT_MGR_H
+#define SKYFIRE_GAMEEVENT_MGR_H
 
 #include "Common.h"
 #include "SharedDefines.h"
@@ -56,7 +56,7 @@ typedef std::map<uint32 /*condition id*/, GameEventFinishCondition> GameEventCon
 
 struct GameEventData
 {
-    GameEventData() : start(1), end(0), nextstart(0), occurence(0), length(0), holiday_id(HOLIDAY_NONE), state(GAMEEVENT_NORMAL) { }
+    GameEventData() : start(1), end(0), nextstart(0), occurence(0), length(0), holiday_id(HolidayIds::HOLIDAY_NONE), state(GAMEEVENT_NORMAL), announce(0) { }
     time_t start;           // occurs after this time
     time_t end;             // occurs before this time
     time_t nextstart;       // after this time the follow-up events count this phase completed

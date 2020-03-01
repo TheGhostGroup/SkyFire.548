@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -355,7 +355,7 @@ enum Misc
     DATA_VILE                   = 45814622
 };
 
-class NecroticPlagueTargetCheck : public std::unary_function<Unit*, bool>
+class NecroticPlagueTargetCheck : public SF_UNARY_FUNCTION<Unit*, bool>
 {
     public:
         NecroticPlagueTargetCheck(Unit const* obj, uint32 notAura1 = 0, uint32 notAura2 = 0)
@@ -391,10 +391,10 @@ class FrozenThroneResetWorker
                     go->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING);
                     break;
                 case GO_DOODAD_ICECROWN_THRONEFROSTYWIND01:
-                    go->SetGoState(GO_STATE_ACTIVE);
+                    go->SetGoState(GOState::GO_STATE_ACTIVE);
                     break;
                 case GO_DOODAD_ICECROWN_THRONEFROSTYEDGE01:
-                    go->SetGoState(GO_STATE_READY);
+                    go->SetGoState(GOState::GO_STATE_READY);
                     break;
                 case GO_DOODAD_ICESHARD_STANDING02:
                 case GO_DOODAD_ICESHARD_STANDING01:
@@ -538,7 +538,7 @@ class boss_the_lich_king : public CreatureScript
 
                 // Reset The Frozen Throne gameobjects
                 FrozenThroneResetWorker reset;
-                Trinity::GameObjectWorker<FrozenThroneResetWorker> worker(me, reset);
+                Skyfire::GameObjectWorker<FrozenThroneResetWorker> worker(me, reset);
                 me->VisitNearbyGridObject(333.0f, worker);
 
                 // Reset any light override
@@ -564,7 +564,7 @@ class boss_the_lich_king : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER && !me->IsInEvadeMode() && !events.IsInPhase(PHASE_OUTRO))
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER && !me->IsInEvadeMode() && !events.IsInPhase(PHASE_OUTRO))
                     Talk(SAY_LK_KILL);
             }
 
@@ -757,7 +757,7 @@ class boss_the_lich_king : public CreatureScript
                     case NPC_VALKYR_SHADOWGUARD:
                     case NPC_RAGING_SPIRIT:
                     case NPC_VILE_SPIRIT:
-                        summon->ToTempSummon()->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
+                        summon->ToTempSummon()->SetTempSummonType(TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
                         break;
                     default:
                         break;
@@ -1009,7 +1009,7 @@ class boss_the_lich_king : public CreatureScript
                                 GetCreatureListWithEntryInGrid(triggers, terenas, NPC_WORLD_TRIGGER_INFINITE_AOI, 100.0f);
                                 if (!triggers.empty())
                                 {
-                                    triggers.sort(Trinity::ObjectDistanceOrderPred(terenas, true));
+                                    triggers.sort(Skyfire::ObjectDistanceOrderPred(terenas, true));
                                     Creature* spawner = triggers.front();
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_1, true);  // summons bombs randomly
                                     spawner->CastSpell(spawner, SPELL_SUMMON_SPIRIT_BOMB_2, true);  // summons bombs on players
@@ -1071,7 +1071,7 @@ class boss_the_lich_king : public CreatureScript
                             break;
                         case EVENT_OUTRO_SOUL_BARRAGE:
                             me->CastSpell((Unit*)NULL, SPELL_SOUL_BARRAGE, TRIGGERED_IGNORE_CAST_IN_PROGRESS);
-                            sCreatureTextMgr->SendSound(me, SOUND_PAIN, CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
+                            sCreatureTextMgr->SendSound(me, SOUND_PAIN, ChatMsg::CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
                             // set flight
                             me->SetDisableGravity(true);
                             me->SetByteFlag(UNIT_FIELD_ANIM_TIER, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_HOVER);
@@ -1098,10 +1098,11 @@ class boss_the_lich_king : public CreatureScript
         private:
             void SendMusicToPlayers(uint32 musicId) const
             {
-                WorldPacket data(SMSG_PLAY_MUSIC, 4);
-                data << uint32(musicId);
-                data << uint64(me->GetGUID());
-                SendPacketToPlayers(&data);
+                ///@TODO: Wrong Packet, Send correct one.
+                //WorldPacket data(SMSG_PLAY_MUSIC, 4);
+                //data << uint32(musicId);
+                //data << uint64(me->GetGUID());
+                //SendPacketToPlayers(&data);
             }
 
             void SendLightOverride(uint32 overrideId, uint32 fadeInTime) const
@@ -1398,7 +1399,7 @@ class npc_raging_spirit : public CreatureScript
                 if (Creature* lichKing = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_THE_LICH_KING)))
                     lichKing->AI()->SummonedCreatureDespawn(me);
                 if (TempSummon* summon = me->ToTempSummon())
-                    summon->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
+                    summon->SetTempSummonType(TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -1512,11 +1513,11 @@ class npc_valkyr_shadowguard : public CreatureScript
                             {
                                 std::list<Creature*> triggers;
                                 GetCreatureListWithEntryInGrid(triggers, me, NPC_WORLD_TRIGGER, 150.0f);
-                                triggers.remove_if(Trinity::HeightDifferenceCheck(platform, 5.0f, true));
+                                triggers.remove_if(Skyfire::HeightDifferenceCheck(platform, 5.0f, true));
                                 if (triggers.empty())
                                     return;
 
-                                triggers.sort(Trinity::ObjectDistanceOrderPred(me));
+                                triggers.sort(Skyfire::ObjectDistanceOrderPred(me));
                                 DoCast(target, SPELL_VALKYR_CARRY);
                                 _dropPoint.Relocate(triggers.front());
                                 _events.ScheduleEvent(EVENT_MOVE_TO_DROP_POS, 1500);
@@ -2123,7 +2124,7 @@ class spell_the_lich_king_necrotic_plague_jump : public SpellScriptLoader
 
             void SelectTarget(std::list<Unit*>& targets)
             {
-                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                targets.sort(Skyfire::ObjectDistanceOrderPred(GetCaster()));
                 if (targets.size() < 2)
                     return;
 
@@ -2303,7 +2304,7 @@ class spell_the_lich_king_quake : public SpellScriptLoader
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 if (GameObject* platform = ObjectAccessor::GetGameObject(*GetCaster(), GetCaster()->GetInstanceScript()->GetData64(DATA_ARTHAS_PLATFORM)))
-                    targets.remove_if(Trinity::HeightDifferenceCheck(platform, 5.0f, false));
+                    targets.remove_if(Skyfire::HeightDifferenceCheck(platform, 5.0f, false));
             }
 
             void HandleSendEvent(SpellEffIndex /*effIndex*/)
@@ -2348,7 +2349,7 @@ class spell_the_lich_king_ice_burst_target_search : public SpellScriptLoader
 
                 // if there is at least one affected target cast the explosion
                 GetCaster()->CastSpell(GetCaster(), SPELL_ICE_BURST, true);
-                if (GetCaster()->GetTypeId() == TYPEID_UNIT)
+                if (GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT)
                 {
                     GetCaster()->ToCreature()->SetReactState(REACT_PASSIVE);
                     GetCaster()->AttackStop();
@@ -2550,11 +2551,11 @@ class spell_the_lich_king_valkyr_target_search : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                targets.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
+                targets.remove_if(Skyfire::UnitAuraCheck(true, GetSpellInfo()->Id));
                 if (targets.empty())
                     return;
 
-                _target = Trinity::Containers::SelectRandomContainerElement(targets);
+                _target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(_target);
                 GetCaster()->GetAI()->SetGUID(_target->GetGUID());
@@ -2754,7 +2755,7 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
             bool Load() OVERRIDE
             {
                 _target = NULL;
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void SelectTarget(std::list<WorldObject*>& targets)
@@ -2762,7 +2763,7 @@ class spell_the_lich_king_vile_spirit_move_target_search : public SpellScriptLoa
                 if (targets.empty())
                     return;
 
-                _target = Trinity::Containers::SelectRandomContainerElement(targets);
+                _target = Skyfire::Containers::SelectRandomContainerElement(targets);
             }
 
             void HandleScript(SpellEffIndex effIndex)
@@ -2802,7 +2803,7 @@ class spell_the_lich_king_vile_spirit_damage_target_search : public SpellScriptL
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void CheckTargetCount(std::list<WorldObject*>& targets)

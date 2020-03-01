@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -165,7 +165,7 @@ class boss_ignis : public CreatureScript
 
             void KilledUnit(Unit* who) OVERRIDE
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
@@ -255,13 +255,13 @@ class boss_ignis : public CreatureScript
                         case EVENT_SCORCH:
                             Talk(SAY_SCORCH);
                             if (Unit* target = me->GetVictim())
-                                me->SummonCreature(NPC_GROUND_SCORCH, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 45000);
+                                me->SummonCreature(NPC_GROUND_SCORCH, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 45000);
                             DoCast(SPELL_SCORCH);
                             events.ScheduleEvent(EVENT_SCORCH, 25000);
                             break;
                         case EVENT_CONSTRUCT:
                             Talk(SAY_SUMMON);
-                            DoSummon(NPC_IRON_CONSTRUCT, ConstructSpawnPosition[urand(0, CONSTRUCT_SPAWN_POINTS - 1)], 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+                            DoSummon(NPC_IRON_CONSTRUCT, ConstructSpawnPosition[urand(0, CONSTRUCT_SPAWN_POINTS - 1)], 30000, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
                             DoCast(SPELL_STRENGHT);
                             DoCast(me, SPELL_ACTIVATE_CONSTRUCT);
                             events.ScheduleEvent(EVENT_CONSTRUCT, RAID_MODE(40000, 30000));

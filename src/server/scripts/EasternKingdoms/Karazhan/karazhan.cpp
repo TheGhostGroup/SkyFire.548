@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -197,7 +197,7 @@ public:
 
                     if (Creature* spotlight = me->SummonCreature(NPC_SPOTLIGHT,
                         me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0.0f,
-                        TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
+                        TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000))
                     {
                         spotlight->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         spotlight->CastSpell(spotlight, SPELL_SPOTLIGHT, false);
@@ -249,7 +249,7 @@ public:
 
         void PrepareEncounter()
         {
-            TC_LOG_DEBUG("scripts", "Barnes Opera Event - Introduction complete - preparing encounter %d", m_uiEventId);
+            SF_LOG_DEBUG("scripts", "Barnes Opera Event - Introduction complete - preparing encounter %d", m_uiEventId);
             uint8 index = 0;
             uint8 count = 0;
 
@@ -274,7 +274,7 @@ public:
                 uint32 entry = ((uint32)Spawns[index][0]);
                 float PosX = Spawns[index][1];
 
-                if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
+                if (Creature* creature = me->SummonCreature(entry, PosX, SPAWN_Y, SPAWN_Z, SPAWN_O, TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
                 {
                     // In case database has bad flags
                     creature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
@@ -314,7 +314,7 @@ public:
                     if (WipeTimer <= diff)
                     {
                         Map* map = me->GetMap();
-                        if (!map->IsDungeon())
+                        if (!map->IsRaid())
                             return;
 
                         Map::PlayerList const &PlayerList = map->GetPlayers();
@@ -363,17 +363,17 @@ public:
             case GOSSIP_ACTION_INFO_DEF+3:
                 player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_OZ;
-                TC_LOG_INFO("scripts", "player (GUID " UI64FMTD ") manually set Opera event to EVENT_OZ", player->GetGUID());
+                SF_LOG_INFO("scripts", "player (GUID " UI64FMTD ") manually set Opera event to EVENT_OZ", player->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+4:
                 player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_HOOD;
-                TC_LOG_INFO("scripts", "player (GUID " UI64FMTD ") manually set Opera event to EVENT_HOOD", player->GetGUID());
+                SF_LOG_INFO("scripts", "player (GUID " UI64FMTD ") manually set Opera event to EVENT_HOOD", player->GetGUID());
                 break;
             case GOSSIP_ACTION_INFO_DEF+5:
                 player->CLOSE_GOSSIP_MENU();
                 pBarnesAI->m_uiEventId = EVENT_RAJ;
-                TC_LOG_INFO("scripts", "player (GUID " UI64FMTD ") manually set Opera event to EVENT_RAJ", player->GetGUID());
+                SF_LOG_INFO("scripts", "player (GUID " UI64FMTD ") manually set Opera event to EVENT_RAJ", player->GetGUID());
                 break;
         }
 
@@ -532,7 +532,7 @@ public:
         {
             Step = 1;
             EventStarted = true;
-            Creature* Arcanagos = me->SummonCreature(NPC_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+            Creature* Arcanagos = me->SummonCreature(NPC_ARCANAGOS, ArcanagosPos[0], ArcanagosPos[1], ArcanagosPos[2], 0, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
             if (!Arcanagos)
                 return;
             ArcanagosGUID = Arcanagos->GetGUID();
@@ -551,25 +551,25 @@ public:
             {
             case 0: return 9999999;
             case 1:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_1, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_1, Language::LANG_UNIVERSAL, 0);
                 return 10000;
             case 2:
                 if (arca)
-                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_2, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_2, Language::LANG_UNIVERSAL, 0);
                 return 20000;
             case 3:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_3, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_3, Language::LANG_UNIVERSAL, 0);
                 return 10000;
             case 4:
                 if (arca)
-                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_4, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_4, Language::LANG_UNIVERSAL, 0);
                 return 20000;
             case 5:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_5, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_5, Language::LANG_UNIVERSAL, 0);
                 return 20000;
             case 6:
                 if (arca)
-                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_6, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_6, Language::LANG_UNIVERSAL, 0);
                 return 10000;
             case 7:
                 FireArcanagosTimer = 500;
@@ -587,7 +587,7 @@ public:
                 return 1000;
             case 11:
                 if (arca)
-                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_8, LANG_UNIVERSAL, 0);
+                    arca->MonsterYell(SAY_DIALOG_ARCANAGOS_8, Language::LANG_UNIVERSAL, 0);
                 return 5000;
             case 12:
                 arca->GetMotionMaster()->MovePoint(0, -11010.82f, -1761.18f, 156.47f);
@@ -596,13 +596,13 @@ public:
                 arca->SetSpeed(MOVE_FLIGHT, 2.0f);
                 return 10000;
             case 13:
-                me->MonsterYell(SAY_DIALOG_MEDIVH_9, LANG_UNIVERSAL, 0);
+                me->MonsterYell(SAY_DIALOG_MEDIVH_9, Language::LANG_UNIVERSAL, 0);
                 return 10000;
             case 14:
                 me->SetVisible(false);
                 me->ClearInCombat();
 
-                if (map->IsDungeon())
+                if (map->IsRaid())
                 {
                     InstanceMap::PlayerList const &PlayerList = map->GetPlayers();
                     for (InstanceMap::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)

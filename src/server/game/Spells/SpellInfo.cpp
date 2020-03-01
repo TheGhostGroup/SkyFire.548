@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -337,6 +337,22 @@ SpellImplicitTargetInfo::StaticData  SpellImplicitTargetInfo::_data[TOTAL_SPELL_
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 125
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 126
     {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 127
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 128
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 129
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 130
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 131
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 132
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 133
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 134
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 135
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 136
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 137
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 138
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 139
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 140
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 141
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 142
+    {TARGET_OBJECT_TYPE_NONE, TARGET_REFERENCE_TYPE_NONE,   TARGET_SELECT_CATEGORY_NYI,     TARGET_CHECK_DEFAULT,  TARGET_DIR_NONE},        // 143
 };
 
 SpellEffectInfo::SpellEffectInfo(SpellEntry const* /*spellEntry*/, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* _effect)
@@ -1044,6 +1060,31 @@ SpellInfo::SpellInfo(SpellEntry const* spellEntry, SpellEffectEntry const** effe
     for (uint8 i = 0; i < 2; ++i)
         Totem[i] = _totem ? _totem->Totem[i] : 0;
 
+    // SpecializationSpellsEntry
+    SpecializationSpellsEntry const* specializationInfo = NULL;
+    for (uint32 i = 0; i < sSpecializationSpellsStore.GetNumRows(); i++)
+    {
+        specializationInfo = sSpecializationSpellsStore.LookupEntry(i);
+        if (!specializationInfo)
+            continue;
+
+        if (specializationInfo->SpellId == Id)
+            SpecializationIdList.push_back(specializationInfo->SpecializationId);
+
+        if (specializationInfo->RemovesSpellId == Id)
+            OverrideSpellList.push_back(specializationInfo->SpellId);
+    }
+
+    switch (Id)
+    {
+        case 31801:
+            SpecializationIdList.push_back(70);
+            SpecializationIdList.push_back(66);
+        case 105361:
+            OverrideSpellList.push_back(31801);
+            break;
+    }
+
     ChainEntry = NULL;
 }
 
@@ -1458,7 +1499,6 @@ bool SpellInfo::IsAuraExclusiveBySpecificWith(SpellInfo const* spellInfo) const
         case SPELL_SPECIFIC_SCROLL:
         case SPELL_SPECIFIC_WARRIOR_ENRAGE:
         case SPELL_SPECIFIC_MAGE_ARCANE_BRILLANCE:
-        case SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT:
             return spellSpec1 == spellSpec2;
         case SPELL_SPECIFIC_FOOD:
             return spellSpec2 == SPELL_SPECIFIC_FOOD
@@ -1518,7 +1558,7 @@ SpellCastResult SpellInfo::CheckShapeshift(uint32 form) const
         shapeInfo = sSpellShapeshiftFormStore.LookupEntry(form);
         if (!shapeInfo)
         {
-            TC_LOG_ERROR("spells", "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
+            SF_LOG_ERROR("spells", "GetErrorAtShapeshiftedCast: unknown shapeshift %u", form);
             return SPELL_CAST_OK;
         }
         actAsShifted = !(shapeInfo->flags1 & 1);            // shapeshift acts as normal form for spells
@@ -1682,6 +1722,14 @@ SpellCastResult SpellInfo::CheckLocation(uint32 map_id, uint32 zone_id, uint32 a
                         return SPELL_FAILED_INCORRECT_AREA;
                     break;
                 }
+                case SPELL_AURA_MOD_SHAPESHIFT:
+                {
+                    if (SpellShapeshiftFormEntry const* spellShapeshiftForm = sSpellShapeshiftFormStore.LookupEntry(Effects[i].MiscValue))
+                        if (uint32 mountType = spellShapeshiftForm->mount_type)
+                            if (!player->GetMountCapability(mountType))
+                                return SPELL_FAILED_NOT_HERE;
+                    break;
+                }
                 case SPELL_AURA_MOUNTED:
                 {
                     if (Effects[i].MiscValueB && !player->GetMountCapability(Effects[i].MiscValueB))
@@ -1723,7 +1771,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
         if (caster != unitTarget)
         {
-            if (caster->GetTypeId() == TYPEID_PLAYER)
+            if (caster->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
                 // Do not allow these spells to target creatures not tapped by us (Banish, Polymorph, many quest spells)
                 if (AttributesEx2 & SPELL_ATTR2_CANT_TARGET_TAPPED)
@@ -1733,7 +1781,7 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
                 if (AttributesCu & SPELL_ATTR0_CU_PICKPOCKET)
                 {
-                     if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                     if (unitTarget->GetTypeId() == TypeID::TYPEID_PLAYER)
                          return SPELL_FAILED_BAD_TARGETS;
                      else if ((unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
                          return SPELL_FAILED_TARGET_NO_POCKETS;
@@ -1742,10 +1790,10 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
                 // Not allow disarm unarmed player
                 if (Mechanic == MECHANIC_DISARM)
                 {
-                    if (unitTarget->GetTypeId() == TYPEID_PLAYER)
+                    if (unitTarget->GetTypeId() == TypeID::TYPEID_PLAYER)
                     {
                         Player const* player = unitTarget->ToPlayer();
-                        if (!player->GetWeaponForAttack(BASE_ATTACK) || !player->IsUseEquipedWeapon(true))
+                        if (!player->GetWeaponForAttack(WeaponAttackType::BASE_ATTACK) || !player->IsUseEquipedWeapon(true))
                             return SPELL_FAILED_TARGET_NO_WEAPONS;
                     }
                     else if (!unitTarget->GetUInt32Value(UNIT_FIELD_VIRTUAL_ITEM_ID))
@@ -1789,14 +1837,14 @@ SpellCastResult SpellInfo::CheckTarget(Unit const* caster, WorldObject const* ta
 
     if (!CheckTargetCreatureType(unitTarget))
     {
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
             return SPELL_FAILED_TARGET_IS_PLAYER;
         else
             return SPELL_FAILED_BAD_TARGETS;
     }
 
     // check GM mode and GM invisibility - only for player casts (npc casts are controlled by AI) and negative spells
-    if (unitTarget != caster && (caster->IsControlledByPlayer() || !IsPositive()) && unitTarget->GetTypeId() == TYPEID_PLAYER)
+    if (unitTarget != caster && (caster->IsControlledByPlayer() || !IsPositive()) && unitTarget->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
         if (!unitTarget->ToPlayer()->IsVisible())
             return SPELL_FAILED_BM_OR_INVISGOD;
@@ -1876,7 +1924,7 @@ SpellCastResult SpellInfo::CheckExplicitTarget(Unit const* caster, WorldObject c
 SpellCastResult SpellInfo::CheckVehicle(Unit const* caster) const
 {
     // All creatures should be able to cast as passengers freely, restriction and attribute are only for players
-    if (caster->GetTypeId() != TYPEID_PLAYER)
+    if (caster->GetTypeId() != TypeID::TYPEID_PLAYER)
         return SPELL_CAST_OK;
 
     Vehicle* vehicle = caster->GetVehicle();
@@ -1929,7 +1977,7 @@ bool SpellInfo::CheckTargetCreatureType(Unit const* target) const
     if (SpellFamilyName == SPELLFAMILY_WARLOCK && GetCategory() == 1179)
     {
         // not allow cast at player
-        if (target->GetTypeId() == TYPEID_PLAYER)
+        if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
             return false;
         else
             return true;
@@ -2171,14 +2219,6 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
                 return SPELL_SPECIFIC_WARLOCK_CORRUPTION;
             break;
         }
-        case SPELLFAMILY_PRIEST:
-        {
-            // Divine Spirit and Prayer of Spirit
-            if (SpellFamilyFlags[0] & 0x20)
-                return SPELL_SPECIFIC_PRIEST_DIVINE_SPIRIT;
-
-            break;
-        }
         case SPELLFAMILY_HUNTER:
         {
             // only hunter stings have this
@@ -2361,7 +2401,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
         // Else drain all power
         if (PowerType < MAX_POWERS)
             return caster->GetPower(Powers(PowerType));
-        TC_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", PowerType, Id);
+        SF_LOG_ERROR("spells", "SpellInfo::CalcPowerCost: Unknown power type '%d' in spell %d", PowerType, Id);
         return 0;
     }
 
@@ -2386,15 +2426,15 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
                 break;
             case POWER_RUNES:
             case POWER_RUNIC_POWER:
-                TC_LOG_DEBUG("spells", "CalculateManaCost: Not implemented yet!");
+                SF_LOG_DEBUG("spells", "CalculateManaCost: Not implemented yet!");
                 break;
             default:
-                TC_LOG_ERROR("spells", "CalculateManaCost: Unknown power type '%d' in spell %d", PowerType, Id);
+                SF_LOG_ERROR("spells", "CalculateManaCost: Unknown power type '%d' in spell %d", PowerType, Id);
                 return 0;
         }
     }
 
-    // Flat mod from caster auras by spell school and power type
+    /*// Flat mod from caster auras by spell school and power type
     Unit::AuraEffectList const& auras = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL);
     for (Unit::AuraEffectList::const_iterator i = auras.begin(); i != auras.end(); ++i)
     {
@@ -2403,7 +2443,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
         if (!((*i)->GetMiscValueB() & (1 << PowerType)))
             continue;
         powerCost += (*i)->GetAmount();
-    }
+    }*/
 
     // Shiv - costs 20 + weaponSpeed*10 energy (apply only to non-triggered spell with energy cost)
     if (AttributesEx4 & SPELL_ATTR4_SPELL_VS_EXTEND_COST)
@@ -2415,9 +2455,9 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
         else
 */
         {
-            WeaponAttackType slot = BASE_ATTACK;
+            WeaponAttackType slot = WeaponAttackType::BASE_ATTACK;
             if (AttributesEx3 & SPELL_ATTR3_REQ_OFFHAND)
-                slot = OFF_ATTACK;
+                slot = WeaponAttackType::OFF_ATTACK;
 
             speed = caster->GetAttackTime(slot);
         }
@@ -2440,6 +2480,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
         }
     }
 
+    /*
     // PCT mod from user auras by spell school and power type
     Unit::AuraEffectList const& aurasPct = caster->GetAuraEffectsByType(SPELL_AURA_MOD_POWER_COST_SCHOOL_PCT);
     for (Unit::AuraEffectList::const_iterator i = aurasPct.begin(); i != aurasPct.end(); ++i)
@@ -2452,6 +2493,7 @@ int32 SpellInfo::CalcPowerCost(Unit const* caster, SpellSchoolMask schoolMask) c
     }
     if (powerCost < 0)
         powerCost = 0;
+        */
     return powerCost;
 }
 

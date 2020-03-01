@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,37 +39,33 @@ class gobject_commandscript : public CommandScript
 public:
     gobject_commandscript() : CommandScript("gobject_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    std::vector<ChatCommand> GetCommands() const
     {
-        static ChatCommand gobjectAddCommandTable[] =
+        static std::vector<ChatCommand> gobjectAddCommandTable =
         {
-            { "temp", rbac::RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP, false, &HandleGameObjectAddTempCommand,   "", NULL },
-            { "",     rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,      false, &HandleGameObjectAddCommand,       "", NULL },
-            { NULL,   0,                                  false, NULL,                              "", NULL }
+            { "temp", rbac::RBAC_PERM_COMMAND_GOBJECT_ADD_TEMP, false, &HandleGameObjectAddTempCommand,   "", },
+            { "",     rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,      false, &HandleGameObjectAddCommand,       "", },
         };
-        static ChatCommand gobjectSetCommandTable[] =
+        static std::vector<ChatCommand> gobjectSetCommandTable =
         {
-            { "phase", rbac::RBAC_PERM_COMMAND_GOBJECT_SET_PHASE, false, &HandleGameObjectSetPhaseCommand,  "", NULL },
-            { "state", rbac::RBAC_PERM_COMMAND_GOBJECT_SET_STATE, false, &HandleGameObjectSetStateCommand,  "", NULL },
-            { NULL,    0,                                   false, NULL,                              "", NULL }
+            { "phase", rbac::RBAC_PERM_COMMAND_GOBJECT_SET_PHASE, false, &HandleGameObjectSetPhaseCommand,  "", },
+            { "state", rbac::RBAC_PERM_COMMAND_GOBJECT_SET_STATE, false, &HandleGameObjectSetStateCommand,  "", },
         };
-        static ChatCommand gobjectCommandTable[] =
+        static std::vector<ChatCommand> gobjectCommandTable =
         {
-            { "activate", rbac::RBAC_PERM_COMMAND_GOBJECT_ACTIVATE, false, &HandleGameObjectActivateCommand,  "", NULL },
-            { "delete",   rbac::RBAC_PERM_COMMAND_GOBJECT_DELETE,   false, &HandleGameObjectDeleteCommand,    "", NULL },
-            { "info",     rbac::RBAC_PERM_COMMAND_GOBJECT_INFO,     false, &HandleGameObjectInfoCommand,      "", NULL },
-            { "move",     rbac::RBAC_PERM_COMMAND_GOBJECT_MOVE,     false, &HandleGameObjectMoveCommand,      "", NULL },
-            { "near",     rbac::RBAC_PERM_COMMAND_GOBJECT_NEAR,     false, &HandleGameObjectNearCommand,      "", NULL },
-            { "target",   rbac::RBAC_PERM_COMMAND_GOBJECT_TARGET,   false, &HandleGameObjectTargetCommand,    "", NULL },
-            { "turn",     rbac::RBAC_PERM_COMMAND_GOBJECT_TURN,     false, &HandleGameObjectTurnCommand,      "", NULL },
+            { "activate", rbac::RBAC_PERM_COMMAND_GOBJECT_ACTIVATE, false, &HandleGameObjectActivateCommand,  "", },
+            { "delete",   rbac::RBAC_PERM_COMMAND_GOBJECT_DELETE,   false, &HandleGameObjectDeleteCommand,    "", },
+            { "info",     rbac::RBAC_PERM_COMMAND_GOBJECT_INFO,     false, &HandleGameObjectInfoCommand,      "", },
+            { "move",     rbac::RBAC_PERM_COMMAND_GOBJECT_MOVE,     false, &HandleGameObjectMoveCommand,      "", },
+            { "near",     rbac::RBAC_PERM_COMMAND_GOBJECT_NEAR,     false, &HandleGameObjectNearCommand,      "", },
+            { "target",   rbac::RBAC_PERM_COMMAND_GOBJECT_TARGET,   false, &HandleGameObjectTargetCommand,    "", },
+            { "turn",     rbac::RBAC_PERM_COMMAND_GOBJECT_TURN,     false, &HandleGameObjectTurnCommand,      "", },
             { "add",      rbac::RBAC_PERM_COMMAND_GOBJECT_ADD,      false, NULL,            "", gobjectAddCommandTable },
             { "set",      rbac::RBAC_PERM_COMMAND_GOBJECT_SET,      false, NULL,            "", gobjectSetCommandTable },
-            { NULL,       0,                                  false, NULL,                              "", NULL }
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "gobject", rbac::RBAC_PERM_COMMAND_GOBJECT, false, NULL, "", gobjectCommandTable },
-            { NULL,      0,                         false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -101,7 +97,7 @@ public:
         }
 
         // Activate
-        object->SetLootState(GO_READY);
+        object->SetLootState(LootState::GO_READY);
         object->UseDoorOrButton(10000, false, handler->GetSession()->GetPlayer());
 
         handler->PSendSysMessage("Object activated!");
@@ -138,7 +134,7 @@ public:
         if (objectInfo->displayId && !sGameObjectDisplayInfoStore.LookupEntry(objectInfo->displayId))
         {
             // report to DB errors log as in loading case
-            TC_LOG_ERROR("sql.sql", "Gameobject (Entry %u GoType: %u) have invalid displayId (%u), not spawned.", objectId, objectInfo->type, objectInfo->displayId);
+            SF_LOG_ERROR("sql.sql", "Gameobject (Entry %u GoType: %u) have invalid displayId (%u), not spawned.", objectId, objectInfo->type, objectInfo->displayId);
             handler->PSendSysMessage(LANG_GAMEOBJECT_HAVE_INVALID_DATA, objectId);
             handler->SetSentErrorMessage(true);
             return false;
@@ -154,11 +150,14 @@ public:
         GameObject* object = new GameObject;
         uint32 guidLow = sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT);
 
-        if (!object->Create(guidLow, objectInfo->entry, map, player->GetPhaseMgr().GetPhaseMaskForSpawn(), x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GO_STATE_READY))
+        if (!object->Create(guidLow, objectInfo->entry, map, x, y, z, o, 0.0f, 0.0f, 0.0f, 0.0f, 0, GOState::GO_STATE_READY))
         {
             delete object;
             return false;
         }
+
+        for (auto phase : player->GetPhases())
+            object->SetPhased(phase, false, true);
 
         if (spawntimeSecs)
         {
@@ -167,7 +166,7 @@ public:
         }
 
         // fill the gameobject data and save to the db
-        object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), player->GetPhaseMgr().GetPhaseMaskForSpawn());
+        object->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
 
         // this will generate a new guid if the object is in an instance
         if (!object->LoadGameObjectFromDB(guidLow, map))
@@ -232,14 +231,14 @@ public:
             uint32 objectId = atol(id);
 
             if (objectId)
-                result = WorldDatabase.PQuery("SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM gameobject WHERE map = '%i' AND id = '%u' ORDER BY order_ ASC LIMIT 1",
+                result = WorldDatabase.PQuery("SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseId, (POW(position_x - '%f', 2) + POW(position_y - '%f', 2) + POW(position_z - '%f', 2)) AS order_ FROM gameobject WHERE map = '%i' AND id = '%u' ORDER BY order_ ASC LIMIT 1",
                 player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), objectId);
             else
             {
                 std::string name = id;
                 WorldDatabase.EscapeString(name);
                 result = WorldDatabase.PQuery(
-                    "SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseMask, (POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ "
+                    "SELECT guid, id, position_x, position_y, position_z, orientation, map, phaseId, (POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ "
                     "FROM gameobject, gameobject_template WHERE gameobject_template.entry = gameobject.id AND map = %i AND name " _LIKE_ " " _CONCAT3_ ("'%%'", "'%s'", "'%%'")" ORDER BY order_ ASC LIMIT 1",
                     player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), name.c_str());
             }
@@ -266,7 +265,7 @@ public:
             else
                 eventFilter << ')';
 
-            result = WorldDatabase.PQuery("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, phaseMask, "
+            result = WorldDatabase.PQuery("SELECT gameobject.guid, id, position_x, position_y, position_z, orientation, map, phaseId, "
                 "(POW(position_x - %f, 2) + POW(position_y - %f, 2) + POW(position_z - %f, 2)) AS order_ FROM gameobject "
                 "LEFT OUTER JOIN game_event_gameobject on gameobject.guid = game_event_gameobject.guid WHERE map = '%i' %s ORDER BY order_ ASC LIMIT 10",
                 handler->GetSession()->GetPlayer()->GetPositionX(), handler->GetSession()->GetPlayer()->GetPositionY(), handler->GetSession()->GetPlayer()->GetPositionZ(),

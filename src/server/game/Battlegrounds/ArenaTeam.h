@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_ARENATEAM_H
-#define TRINITYCORE_ARENATEAM_H
+#ifndef SKYFIRESERVER_ARENATEAM_H
+#define SKYFIRESERVER_ARENATEAM_H
 
 #include "Define.h"
 #include "QueryResult.h"
@@ -115,12 +115,6 @@ class ArenaTeam
         ArenaTeam();
         ~ArenaTeam();
 
-        bool Create(uint64 captainGuid, uint8 type, std::string const& teamName,
-                                      uint32 backgroundColor, uint8 emblemStyle, uint32 emblemColor,
-                                      uint8 borderStyle, uint32 borderColor);
-        void Disband(WorldSession* session);
-        void Disband();
-
         typedef std::list<ArenaTeamMember> MemberList;
 
         uint32 GetId() const { return TeamId; }
@@ -135,11 +129,6 @@ class ArenaTeam
         uint32 GetRating() const          { return Stats.Rating; }
         uint32 GetAverageMMR(Group* group) const;
 
-        void SetCaptain(uint64 guid);
-        bool SetName(std::string const& name);
-        bool AddMember(uint64 PlayerGuid);
-        void DelMember(uint64 guid, bool cleanDb);
-
         size_t GetMembersSize() const         { return Members.size(); }
         bool   Empty() const                  { return Members.empty(); }
         MemberList::iterator m_membersBegin() { return Members.begin(); }
@@ -151,21 +140,13 @@ class ArenaTeam
 
         bool IsFighting() const;
 
-        bool LoadArenaTeamFromDB(QueryResult arenaTeamDataResult);
-        bool LoadMembersFromDB(QueryResult arenaTeamMembersResult);
-        void LoadStatsFromDB(uint32 ArenaTeamId);
-        void SaveToDB();
-
         void BroadcastPacket(WorldPacket* packet);
         void BroadcastEvent(ArenaTeamEvents event, uint64 guid, uint8 strCount, std::string const& str1, std::string const& str2, std::string const& str3);
         void NotifyStatsChanged();
 
         void MassInviteToEvent(WorldSession* session);
 
-        void Roster(WorldSession* session);
-        void Query(WorldSession* session);
         void SendStats(WorldSession* session);
-        void Inspect(WorldSession* session, uint64 guid);
 
         static int32 GetMatchmakerRatingMod(uint32 ownRating, uint32 opponentRating, bool won);
         static int32 GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won);

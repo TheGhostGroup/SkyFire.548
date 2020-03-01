@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1128,7 +1128,7 @@ struct BfWGGameObjectBuilding
                 build->SetDestructibleState(GO_DESTRUCTIBLE_REBUILDING, NULL, true);
                 if (build->GetEntry() == GO_WINTERGRASP_VAULT_GATE)
                     if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
-                        go->SetGoState(GO_STATE_READY);
+                        go->SetGoState(GOState::GO_STATE_READY);
 
                 // Update worldstate
                 m_State = BATTLEFIELD_WG_OBJECTSTATE_ALLIANCE_INTACT - (m_Team * 3);
@@ -1185,12 +1185,12 @@ struct BfWGGameObjectBuilding
             case BATTLEFIELD_WG_OBJECTTYPE_DOOR_LAST:
                 if (GameObject* build = m_WG->GetGameObject(m_BuildGUID))
                     if (GameObject* go = build->FindNearestGameObject(GO_WINTERGRASP_KEEP_COLLISION_WALL, 50.0f))
-                        go->SetGoState(GO_STATE_ACTIVE);
+                        go->SetGoState(GOState::GO_STATE_ACTIVE);
                 m_WG->SetRelicInteractible(true);
                 if (m_WG->GetRelic())
                     m_WG->GetRelic()->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_IN_USE);
                 else
-                    TC_LOG_ERROR("misc", "BattlefieldWG: Relic not found.");
+                    SF_LOG_ERROR("misc", "BattlefieldWG: Relic not found.");
                 break;
         }
 
@@ -1545,8 +1545,8 @@ struct WintergraspWorkshopData
     uint32 m_WorldState;
     uint32 m_TeamControl;                                   // Team witch control the workshop
     GuidSet m_CreatureOnPoint[2];                           // Contain all Creature associate to this point
-    GuidSet m_GameObjectOnPoint[2];                     // Contain all Gameobject associate to this point
-    uint32 m_NameId;                                        // Id of trinity_string witch contain name of this node, using for alert message
+    GuidSet m_GameObjectOnPoint[2];                         // Contain all Gameobject associate to this point
+    uint32 m_NameId;                                        // Id of skyfire_string witch contain name of this node, using for alert message
 
     WintergraspWorkshopData(BattlefieldWG* WG)
     {

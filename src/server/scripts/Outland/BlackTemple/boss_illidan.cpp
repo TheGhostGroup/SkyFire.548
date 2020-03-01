@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -142,7 +142,7 @@ enum Misc
 };
 
 /**** Creature Summon and Recognition IDs ****/
-enum CreatureEntry
+enum CreatureEntryIllidan
 {
     EMPTY                           =       0,
     AKAMA                           =   22990,
@@ -554,7 +554,7 @@ public:
 
         void KilledUnit(Unit* victim) OVERRIDE
         {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
+            if (victim->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return;
 
             Talk(SAY_ILLIDAN_KILL);
@@ -610,7 +610,7 @@ public:
                 if (Conversation[count].emote)
                     creature->HandleEmoteCommand(Conversation[count].emote); // Make the Creature do some animation!
                 if (Conversation[count].text.size())
-                    creature->MonsterYell(Conversation[count].text.c_str(), LANG_UNIVERSAL, 0); // Have the Creature yell out some text
+                    creature->MonsterYell(Conversation[count].text.c_str(), Language::LANG_UNIVERSAL, 0); // Have the Creature yell out some text
                 if (Conversation[count].sound)
                     DoPlaySoundToSet(creature, Conversation[count].sound); // Play some sound on the creature
             }
@@ -726,7 +726,7 @@ public:
             final.x = 2 * final.x - initial.x;
             final.y = 2 * final.y - initial.y;
 
-            Creature* Trigger = me->SummonCreature(23069, initial.x, initial.y, initial.z, 0, TEMPSUMMON_TIMED_DESPAWN, 13000);
+            Creature* Trigger = me->SummonCreature(23069, initial.x, initial.y, initial.z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 13000);
             if (!Trigger)
                 return;
 
@@ -747,7 +747,7 @@ public:
             {
                 if (Creature* glaive = ObjectAccessor::GetCreature(*me, GlaiveGUID[i]))
                 {
-                    if (Creature* flame = me->SummonCreature(FLAME_OF_AZZINOTH, GlaivePosition[i+2].x, GlaivePosition[i+2].y, GlaivePosition[i+2].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
+                    if (Creature* flame = me->SummonCreature(FLAME_OF_AZZINOTH, GlaivePosition[i+2].x, GlaivePosition[i+2].y, GlaivePosition[i+2].z, 0, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 5000))
                     {
                         flame->setFaction(me->getFaction()); // Just in case the database has it as a different faction
                         flame->SetMeleeDamageSchool(SPELL_SCHOOL_FIRE);
@@ -767,7 +767,7 @@ public:
             {
                 EnterEvadeMode();
                 me->MonsterTextEmote(EMOTE_UNABLE_TO_SUMMON, 0);
-                TC_LOG_ERROR("scripts", "SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
+                SF_LOG_ERROR("scripts", "SD2 ERROR: Unable to summon Maiev Shadowsong (entry: 23197). Check your database to see if you have the proper SQL for Maiev Shadowsong (entry: 23197)");
             }
         }
 
@@ -791,7 +791,7 @@ public:
             case 3: // throw one glaive
                 {
                     uint8 i=1;
-                    Creature* Glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    Creature* Glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0);
                     if (Glaive)
                     {
                         GlaiveGUID[i] = Glaive->GetGUID();
@@ -807,7 +807,7 @@ public:
                 SetEquipmentSlots(false, EQUIP_UNEQUIP, EQUIP_UNEQUIP, EQUIP_NO_CHANGE);
                 {
                     uint8 i=0;
-                    Creature* Glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    Creature* Glaive = me->SummonCreature(BLADE_OF_AZZINOTH, GlaivePosition[i].x, GlaivePosition[i].y, GlaivePosition[i].z, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0);
                     if (Glaive)
                     {
                         GlaiveGUID[i] = Glaive->GetGUID();
@@ -1457,7 +1457,7 @@ public:
                     eliteList.push_back(unit);
             }
             for (std::vector<Unit*>::const_iterator itr = eliteList.begin(); itr != eliteList.end(); ++itr)
-                (*itr)->setDeathState(JUST_DIED);
+                (*itr)->setDeathState(DeathState::JUST_DIED);
             EnterEvadeMode();
         }
 
@@ -1493,7 +1493,7 @@ public:
             else
                 return; // if door not spawned, don't crash server
 
-            if (Creature* Channel = me->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
+            if (Creature* Channel = me->SummonCreature(ILLIDAN_DOOR_TRIGGER, x, y, z+5, 0, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 360000))
             {
                 ChannelGUID = Channel->GetGUID();
                 Channel->SetDisplayId(MODEL_INVISIBLE); // Invisible but spell visuals can still be seen.
@@ -1501,7 +1501,7 @@ public:
             }
 
             for (uint8 i = 0; i < 2; ++i)
-                if (Creature* Spirit = me->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i].x, SpiritSpawns[i].y, SpiritSpawns[i].z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
+                if (Creature* Spirit = me->SummonCreature(i ? SPIRIT_OF_OLUM : SPIRIT_OF_UDALO, SpiritSpawns[i].x, SpiritSpawns[i].y, SpiritSpawns[i].z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 20000))
                 {
                     Spirit->SetVisible(false);
                     SpiritGUID[i] = Spirit->GetGUID();
@@ -1646,7 +1646,7 @@ public:
                 break;
             case 5:
                 Talk(SAY_AKAMA_BEWARE);
-                Channel->setDeathState(JUST_DIED);
+                Channel->setDeathState(DeathState::JUST_DIED);
                 Spirit[0]->SetVisible(false);
                 Spirit[1]->SetVisible(false);
                 Timer = 3000;
@@ -1742,7 +1742,7 @@ public:
                     {
                         float x, y, z;
                         me->GetPosition(x, y, z);
-                        Creature* Elite = me->SummonCreature(ILLIDARI_ELITE, x+rand()%10, y+rand()%10, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
+                        Creature* Elite = me->SummonCreature(ILLIDARI_ELITE, x+rand()%10, y+rand()%10, z, 0, TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
                         // Creature* Elite = me->SummonCreature(ILLIDARI_ELITE, x, y, z, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 30000);
                         if (Elite)
                         {
@@ -1849,7 +1849,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::JustSummoned(Creature* su
             if (Phase == PHASE_TALK_SEQUENCE)
             {
                 summon->SetVisible(false);
-                summon->setDeathState(JUST_DIED);
+                summon->setDeathState(DeathState::JUST_DIED);
                 return;
             }
             Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 999, true);
@@ -1956,7 +1956,7 @@ void boss_illidan_stormrage::boss_illidan_stormrageAI::HandleTalkSequence()
         if (Creature* maiev = ObjectAccessor::GetCreature(*me, MaievGUID))
         {
             maiev->CastSpell(maiev, SPELL_TELEPORT_VISUAL, true);
-            maiev->setDeathState(JUST_DIED);
+            maiev->setDeathState(DeathState::JUST_DIED);
             me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, UNIT_STAND_STATE_DEAD);
         }
         break;
@@ -2000,7 +2000,7 @@ public:
             if (!Active)
                 return;
 
-            if (who && (who->GetTypeId() != TYPEID_PLAYER))
+            if (who && (who->GetTypeId() != TypeID::TYPEID_PLAYER))
             {
                 if (who->GetEntry() == ILLIDAN_STORMRAGE) // Check if who is Illidan
                 {
@@ -2064,7 +2064,7 @@ public:
         // Grid search for nearest live Creature of entry 23304 within 10 yards
         if (Creature* pTrigger = go->FindNearestCreature(23304, 10.0f))
             CAST_AI(npc_cage_trap_trigger::cage_trap_triggerAI, pTrigger->AI())->Active = true;
-        go->SetGoState(GO_STATE_ACTIVE);
+        go->SetGoState(GOState::GO_STATE_ACTIVE);
         return true;
     }
 };
@@ -2100,7 +2100,7 @@ public:
             if (!UpdateVictim())
                 return;
 
-            if (me->GetVictim()->GetTypeId() != TYPEID_PLAYER)
+            if (me->GetVictim()->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return; // Only cast the below on players.
 
             if (!me->GetVictim()->HasAura(SPELL_PARALYZE))

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -79,7 +79,7 @@ uint32 const Builds[] = {16016, 16048, 16057, 16309, 16357, 16516, 16650, 16844,
 #define LAST_DBC_IN_DATA_BUILD 15595    // after this build mpqs with dbc are back to locale folder
 #define NEW_BASE_SET_BUILD 16016 // 15211
 
-#define LOCALES_COUNT 12
+#define LOCALES_COUNT 15
 
 char const* Locales[LOCALES_COUNT] =
 {
@@ -88,7 +88,9 @@ char const* Locales[LOCALES_COUNT] =
     "frFR", "koKR",
     "zhCN", "zhTW",
     "enCN", "enTW",
-    "esMX", "ruRU"
+    "esMX", "ruRU",
+    "ptBR", "ptPT",
+    "itIT"
 };
 
 TCHAR const* LocalesT[LOCALES_COUNT] =
@@ -99,6 +101,8 @@ TCHAR const* LocalesT[LOCALES_COUNT] =
     _T("zhCN"), _T("zhTW"),
     _T("enCN"), _T("enTW"),
     _T("esMX"), _T("ruRU"),
+    _T("ptBR"), _T("ptPT"),
+    _T("itIT"),
 };
 
 typedef struct
@@ -118,11 +122,11 @@ bool preciseVectorData = false;
 
 //static const char * szWorkDirMaps = ".\\Maps";
 const char* szWorkDirWmo = "./Buildings";
-const char* szRawVMAPMagic = "VMAP041";
+const char* szRawVMAPMagic = "VMAP052";
 
 bool LoadLocaleMPQFile(int locale)
 {
-    TCHAR buff[512];
+    TCHAR buff[1024];
     memset(buff, 0, sizeof(buff));
     _stprintf(buff, _T("%s%s/locale-%s.MPQ"), input_path, LocalesT[locale], LocalesT[locale]);
     if (!SFileOpenArchive(buff, 0, MPQ_OPEN_READ_ONLY, &LocaleMpq))
@@ -170,7 +174,7 @@ bool LoadLocaleMPQFile(int locale)
 
 void LoadCommonMPQFiles(uint32 build)
 {
-    TCHAR filename[512];
+    TCHAR filename[1024];
     _stprintf(filename, _T("%sworld.MPQ"), input_path);
     _tprintf(_T("Loading common MPQ files\n"));
     if (!SFileOpenArchive(filename, 0, MPQ_OPEN_READ_ONLY, &WorldMpq))
@@ -259,9 +263,9 @@ void strToLower(char* str)
 void ReadLiquidTypeTableDBC()
 {
     HANDLE localeFile;
-    char localMPQ[512];
+    char localMPQ[1024];
 
-    sprintf(localMPQ, "%smisc.MPQ", input_path);
+    snprintf(localMPQ, sizeof(localMPQ), "%smisc.MPQ", input_path);
     if (FileExists(localMPQ)==false)
     {   // Use misc.mpq
         printf(localMPQ, "%s/Data/%s/locale-%s.MPQ", input_path);
@@ -296,10 +300,10 @@ void ReadLiquidTypeTableDBC()
     LiqType = new uint16[LiqType_maxid + 1];
     memset(LiqType, 0xff, (LiqType_maxid + 1) * sizeof(uint16));
 
-    for (uint32 x = 0; x < LiqType_count; ++x)
+    for (size_t x = 0; x < LiqType_count; ++x)
         LiqType[dbc.getRecord(x).getUInt(0)] = dbc.getRecord(x).getUInt(3);
 
-    printf("Done! (%lu LiqTypes loaded)\n", LiqType_count);
+    printf("Done! (%zu LiqTypes loaded)\n", LiqType_count);
 }
 
 bool ExtractWmo()
@@ -334,7 +338,7 @@ bool ExtractSingleWmo(std::string& fname)
 
     char szLocalFile[1024];
     const char * plain_name = GetPlainName(fname.c_str());
-    sprintf(szLocalFile, "%s/%s", szWorkDirWmo, plain_name);
+    snprintf(szLocalFile, sizeof(szLocalFile), "%s/%s", szWorkDirWmo, plain_name);
     FixNameCase(szLocalFile,strlen(szLocalFile));
 
     if (FileExists(szLocalFile))
@@ -380,10 +384,10 @@ bool ExtractSingleWmo(std::string& fname)
         for (uint32 i = 0; i < froot.nGroups; ++i)
         {
             char temp[1024];
-            strcpy(temp, fname.c_str());
+            strncpy(temp, fname.c_str(), 1024);
             temp[fname.length()-4] = 0;
             char groupFileName[1024];
-            sprintf(groupFileName, "%s_%03u.wmo", temp, i);
+            snprintf(groupFileName, sizeof(groupFileName), "%s_%03u.wmo", temp, i);
             //printf("Trying to open groupfile %s\n",groupFileName);
 
             std::string s = groupFileName;
@@ -416,8 +420,8 @@ void ParsMapFiles()
     char id[10];
     for (unsigned int i=0; i<map_count; ++i)
     {
-        sprintf(id,"%03u",map_ids[i].id);
-        sprintf(fn,"World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
+        snprintf(id, sizeof(id), "%04u", map_ids[i].id);
+        snprintf(fn, sizeof(fn), "World\\Maps\\%s\\%s.wdt", map_ids[i].name, map_ids[i].name);
         WDTFile WDT(fn,map_ids[i].name);
         if(WDT.init(id, map_ids[i].id))
         {
@@ -467,8 +471,10 @@ bool processArgv(int argc, char ** argv, const char *versionString)
             if((i+1)<argc)
             {
                 hasInputPathParam = true;
-                strcpy(input_path, argv[i+1]);
-                if (input_path[strlen(input_path) - 1] != '\\' || input_path[strlen(input_path) - 1] != '/')
+                strncpy(input_path, argv[i + 1], sizeof(input_path));
+                input_path[sizeof(input_path) - 1] = '\0';
+
+                if (input_path[strlen(input_path) - 1] != '\\' && input_path[strlen(input_path) - 1] != '/')
                     strcat(input_path, "/");
                 ++i;
             }
@@ -527,7 +533,7 @@ bool processArgv(int argc, char ** argv, const char *versionString)
 int main(int argc, char ** argv)
 {
     bool success=true;
-    const char *versionString = "V4.00 2012_02";
+    const char *versionString = "V5.02 2018_03_14";
 
     // Use command line arguments, when some
     if (!processArgv(argc, argv, versionString))
@@ -575,7 +581,8 @@ int main(int argc, char ** argv)
     }
 
     ReadLiquidTypeTableDBC();
-
+    ExtractGameobjectModels();
+    
     // extract data
     if (success)
         success = ExtractWmo();
@@ -596,7 +603,17 @@ int main(int argc, char ** argv)
         for (unsigned int x=0;x<map_count;++x)
         {
             map_ids[x].id=dbc->getRecord (x).getUInt(0);
-            strcpy(map_ids[x].name,dbc->getRecord(x).getString(1));
+            const char* map_name = dbc->getRecord(x).getString(1);
+            size_t max_map_name_length = sizeof(map_ids[x].name);
+            if (strlen(map_name) >= max_map_name_length)
+            {
+                delete dbc;
+                delete[] map_ids;
+                printf("FATAL ERROR: Map name too long.\n");
+                return 1;
+            }
+            strncpy(map_ids[x].name, map_name, max_map_name_length);
+            map_ids[x].name[max_map_name_length - 1] = '\0';
             printf("Map - %s\n",map_ids[x].name);
         }
 
@@ -605,8 +622,6 @@ int main(int argc, char ** argv)
         ParsMapFiles();
         delete [] map_ids;
         //nError = ERROR_SUCCESS;
-        // Extract models, listed in GameObjectDisplayInfo.dbc
-        ExtractGameobjectModels();
     }
 
     SFileCloseArchive(LocaleMpq);

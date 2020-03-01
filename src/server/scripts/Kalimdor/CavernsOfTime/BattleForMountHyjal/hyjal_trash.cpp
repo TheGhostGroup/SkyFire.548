@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -194,7 +194,7 @@ hyjal_trashAI::hyjal_trashAI(Creature* creature) : npc_escortAI(creature)
 
 void hyjal_trashAI::DamageTaken(Unit* done_by, uint32 &damage)
 {
-    if (done_by->GetTypeId() == TYPEID_PLAYER || done_by->IsPet())
+    if (done_by->GetTypeId() == TypeID::TYPEID_PLAYER || done_by->IsPet())
     {
         damageTaken += damage;
         if (instance)
@@ -474,7 +474,7 @@ public:
             {
                 float x, y, z;
                 me->GetPosition(x, y, z);
-                Creature* trigger = me->SummonCreature(NPC_TRIGGER, x+8, y+8, z+25+rand()%10, me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 1000);
+                Creature* trigger = me->SummonCreature(NPC_TRIGGER, x+8, y+8, z+25+rand()%10, me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 1000);
                 if (trigger)
                 {
                     trigger->SetVisible(false);
@@ -591,7 +591,7 @@ public:
             {
                 if ((faction == 0 && LastOverronPos == 17) || (faction == 1 && LastOverronPos == 21))
                 {
-                    me->setDeathState(DEAD);
+                    me->setDeathState(DeathState::DEAD);
                     me->RemoveCorpse();
                 }
             }
@@ -694,7 +694,7 @@ public:
                 me->SetUInt32Value(UNIT_FIELD_NPC_EMOTESTATE, EMOTE_ONESHOT_ATTACK_UNARMED);
                 if ((faction == 0 && LastOverronPos == 17) || (faction == 1 && LastOverronPos == 21))
                 {
-                    me->setDeathState(DEAD);
+                    me->setDeathState(DeathState::DEAD);
                     me->RemoveCorpse();
                 }
             }
@@ -810,15 +810,15 @@ public:
             switch (urand(0, 2))
             {
                 case 0:
-                    DoSpawnCreature(17902, 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-                    DoSpawnCreature(17902, -3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                    DoSpawnCreature(17902, 3, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60000);
+                    DoSpawnCreature(17902, -3, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60000);
                     break;
                 case 1:
-                    DoSpawnCreature(17903, 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
-                    DoSpawnCreature(17903, -3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                    DoSpawnCreature(17903, 3, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60000);
+                    DoSpawnCreature(17903, -3, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60000);
                     break;
                 case 2:
-                    DoSpawnCreature(RAND(17902, 17903), 3, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                    DoSpawnCreature(RAND(17902, 17903), 3, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60000);
                     break;
             }
         }

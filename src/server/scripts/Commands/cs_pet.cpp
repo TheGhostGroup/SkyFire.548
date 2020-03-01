@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,20 +29,18 @@ class pet_commandscript : public CommandScript
 public:
     pet_commandscript() : CommandScript("pet_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand petCommandTable[] =
+        static std::vector<ChatCommand> petCommandTable =
         {
-            { "create",  rbac::RBAC_PERM_COMMAND_PET_CREATE,  false, &HandlePetCreateCommand,  "", NULL },
-            { "learn",   rbac::RBAC_PERM_COMMAND_PET_LEARN,   false, &HandlePetLearnCommand,   "", NULL },
-            { "unlearn", rbac::RBAC_PERM_COMMAND_PET_UNLEARN, false, &HandlePetUnlearnCommand, "", NULL },
-            { NULL,      0,                             false, NULL,                     "", NULL }
+            { "create",  rbac::RBAC_PERM_COMMAND_PET_CREATE,  false, &HandlePetCreateCommand,  "", },
+            { "learn",   rbac::RBAC_PERM_COMMAND_PET_LEARN,   false, &HandlePetLearnCommand,   "", },
+            { "unlearn", rbac::RBAC_PERM_COMMAND_PET_UNLEARN, false, &HandlePetUnlearnCommand, "", },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "pet", rbac::RBAC_PERM_COMMAND_PET, false, NULL, "", petCommandTable },
-            { NULL,  0,                     false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -51,7 +49,7 @@ public:
         Player* player = handler->GetSession()->GetPlayer();
         Creature* creatureTarget = handler->getSelectedCreature();
 
-        if (!creatureTarget || creatureTarget->IsPet() || creatureTarget->GetTypeId() == TYPEID_PLAYER)
+        if (!creatureTarget || creatureTarget->IsPet() || creatureTarget->GetTypeId() == TypeID::TYPEID_PLAYER)
         {
             handler->PSendSysMessage(LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage(true);
@@ -83,7 +81,7 @@ public:
             return false;
         }
 
-        creatureTarget->setDeathState(JUST_DIED);
+        creatureTarget->setDeathState(DeathState::JUST_DIED);
         creatureTarget->RemoveCorpse();
         creatureTarget->SetHealth(0); // just for nice GM-mode view
 
@@ -92,7 +90,7 @@ public:
 
         if (!pet->InitStatsForLevel(creatureTarget->getLevel()))
         {
-            TC_LOG_ERROR("misc", "InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
+            SF_LOG_ERROR("misc", "InitStatsForLevel() in EffectTameCreature failed! Pet deleted.");
             handler->PSendSysMessage("Error 2");
             delete pet;
             return false;

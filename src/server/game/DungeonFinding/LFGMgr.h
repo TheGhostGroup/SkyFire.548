@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -271,11 +271,11 @@ struct LfgPlayerBoot
 struct LFGDungeonData
 {
     LFGDungeonData(): id(0), name(""), map(0), type(0), expansion(0), group(0), minlevel(0),
-        maxlevel(0), difficulty(REGULAR_DIFFICULTY), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
+        maxlevel(0), difficulty(DIFFICULTY_NONE), seasonal(false), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
         { }
     LFGDungeonData(LFGDungeonEntry const* dbc): id(dbc->ID), name(dbc->name), map(dbc->map),
         type(dbc->type), expansion(dbc->expansion), group(dbc->grouptype),
-        minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(Difficulty(dbc->difficulty)),
+        minlevel(dbc->minlevel), maxlevel(dbc->maxlevel), difficulty(DifficultyID(dbc->difficulty)),
         seasonal(dbc->flags & LFG_FLAG_SEASONAL), x(0.0f), y(0.0f), z(0.0f), o(0.0f)
         { }
 
@@ -287,7 +287,7 @@ struct LFGDungeonData
     uint8 group;
     uint8 minlevel;
     uint8 maxlevel;
-    Difficulty difficulty;
+    DifficultyID difficulty;
     bool seasonal;
     float x, y, z, o;
 
@@ -319,7 +319,7 @@ class LFGMgr
         /// Check if given guid applied for random dungeon
         bool selectedRandomLfgDungeon(uint64 guid);
         /// Check if given guid applied for given map and difficulty. Used to know
-        bool inLfgDungeonMap(uint64 guid, uint32 map, Difficulty difficulty);
+        bool inLfgDungeonMap(uint64 guid, uint32 map, DifficultyID difficulty);
         /// Get selected dungeons
         LfgDungeonSet const& GetSelectedDungeons(uint64 guid);
         /// Get current lfg state
@@ -328,6 +328,8 @@ class LFGMgr
         uint32 GetDungeon(uint64 guid, bool asId = true);
         /// Get the map id of the current dungeon
         uint32 GetDungeonMapId(uint64 guid);
+        /// Get current vote kick state
+        bool IsVoteKickActive(uint64 gguid);
         /// Get kicks left in current group
         uint8 GetKicksLeft(uint64 gguid);
         /// Load Lfg group info from DB
@@ -356,8 +358,6 @@ class LFGMgr
         // LFGScripts
         /// Get leader of the group (using internal data)
         uint64 GetLeader(uint64 guid);
-        /// Initializes locked dungeons for given player (called at login or level change)
-        void InitializeLockedDungeons(Player* player, uint8 level = 0);
         /// Sets player team
         void SetTeam(uint64 guid, uint8 team);
         /// Sets player group
@@ -375,7 +375,7 @@ class LFGMgr
 
         // LFGHandler
         /// Get locked dungeons
-        LfgLockMap const& GetLockedDungeons(uint64 guid);
+        LfgLockMap const GetLockedDungeons(uint64 guid);
         /// Returns current lfg status
         LfgUpdateData GetLfgStatus(uint64 guid);
         /// Checks if Seasonal dungeon is active
@@ -401,7 +401,7 @@ class LFGMgr
         /// Join Lfg with selected roles, dungeons and comment
         void JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, std::string const& comment);
         /// Leaves lfg
-        void LeaveLfg(uint64 guid);
+        void LeaveLfg(uint64 guid, bool disconnected = false);
 
         // LfgQueue
         /// Get last lfg state (NONE, DUNGEON or FINISHED_DUNGEON)
@@ -419,7 +419,7 @@ class LFGMgr
         /// Gets queue join time
         time_t GetQueueJoinTime(uint64 guid);
         /// Checks if given roles match, modifies given roles map with new roles
-        static bool CheckGroupRoles(LfgRolesMap &groles, bool removeLeaderFlag = true);
+        static bool CheckGroupRoles(LfgRolesMap &groles);
         /// Checks if given players are ignoring each other
         static bool HasIgnore(uint64 guid1, uint64 guid2);
         /// Sends queue status to player
@@ -431,11 +431,11 @@ class LFGMgr
         void ClearState(uint64 guid, char const* debugMsg);
         void SetDungeon(uint64 guid, uint32 dungeon);
         void SetSelectedDungeons(uint64 guid, LfgDungeonSet const& dungeons);
-        void SetLockedDungeons(uint64 guid, LfgLockMap const& lock);
         void DecreaseKicksLeft(uint64 guid);
         void SetState(uint64 guid, LfgState state);
+        void SetVoteKick(uint64 guid, bool active);
         void RemovePlayerData(uint64 guid);
-        void GetCompatibleDungeons(LfgDungeonSet& dungeons, LfgGuidSet const& players, LfgLockPartyMap& lockMap);
+        void GetCompatibleDungeons(LfgDungeonSet& dungeons, LfgGuidSet const& players, LfgLockPartyMap& lockMap, bool isContinue);
         void _SaveToDB(uint64 guid, uint32 db_guid);
         LFGDungeonData const* GetLFGDungeon(uint32 id);
 

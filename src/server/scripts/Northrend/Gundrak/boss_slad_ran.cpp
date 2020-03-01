@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -155,10 +155,10 @@ public:
                 {
                     if (uiPhase == 1)
                         for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
-                            me->SummonCreature(CREATURE_SNAKE, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
+                            me->SummonCreature(CREATURE_SNAKE, SpawnLoc[i], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
                     if (uiPhase == 2)
                         for (uint8 i = 0; i < DUNGEON_MODE(3, 5); ++i)
-                            me->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
+                            me->SummonCreature(CREATURE_CONSTRICTORS, SpawnLoc[i], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20*IN_MILLISECONDS);
                     uiSpawnTimer = 5*IN_MILLISECONDS;
                 } else uiSpawnTimer -= diff;
             }

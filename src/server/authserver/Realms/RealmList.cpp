@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -69,7 +69,7 @@ void RealmList::UpdateIfNeed()
 
 void RealmList::UpdateRealms(bool init)
 {
-    TC_LOG_INFO("server.authserver", "Updating Realm List...");
+    SF_LOG_INFO("server.authserver", "Updating Realm List...");
 
     PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_REALMLIST);
     PreparedQueryResult result = LoginDatabase.Query(stmt);
@@ -89,7 +89,7 @@ void RealmList::UpdateRealms(bool init)
             uint8 icon                  = fields[6].GetUInt8();
             RealmFlags flag             = RealmFlags(fields[7].GetUInt8());
             uint8 timezone              = fields[8].GetUInt8();
-            uint8 allowedSecurityLevel  = fields[9].GetUInt8();
+            AccountTypes allowedSecurityLevel  = AccountTypes(fields[9].GetUInt8());
             float pop                   = fields[10].GetFloat();
             uint32 build                = fields[11].GetUInt32();
 
@@ -97,10 +97,10 @@ void RealmList::UpdateRealms(bool init)
             ACE_INET_Addr localAddr(port, localAddress.c_str(), AF_INET);
             ACE_INET_Addr submask(0, localSubmask.c_str(), AF_INET);
 
-            UpdateRealm(realmId, name, externalAddr, localAddr, submask, icon, flag, timezone, (allowedSecurityLevel <= SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : SEC_ADMINISTRATOR), pop, build);
+            UpdateRealm(realmId, name, externalAddr, localAddr, submask, icon, flag, timezone, (allowedSecurityLevel <= AccountTypes::SEC_ADMINISTRATOR ? AccountTypes(allowedSecurityLevel) : AccountTypes::SEC_ADMINISTRATOR), pop, build);
 
             if (init)
-                TC_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[name].ExternalAddress.get_host_addr(), port);
+                SF_LOG_INFO("server.authserver", "Added realm \"%s\" at %s:%u.", name.c_str(), m_realms[name].ExternalAddress.get_host_addr(), port);
         }
         while (result->NextRow());
     }

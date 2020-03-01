@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -145,7 +145,7 @@ Vec3D fixCoordSystem2(Vec3D v)
     return Vec3D(v.x, v.z, v.y);
 }
 
-ModelInstance::ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE *pDirfile)
+ModelInstance::ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID, uint32 tileX, uint32 tileY, FILE *pDirfile) : id(0), scale(0), flags(0)
 {
     float ff[3];
     f.read(&id, 4);
@@ -159,7 +159,7 @@ ModelInstance::ModelInstance(MPQFile& f, char const* ModelInstName, uint32 mapID
     sc = scale / 1024.0f;
 
     char tempname[512];
-    sprintf(tempname, "%s/%s", szWorkDirWmo, ModelInstName);
+    snprintf(tempname, sizeof(tempname), "%s/%s", szWorkDirWmo, ModelInstName);
     FILE* input = fopen(tempname, "r+b");
 
     if (!input)

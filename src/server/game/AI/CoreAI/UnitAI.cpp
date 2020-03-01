@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,10 +52,10 @@ void UnitAI::DoMeleeAttackIfReady()
         me->resetAttackTimer();
     }
 
-    if (me->haveOffhandWeapon() && me->isAttackReady(OFF_ATTACK) && me->IsWithinMeleeRange(victim))
+    if (me->haveOffhandWeapon() && me->isAttackReady(WeaponAttackType::OFF_ATTACK) && me->IsWithinMeleeRange(victim))
     {
-        me->AttackerStateUpdate(victim, OFF_ATTACK);
-        me->resetAttackTimer(OFF_ATTACK);
+        me->AttackerStateUpdate(victim, WeaponAttackType::OFF_ATTACK);
+        me->resetAttackTimer(WeaponAttackType::OFF_ATTACK);
     }
 }
 
@@ -101,7 +101,7 @@ void UnitAI::DoAddAuraToAllHostilePlayers(uint32 spellid)
         for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
             if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
-                if (unit->GetTypeId() == TYPEID_PLAYER)
+                if (unit->GetTypeId() == TypeID::TYPEID_PLAYER)
                     me->AddAura(spellid, unit);
         }
     }
@@ -115,7 +115,7 @@ void UnitAI::DoCastToAllHostilePlayers(uint32 spellid, bool triggered)
         for (ThreatContainer::StorageType::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
         {
             if (Unit* unit = Unit::GetUnit(*me, (*itr)->getUnitGuid()))
-                if (unit->GetTypeId() == TYPEID_PLAYER)
+                if (unit->GetTypeId() == TypeID::TYPEID_PLAYER)
                     me->CastSpell(unit, spellid, triggered);
         }
     }
@@ -326,7 +326,7 @@ bool NonTankTargetSelector::operator()(Unit const* target) const
     if (!target)
         return false;
 
-    if (_playerOnly && target->GetTypeId() != TYPEID_PLAYER)
+    if (_playerOnly && target->GetTypeId() != TypeID::TYPEID_PLAYER)
         return false;
 
     return target != _source->GetVictim();

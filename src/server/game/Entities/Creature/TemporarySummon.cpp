@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -26,7 +26,7 @@
 #include "Player.h"
 
 TempSummon::TempSummon(SummonPropertiesEntry const* properties, Unit* owner, bool isWorldObject) :
-Creature(isWorldObject), m_Properties(properties), m_type(TEMPSUMMON_MANUAL_DESPAWN),
+Creature(isWorldObject), m_Properties(properties), m_type(TempSummonType::TEMPSUMMON_MANUAL_DESPAWN),
 m_timer(0), m_lifetime(0)
 {
     m_summonerGUID = owner ? owner->GetGUID() : 0;
@@ -47,16 +47,16 @@ void TempSummon::Update(uint32 diff)
 {
     Creature::Update(diff);
 
-    if (m_deathState == DEAD)
+    if (m_deathState == DeathState::DEAD)
     {
         UnSummon();
         return;
     }
     switch (m_type)
     {
-        case TEMPSUMMON_MANUAL_DESPAWN:
+        case TempSummonType::TEMPSUMMON_MANUAL_DESPAWN:
             break;
-        case TEMPSUMMON_TIMED_DESPAWN:
+        case TempSummonType::TEMPSUMMON_TIMED_DESPAWN:
         {
             if (m_timer <= diff)
             {
@@ -67,7 +67,7 @@ void TempSummon::Update(uint32 diff)
             m_timer -= diff;
             break;
         }
-        case TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT:
+        case TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT:
         {
             if (!IsInCombat())
             {
@@ -85,9 +85,9 @@ void TempSummon::Update(uint32 diff)
             break;
         }
 
-        case TEMPSUMMON_CORPSE_TIMED_DESPAWN:
+        case TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN:
         {
-            if (m_deathState == CORPSE)
+            if (m_deathState == DeathState::CORPSE)
             {
                 if (m_timer <= diff)
                 {
@@ -99,10 +99,10 @@ void TempSummon::Update(uint32 diff)
             }
             break;
         }
-        case TEMPSUMMON_CORPSE_DESPAWN:
+        case TempSummonType::TEMPSUMMON_CORPSE_DESPAWN:
         {
             // if m_deathState is DEAD, CORPSE was skipped
-            if (m_deathState == CORPSE || m_deathState == DEAD)
+            if (m_deathState == DeathState::CORPSE || m_deathState == DeathState::DEAD)
             {
                 UnSummon();
                 return;
@@ -110,19 +110,19 @@ void TempSummon::Update(uint32 diff)
 
             break;
         }
-        case TEMPSUMMON_DEAD_DESPAWN:
+        case TempSummonType::TEMPSUMMON_DEAD_DESPAWN:
         {
-            if (m_deathState == DEAD)
+            if (m_deathState == DeathState::DEAD)
             {
                 UnSummon();
                 return;
             }
             break;
         }
-        case TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN:
+        case TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN:
         {
             // if m_deathState is DEAD, CORPSE was skipped
-            if (m_deathState == CORPSE || m_deathState == DEAD)
+            if (m_deathState == DeathState::CORPSE || m_deathState == DeathState::DEAD)
             {
                 UnSummon();
                 return;
@@ -142,10 +142,10 @@ void TempSummon::Update(uint32 diff)
                 m_timer = m_lifetime;
             break;
         }
-        case TEMPSUMMON_TIMED_OR_DEAD_DESPAWN:
+        case TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN:
         {
             // if m_deathState is DEAD, CORPSE was skipped
-            if (m_deathState == DEAD)
+            if (m_deathState == DeathState::DEAD)
             {
                 UnSummon();
                 return;
@@ -167,7 +167,7 @@ void TempSummon::Update(uint32 diff)
         }
         default:
             UnSummon();
-            TC_LOG_ERROR("entities.unit", "Temporary summoned creature (entry: %u) have unknown type %u of ", GetEntry(), m_type);
+            SF_LOG_ERROR("entities.unit", "Temporary summoned creature (entry: %u) have unknown type %u of ", GetEntry(), uint32(m_type));
             break;
     }
 }
@@ -179,8 +179,8 @@ void TempSummon::InitStats(uint32 duration)
     m_timer = duration;
     m_lifetime = duration;
 
-    if (m_type == TEMPSUMMON_MANUAL_DESPAWN)
-        m_type = (duration == 0) ? TEMPSUMMON_DEAD_DESPAWN : TEMPSUMMON_TIMED_DESPAWN;
+    if (m_type == TempSummonType::TEMPSUMMON_MANUAL_DESPAWN)
+        m_type = (duration == 0) ? TempSummonType::TEMPSUMMON_DEAD_DESPAWN : TempSummonType::TEMPSUMMON_TIMED_DESPAWN;
 
     Unit* owner = GetSummoner();
 
@@ -188,7 +188,7 @@ void TempSummon::InitStats(uint32 duration)
     {
         setFaction(owner->getFaction());
         SetLevel(owner->getLevel());
-        if (owner->GetTypeId() == TYPEID_PLAYER)
+        if (owner->GetTypeId() == TypeID::TYPEID_PLAYER)
             m_ControlledByPlayer = true;
     }
 
@@ -221,7 +221,7 @@ void TempSummon::InitSummon()
     Unit* owner = GetSummoner();
     if (owner)
     {
-        if (owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
+        if (owner->GetTypeId() == TypeID::TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
             owner->ToCreature()->AI()->JustSummoned(this);
         if (IsAIEnabled)
             AI()->IsSummonedBy(owner);
@@ -252,7 +252,7 @@ void TempSummon::UnSummon(uint32 msTime)
     }
 
     Unit* owner = GetSummoner();
-    if (owner && owner->GetTypeId() == TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
+    if (owner && owner->GetTypeId() == TypeID::TYPEID_UNIT && owner->ToCreature()->IsAIEnabled)
         owner->ToCreature()->AI()->SummonedCreatureDespawn(this);
 
     AddObjectToRemoveList();
@@ -279,7 +279,7 @@ void TempSummon::RemoveFromWorld()
     }
 
     //if (GetOwnerGUID())
-    //    TC_LOG_ERROR("entities.unit", "Unit %u has owner guid when removed from world", GetEntry());
+    //    SF_LOG_ERROR("entities.unit", "Unit %u has owner guid when removed from world", GetEntry());
 
     Creature::RemoveFromWorld();
 }
@@ -337,7 +337,7 @@ void Guardian::InitStats(uint32 duration)
 
     InitStatsForLevel(GetOwner()->getLevel());
 
-    if (GetOwner()->GetTypeId() == TYPEID_PLAYER && HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
+    if (GetOwner()->GetTypeId() == TypeID::TYPEID_PLAYER && HasUnitTypeMask(UNIT_MASK_CONTROLABLE_GUARDIAN))
         m_charmInfo->InitCharmCreateSpells();
 
     SetReactState(REACT_AGGRESSIVE);
@@ -347,7 +347,7 @@ void Guardian::InitSummon()
 {
     TempSummon::InitSummon();
 
-    if (GetOwner()->GetTypeId() == TYPEID_PLAYER
+    if (GetOwner()->GetTypeId() == TypeID::TYPEID_PLAYER
             && GetOwner()->GetMinionGUID() == GetGUID()
             && !GetOwner()->GetCharmGUID())
     {
@@ -358,7 +358,7 @@ void Guardian::InitSummon()
 Puppet::Puppet(SummonPropertiesEntry const* properties, Unit* owner)
     : Minion(properties, owner, false) //maybe true?
 {
-    ASSERT(m_owner->GetTypeId() == TYPEID_PLAYER);
+    ASSERT(m_owner->GetTypeId() == TypeID::TYPEID_PLAYER);
     m_unitTypeMask |= UNIT_MASK_PUPPET;
 }
 

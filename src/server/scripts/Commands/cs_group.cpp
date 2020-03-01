@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,23 +30,21 @@ class group_commandscript : public CommandScript
 public:
     group_commandscript() : CommandScript("group_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand groupCommandTable[] =
+        static std::vector<ChatCommand> groupCommandTable =
         {
-            { "leader",  rbac::RBAC_PERM_COMMAND_GROUP_LEADER,  false, &HandleGroupLeaderCommand,  "", NULL },
-            { "disband", rbac::RBAC_PERM_COMMAND_GROUP_DISBAND, false, &HandleGroupDisbandCommand, "", NULL },
-            { "remove",  rbac::RBAC_PERM_COMMAND_GROUP_REMOVE,  false, &HandleGroupRemoveCommand,  "", NULL },
-            { "join",    rbac::RBAC_PERM_COMMAND_GROUP_JOIN,    false, &HandleGroupJoinCommand,    "", NULL },
-            { "list",    rbac::RBAC_PERM_COMMAND_GROUP_LIST,    false, &HandleGroupListCommand,    "", NULL },
-            { "summon",  rbac::RBAC_PERM_COMMAND_GROUP_SUMMON,  false, &HandleGroupSummonCommand,  "", NULL },
-            { NULL,      0,                               false, NULL,                       "", NULL }
+            { "leader",  rbac::RBAC_PERM_COMMAND_GROUP_LEADER,  false, &HandleGroupLeaderCommand,  "", },
+            { "disband", rbac::RBAC_PERM_COMMAND_GROUP_DISBAND, false, &HandleGroupDisbandCommand, "", },
+            { "remove",  rbac::RBAC_PERM_COMMAND_GROUP_REMOVE,  false, &HandleGroupRemoveCommand,  "", },
+            { "join",    rbac::RBAC_PERM_COMMAND_GROUP_JOIN,    false, &HandleGroupJoinCommand,    "", },
+            { "list",    rbac::RBAC_PERM_COMMAND_GROUP_LIST,    false, &HandleGroupListCommand,    "", },
+            { "summon",  rbac::RBAC_PERM_COMMAND_GROUP_SUMMON,  false, &HandleGroupSummonCommand,  "", },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "group", rbac::RBAC_PERM_COMMAND_GROUP, false, NULL, "", groupCommandTable },
-            { NULL,    0,                       false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -323,17 +321,17 @@ public:
 
             // Check for given flag and assign it to that iterator
             std::string flags;
-            if (slot.flags & MEMBER_FLAG_ASSISTANT)
+            if (slot.flags & uint8(GroupMemberFlags::MEMBER_FLAG_ASSISTANT))
                 flags = "Assistant";
 
-            if (slot.flags & MEMBER_FLAG_MAINTANK)
+            if (slot.flags & uint8(GroupMemberFlags::MEMBER_FLAG_MAINTANK))
             {
                 if (!flags.empty())
                     flags.append(", ");
                 flags.append("MainTank");
             }
 
-            if (slot.flags & MEMBER_FLAG_MAINASSIST)
+            if (slot.flags & uint8(GroupMemberFlags::MEMBER_FLAG_MAINASSIST))
             {
                 if (!flags.empty())
                     flags.append(", ");

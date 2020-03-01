@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -146,7 +146,7 @@ float const PosGroundDeadSide[4] = {2693.5f, -3334.6f, 267.68f, 4.67f};
 float const PosPlatform[4] = {2640.5f, -3360.6f, 285.26f, 0.0f};
 
 // Predicate function to check that the r   efzr unit is NOT on the same side as the source.
-struct NotOnSameSide : public std::unary_function<Unit*, bool>
+struct NotOnSameSide : public SF_UNARY_FUNCTION<Unit*, bool>
 {
     NotOnSameSide(Unit* source) : _onLiveSide(IN_LIVE_SIDE(source)) { }
 
@@ -185,7 +185,7 @@ class boss_gothik : public CreatureScript
 
                 me->SetReactState(REACT_PASSIVE);
                 if (instance)
-                    instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
+                    instance->SetData(DATA_GOTHIK_GATE, uint32((GOState::GO_STATE_ACTIVE)));
                 _Reset();
                 mergedSides = false;
                 phaseTwo = false;
@@ -203,7 +203,7 @@ class boss_gothik : public CreatureScript
 
                 if (LiveTriggerGUID.size() < POS_LIVE || DeadTriggerGUID.size() < POS_DEAD)
                 {
-                    TC_LOG_ERROR("scripts", "Script Gothik: cannot summon triggers!");
+                    SF_LOG_ERROR("scripts", "Script Gothik: cannot summon triggers!");
                     EnterEvadeMode();
                     return;
                 }
@@ -214,7 +214,7 @@ class boss_gothik : public CreatureScript
                 DoTeleportTo(PosPlatform);
                 Talk(SAY_SPEECH);
                 if (instance)
-                    instance->SetData(DATA_GOTHIK_GATE, GO_STATE_READY);
+                    instance->SetData(DATA_GOTHIK_GATE, uint32(GOState::GO_STATE_READY));
             }
 
             void JustSummoned(Creature* summon) OVERRIDE
@@ -252,12 +252,12 @@ class boss_gothik : public CreatureScript
                 _JustDied();
                 Talk(SAY_DEATH);
                 if (instance)
-                    instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
+                    instance->SetData(DATA_GOTHIK_GATE, uint32(GOState::GO_STATE_ACTIVE));
             }
 
             void DoGothikSummon(uint32 entry)
             {
-                if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                if (GetDifficulty() == DIFFICULTY_25MAN_NORMAL)
                 {
                     switch (entry)
                     {
@@ -407,7 +407,7 @@ class boss_gothik : public CreatureScript
                 {
                     thirtyPercentReached = true;
                     if (instance)
-                        instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
+                        instance->SetData(DATA_GOTHIK_GATE, uint32(GOState::GO_STATE_ACTIVE));
                 }
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
@@ -420,9 +420,9 @@ class boss_gothik : public CreatureScript
                         case EVENT_SUMMON:
                             if (waves[waveCount].entry)
                             {
-                                if ((waves[waveCount].mode == 2) && (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL))
+                                if ((waves[waveCount].mode == 2) && (GetDifficulty() == DIFFICULTY_25MAN_NORMAL))
                                    DoGothikSummon(waves[waveCount].entry);
-                                else if ((waves[waveCount].mode == 0) && (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL))
+                                else if ((waves[waveCount].mode == 0) && (GetDifficulty() == DIFFICULTY_10MAN_NORMAL))
                                     DoGothikSummon(waves[waveCount].entry);
                                 else if (waves[waveCount].mode == 1)
                                     DoGothikSummon(waves[waveCount].entry);
@@ -433,7 +433,7 @@ class boss_gothik : public CreatureScript
                                     if (!CheckGroupSplitted())
                                     {
                                         if (instance)
-                                            instance->SetData(DATA_GOTHIK_GATE, GO_STATE_ACTIVE);
+                                            instance->SetData(DATA_GOTHIK_GATE, uint32(GOState::GO_STATE_ACTIVE));
                                         DummyEntryCheckPredicate pred;
                                         summons.DoAction(0, pred);  //! Magic numbers fail
                                         summons.DoZoneInCombat();
@@ -443,9 +443,9 @@ class boss_gothik : public CreatureScript
 
                                 if (waves[waveCount].mode == 1)
                                     events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
-                                else if ((waves[waveCount].mode == 2) && (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL))
+                                else if ((waves[waveCount].mode == 2) && (GetDifficulty() == DIFFICULTY_25MAN_NORMAL))
                                     events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
-                                else if ((waves[waveCount].mode == 0) && (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL))
+                                else if ((waves[waveCount].mode == 0) && (GetDifficulty() == DIFFICULTY_10MAN_NORMAL))
                                     events.ScheduleEvent(EVENT_SUMMON, waves[waveCount].time);
                                 else
                                     events.ScheduleEvent(EVENT_SUMMON, 0);
@@ -606,7 +606,7 @@ class spell_gothik_shadow_bolt_volley : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(Trinity::UnitAuraCheck(false, SPELL_SHADOW_MARK));
+                targets.remove_if(Skyfire::UnitAuraCheck(false, SPELL_SHADOW_MARK));
             }
 
             void Register() OVERRIDE

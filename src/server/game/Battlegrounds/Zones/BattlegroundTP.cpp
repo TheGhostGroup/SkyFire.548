@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -253,12 +253,12 @@ void BattlegroundTP::RespawnFlag(uint32 Team, bool captured)
 {
     if (Team == ALLIANCE)
     {
-        TC_LOG_DEBUG("bg.battleground", "Respawn Alliance flag");
+        SF_LOG_DEBUG("bg.battleground", "Respawn Alliance flag");
         _flagState[TEAM_ALLIANCE] = BG_TP_FLAG_STATE_ON_BASE;
     }
     else
     {
-        TC_LOG_DEBUG("bg.battleground", "Respawn Horde flag");
+        SF_LOG_DEBUG("bg.battleground", "Respawn Horde flag");
         _flagState[TEAM_HORDE] = BG_TP_FLAG_STATE_ON_BASE;
     }
 
@@ -268,7 +268,7 @@ void BattlegroundTP::RespawnFlag(uint32 Team, bool captured)
         //when map_update will be allowed for battlegrounds this code will be useless
         SpawnBGObject(BG_TP_OBJECT_H_FLAG, RESPAWN_IMMEDIATELY);
         SpawnBGObject(BG_TP_OBJECT_A_FLAG, RESPAWN_IMMEDIATELY);
-        SendMessageToAll(LANG_BG_TP_F_PLACED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SendMessageToAll(LANG_BG_TP_F_PLACED, ChatMsg::CHAT_MSG_BG_SYSTEM_NEUTRAL);
         PlaySoundToAll(BG_TP_SOUND_FLAGS_RESPAWNED);        // flag respawned sound...
     }
     _bothFlagsKept = false;
@@ -285,12 +285,12 @@ void BattlegroundTP::RespawnFlagAfterDrop(uint32 team)
     if (team == ALLIANCE)
     {
         SpawnBGObject(BG_TP_OBJECT_A_FLAG, RESPAWN_IMMEDIATELY);
-        SendMessageToAll(LANG_BG_TP_ALLIANCE_FLAG_RESPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SendMessageToAll(LANG_BG_TP_ALLIANCE_FLAG_RESPAWNED, ChatMsg::CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
     else
     {
         SpawnBGObject(BG_TP_OBJECT_H_FLAG, RESPAWN_IMMEDIATELY);
-        SendMessageToAll(LANG_BG_TP_HORDE_FLAG_RESPAWNED, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+        SendMessageToAll(LANG_BG_TP_HORDE_FLAG_RESPAWNED, ChatMsg::CHAT_MSG_BG_SYSTEM_NEUTRAL);
     }
 
 
@@ -300,7 +300,7 @@ void BattlegroundTP::RespawnFlagAfterDrop(uint32 team)
     if (GameObject* obj = GetBgMap()->GetGameObject(GetDroppedFlagGUID(team)))
         obj->Delete();
     else
-        TC_LOG_ERROR("bg.battleground", "unknown droped flag bg, guid: %u", GUID_LOPART(GetDroppedFlagGUID(team)));
+        SF_LOG_ERROR("bg.battleground", "unknown droped flag bg, guid: %u", GUID_LOPART(GetDroppedFlagGUID(team)));
 
 
     SetDroppedFlagGUID(0, GetTeamIndexByTeamId(team));
@@ -363,9 +363,9 @@ void BattlegroundTP::EventPlayerCapturedFlag(Player* Source)
 
 
     if (Source->GetTeam() == ALLIANCE)
-        SendMessageToAll(LANG_BG_TP_CAPTURED_HF, CHAT_MSG_BG_SYSTEM_ALLIANCE, Source);
+        SendMessageToAll(LANG_BG_TP_CAPTURED_HF, ChatMsg::CHAT_MSG_BG_SYSTEM_ALLIANCE, Source);
     else
-        SendMessageToAll(LANG_BG_TP_CAPTURED_AF, CHAT_MSG_BG_SYSTEM_HORDE, Source);
+        SendMessageToAll(LANG_BG_TP_CAPTURED_AF, ChatMsg::CHAT_MSG_BG_SYSTEM_HORDE, Source);
 
 
     UpdateFlagState(Source->GetTeam(), 1);                  // flag state none
@@ -482,12 +482,12 @@ void BattlegroundTP::EventPlayerDroppedFlag(Player *Source)
 
         if (Source->GetTeam() == ALLIANCE)
         {
-            SendMessageToAll(LANG_BG_TP_DROPPED_HF, CHAT_MSG_BG_SYSTEM_HORDE, Source);
+            SendMessageToAll(LANG_BG_TP_DROPPED_HF, ChatMsg::CHAT_MSG_BG_SYSTEM_HORDE, Source);
             UpdateWorldState(BG_TP_FLAG_UNK_HORDE, uint32(-1));
         }
         else
         {
-            SendMessageToAll(LANG_BG_TP_DROPPED_AF, CHAT_MSG_BG_SYSTEM_ALLIANCE, Source);
+            SendMessageToAll(LANG_BG_TP_DROPPED_AF, ChatMsg::CHAT_MSG_BG_SYSTEM_ALLIANCE, Source);
             UpdateWorldState(BG_TP_FLAG_UNK_ALLIANCE, uint32(-1));
         }
 
@@ -504,7 +504,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* Source, GameObject* target
 
 
     int32 message_id = 0;
-    ChatMsg type = CHAT_MSG_BG_SYSTEM_NEUTRAL;
+    ChatMsg type = ChatMsg::CHAT_MSG_BG_SYSTEM_NEUTRAL;
 
 
     //alliance flag picked up from base
@@ -512,7 +512,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* Source, GameObject* target
         && BgObjects[BG_TP_OBJECT_A_FLAG] == target_obj->GetGUID())
     {
         message_id = LANG_BG_TP_PICKEDUP_AF;
-        type = CHAT_MSG_BG_SYSTEM_HORDE;
+        type = ChatMsg::CHAT_MSG_BG_SYSTEM_HORDE;
         PlaySoundToAll(BG_TP_SOUND_ALLIANCE_FLAG_PICKED_UP);
         SpawnBGObject(BG_TP_OBJECT_A_FLAG, RESPAWN_ONE_DAY);
         SetAllianceFlagPicker(Source->GetGUID());
@@ -532,7 +532,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* Source, GameObject* target
         && BgObjects[BG_TP_OBJECT_H_FLAG] == target_obj->GetGUID())
     {
         message_id = LANG_BG_TP_PICKEDUP_HF;
-        type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
+        type = ChatMsg::CHAT_MSG_BG_SYSTEM_ALLIANCE;
         PlaySoundToAll(BG_TP_SOUND_HORDE_FLAG_PICKED_UP);
         SpawnBGObject(BG_TP_OBJECT_H_FLAG, RESPAWN_ONE_DAY);
         SetHordeFlagPicker(Source->GetGUID());
@@ -554,7 +554,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* Source, GameObject* target
         if (Source->GetTeam() == ALLIANCE)
         {
             message_id = LANG_BG_TP_RETURNED_AF;
-            type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
+            type = ChatMsg::CHAT_MSG_BG_SYSTEM_ALLIANCE;
             UpdateFlagState(HORDE, BG_TP_FLAG_STATE_WAIT_RESPAWN);
             RespawnFlag(ALLIANCE, false);
             SpawnBGObject(BG_TP_OBJECT_A_FLAG, RESPAWN_IMMEDIATELY);
@@ -565,7 +565,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* Source, GameObject* target
         else
         {
             message_id = LANG_BG_TP_PICKEDUP_AF;
-            type = CHAT_MSG_BG_SYSTEM_HORDE;
+            type = ChatMsg::CHAT_MSG_BG_SYSTEM_HORDE;
             PlaySoundToAll(BG_TP_SOUND_ALLIANCE_FLAG_PICKED_UP);
             SpawnBGObject(BG_TP_OBJECT_A_FLAG, RESPAWN_ONE_DAY);
             SetAllianceFlagPicker(Source->GetGUID());
@@ -590,7 +590,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* Source, GameObject* target
         if (Source->GetTeam() == HORDE)
         {
             message_id = LANG_BG_TP_RETURNED_HF;
-            type = CHAT_MSG_BG_SYSTEM_HORDE;
+            type = ChatMsg::CHAT_MSG_BG_SYSTEM_HORDE;
             UpdateFlagState(ALLIANCE, BG_TP_FLAG_STATE_WAIT_RESPAWN);
             RespawnFlag(HORDE, false);
             SpawnBGObject(BG_TP_OBJECT_H_FLAG, RESPAWN_IMMEDIATELY);
@@ -601,7 +601,7 @@ void BattlegroundTP::EventPlayerClickedOnFlag(Player* Source, GameObject* target
         else
         {
             message_id = LANG_BG_TP_PICKEDUP_HF;
-            type = CHAT_MSG_BG_SYSTEM_ALLIANCE;
+            type = ChatMsg::CHAT_MSG_BG_SYSTEM_ALLIANCE;
             PlaySoundToAll(BG_TP_SOUND_HORDE_FLAG_PICKED_UP);
             SpawnBGObject(BG_TP_OBJECT_H_FLAG, RESPAWN_ONE_DAY);
             SetHordeFlagPicker(Source->GetGUID());
@@ -635,7 +635,7 @@ void BattlegroundTP::RemovePlayer(Player* player, uint64 guid, uint32 /*team*/)
     {
         if (!player)
         {
-            TC_LOG_ERROR("bg.battleground", "BattlegroundTP: Removing offline player who has the FLAG!!");
+            SF_LOG_ERROR("bg.battleground", "BattlegroundTP: Removing offline player who has the FLAG!!");
             SetAllianceFlagPicker(0);
             RespawnFlag(ALLIANCE, false);
         }
@@ -646,7 +646,7 @@ void BattlegroundTP::RemovePlayer(Player* player, uint64 guid, uint32 /*team*/)
     {
         if (!player)
         {
-            TC_LOG_ERROR("bg.battleground", "BattlegroundTP: Removing offline player who has the FLAG!!");
+            SF_LOG_ERROR("bg.battleground", "BattlegroundTP: Removing offline player who has the FLAG!!");
             SetHordeFlagPicker(0);
             RespawnFlag(HORDE, false);
         }
@@ -740,7 +740,7 @@ bool BattlegroundTP::SetupBattleground()
         || !AddObject(BG_TP_OBJECT_DOOR_H_4, BG_OBJECT_DOOR_H_4_TP_ENTRY, 1558.315f, 372.709f, 1.4840f, 6.179126f, 0, 0, 0, 0, RESPAWN_IMMEDIATELY)
        )
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn some objects Battleground not created!");
+        SF_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn some objects Battleground not created!");
         return false;
     }
 
@@ -748,7 +748,7 @@ bool BattlegroundTP::SetupBattleground()
     WorldSafeLocsEntry const *sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_ALLIANCE);
     if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, 3.641396f, ALLIANCE))
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Alliance spirit guides! Battleground not created!");
+        SF_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Alliance spirit guides! Battleground not created!");
         return false;
     }
 
@@ -756,7 +756,7 @@ bool BattlegroundTP::SetupBattleground()
     sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_START_ALLIANCE);
     if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, 3.641396f, ALLIANCE))
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Alliance start spirit guides! Battleground not created!");
+        SF_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Alliance start spirit guides! Battleground not created!");
         return false;
     }
 
@@ -764,18 +764,18 @@ bool BattlegroundTP::SetupBattleground()
     sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_MIDDLE_HORDE);
     if (!sg || !AddSpiritGuide(TP_SPIRIT_HORDE, sg->x, sg->y, sg->z, 3.641396f, HORDE))
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Horde spirit guides! Battleground not created!");
+        SF_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Horde spirit guides! Battleground not created!");
         return false;
     }
     sg = sWorldSafeLocsStore.LookupEntry(TP_GRAVEYARD_START_HORDE);
     if (!sg || !AddSpiritGuide(TP_SPIRIT_ALLIANCE, sg->x, sg->y, sg->z, 3.641396f, HORDE))
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Horde start spirit guide! Battleground not created!");
+        SF_LOG_ERROR("sql.sql", "BatteGroundTP: Failed to spawn Horde start spirit guide! Battleground not created!");
         return false;
     }
 
 
-    TC_LOG_DEBUG("bg.battleground", "BatteGroundTP: BG objects and spirit guides spawned");
+    SF_LOG_DEBUG("bg.battleground", "BatteGroundTP: BG objects and spirit guides spawned");
 
 
     return true;

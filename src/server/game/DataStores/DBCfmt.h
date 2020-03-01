@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_DBCSFRM_H
-#define TRINITY_DBCSFRM_H
+#ifndef SKYFIRE_DBCSFRM_H
+#define SKYFIRE_DBCSFRM_H
 
 // x - skip<uint32>, X - skip<uint8>, s - char*, f - float, i - uint32, b - uint8, d - index (not included)
 // n - index (included), l - bool, p - field present in sql dbc, a - field absent in sql dbc
@@ -54,7 +54,8 @@ char const Criteriafmt[] = "niiiiixxiiii";
 char const CriteriaTreefmt[] = "niixiiis";
 char const ChrSpecializationfmt[] = "nxiixiiixxxxxx";
 char const DestructibleModelDatafmt[] = "ixxixxxixxxixxxixxxxxxxx";
-char const DungeonEncounterfmt[] = "iiixisxxx";
+char const Difficultyfmt[] = "niixxxixxxxx";
+char const DungeonEncounterfmt[] = "niixisxxx";
 char const DurabilityCostsfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const DurabilityQualityfmt[] = "nf";
 char const EmotesEntryfmt[] = "nxxiiixx";
@@ -102,6 +103,7 @@ char const LFGDungeonEntryfmt[] = "nsiiiiiiiiixxixixixxxxxxxxxxx";
 char const LiquidTypefmt[] = "nxxixixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 char const LockEntryfmt[] = "niiiiiiiiiiiiiiiiiiiiiiiixxxxxxxx";
 char const PhaseEntryfmt[] = "nsi";
+char const PhaseGroupfmt[] = "nii";
 char const MailTemplateEntryfmt[] = "nxs";
 char const MapEntryfmt[] = "nxixxsixxixiffxiixi";
 char const MapDifficultyEntryfmt[] = "diisiix";
@@ -115,8 +117,12 @@ char const OverrideSpellDatafmt[] = "niiiiiiiiiixx";
 char const QuestFactionRewardfmt[] = "niiiiiiiiii";
 char const QuestSortEntryfmt[] = "nx";
 char const QuestXPfmt[] = "niiiiiiiiii";
+char const QuestPOIPointfmt [] = "diii";
 char const PvPDifficultyfmt[] = "diiiii";
 char const RandomPropertiesPointsfmt[] = "niiiiiiiiiiiiiii";
+char const ResearchBranchfmt [] = "nxxxxx";
+char const ResearchProjectfmt [] = "nxxiixxxi";
+char const ResearchSitefmt [] = "niixx";
 char const ScalingStatDistributionfmt[] = "niiiiiiiiiiiiiiiiiiiixi";
 char const ScalingStatValuesfmt[] = "iniiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii";
 char const SkillLinefmt[] = "nisxixixx";
@@ -140,7 +146,7 @@ char const SpellEntryfmt[] =            "nssxxixxiiiiiiiiiiiiiiiii";
 char const SpellMiscfmt[] = "nxxiiiiiiiiiiiiiiiiifiiiii";
 char const SpellEffectScalingfmt[] = "nfffxi";
 char const SpellFocusObjectfmt[] = "nx";
-char const SpellItemEnchantmentfmt[] = "nxiiiiiixxxiiisiiiiiiix";
+char const SpellItemEnchantmentfmt[] = "nxiiiiiiiiisiiiiiiiixxxxxx";
 char const SpellItemEnchantmentConditionfmt[] = "nbbbbbxxxxxbbbbbbbbbbiiiiiXXXXX";
 char const SpellRadiusfmt[] = "nffxf";
 char const SpellRangefmt[] = "nffffixx";
@@ -156,9 +162,9 @@ char const SpellCastingRequirementsEntryfmt[] = "dixxixi";
 char const SpellClassOptionsEntryfmt[] = "dxiiiii";
 char const SpellCooldownsEntryfmt[] = "dxxiii";
 char const SpellLevelsEntryfmt[] = "dxxiii";
-char const SpellRuneCostfmt[] = "niiixi";
+char const SpellRuneCostfmt[] = "niiiii";
 char const SpellShapeshiftEntryfmt[] = "nixixx";
-char const SpellShapeshiftFormfmt[] = "nxxiixiiixxiiiiiiiixx";
+char const SpellShapeshiftFormfmt[] = "nxxiixiiixxiiiiiiiiix";
 char const SummonPropertiesfmt[] = "niiiii";
 char const TalentEntryfmt[] = "nxiiixxxixx";
 char const TaxiNodesEntryfmt[] = "nifffsiixixx";
@@ -169,7 +175,7 @@ char const UnitPowerBarfmt[] = "niixxxxxxxxxxxxxxxxxxxxxxxx";
 char const TransportAnimationfmt[] = "diifffx";
 char const TransportRotationfmt[] = "diiffff";
 char const VehicleEntryfmt[] = "nixffffiiiiiiiifffffffffffffffssssfifiixx";
-char const VehicleSeatEntryfmt[] = "niiffffffffffiiiiiifffffffiiifffiiiiiiiffiiiiixxxxxxxxxxxxxxxxxxxx";
+char const VehicleSeatEntryfmt[] = "niiffffffffffiiiiiifffffffiiifffiiiiiiiffiiiixxxxxxxxxxxxxxxxxxxxx";
 char const WMOAreaTableEntryfmt[] = "niiixxxxxiixxxx";
 char const WorldMapAreaEntryfmt[] = "xinxffffixxxxx";
 char const WorldMapOverlayEntryfmt[] = "nxiiiixxxxxxxxxx";

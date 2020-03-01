@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -50,17 +50,17 @@ m_length(NULL)
     }
 
     m_rBind = new MYSQL_BIND[m_fieldCount];
-    m_isNull = new my_bool[m_fieldCount];
+    m_isNull = new bool[m_fieldCount];
     m_length = new unsigned long[m_fieldCount];
 
-    memset(m_isNull, 0, sizeof(my_bool) * m_fieldCount);
+    memset(m_isNull, 0, sizeof(bool) * m_fieldCount);
     memset(m_rBind, 0, sizeof(MYSQL_BIND) * m_fieldCount);
     memset(m_length, 0, sizeof(unsigned long) * m_fieldCount);
 
     //- This is where we store the (entire) resultset
     if (mysql_stmt_store_result(m_stmt))
     {
-        TC_LOG_WARN("sql.sql", "%s:mysql_stmt_store_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
+        SF_LOG_WARN("sql.sql", "%s:mysql_stmt_store_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
         delete[] m_rBind;
         delete[] m_isNull;
         delete[] m_length;
@@ -90,7 +90,7 @@ m_length(NULL)
     //- This is where we bind the bind the buffer to the statement
     if (mysql_stmt_bind_result(m_stmt, m_rBind))
     {
-        TC_LOG_WARN("sql.sql", "%s:mysql_stmt_bind_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
+        SF_LOG_WARN("sql.sql", "%s:mysql_stmt_bind_result, cannot bind result from MySQL server. Error: %s", __FUNCTION__, mysql_stmt_error(m_stmt));
         delete[] m_rBind;
         delete[] m_isNull;
         delete[] m_length;

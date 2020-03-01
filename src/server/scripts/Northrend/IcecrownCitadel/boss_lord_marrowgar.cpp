@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -97,14 +97,14 @@ enum MiscInfo
     MAX_BONE_SPIKE_IMMUNE           = 3,
 };
 
-class BoneSpikeTargetSelector : public std::unary_function<Unit*, bool>
+class BoneSpikeTargetSelector : public SF_UNARY_FUNCTION<Unit*, bool>
 {
     public:
         BoneSpikeTargetSelector(UnitAI* ai) : _ai(ai) { }
 
         bool operator()(Unit* unit) const
         {
-            if (unit->GetTypeId() != TYPEID_PLAYER)
+            if (unit->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return false;
 
             if (unit->HasAura(SPELL_IMPALED))
@@ -178,7 +178,7 @@ class boss_lord_marrowgar : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
@@ -364,7 +364,7 @@ class npc_coldflame : public CreatureScript
 
             void IsSummonedBy(Unit* owner) OVERRIDE
             {
-                if (owner->GetTypeId() != TYPEID_UNIT)
+                if (owner->GetTypeId() != TypeID::TYPEID_UNIT)
                     return;
 
                 Position pos;
@@ -622,7 +622,7 @@ class spell_marrowgar_bone_spike_graveyard : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->IsAIEnabled;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT && GetCaster()->IsAIEnabled;
             }
 
             SpellCastResult CheckCast()

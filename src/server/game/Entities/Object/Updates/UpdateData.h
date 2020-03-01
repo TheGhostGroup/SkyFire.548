@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,17 +39,12 @@ enum OBJECT_UPDATE_FLAGS
     UPDATEFLAG_SELF                  = 0x0001,
     UPDATEFLAG_TRANSPORT             = 0x0002,
     UPDATEFLAG_HAS_TARGET            = 0x0004,
-    UPDATEFLAG_UNKNOWN               = 0x0008,
-    UPDATEFLAG_LOWGUID               = 0x0010,
-    UPDATEFLAG_LIVING                = 0x0020,
-    UPDATEFLAG_STATIONARY_POSITION   = 0x0040,
-    UPDATEFLAG_VEHICLE               = 0x0080,
-    UPDATEFLAG_GO_TRANSPORT_POSITION = 0x0100,
-    UPDATEFLAG_ROTATION              = 0x0200,
-    UPDATEFLAG_UNK3                  = 0x0400,
-    UPDATEFLAG_ANIMKITS              = 0x0800,
-    UPDATEFLAG_UNK5                  = 0x1000,
-    UPDATEFLAG_UNK6                  = 0x2000,
+    UPDATEFLAG_LIVING                = 0x0008,
+    UPDATEFLAG_STATIONARY_POSITION   = 0x0010,
+    UPDATEFLAG_VEHICLE               = 0x0020,
+    UPDATEFLAG_GO_TRANSPORT_POSITION = 0x0040,
+    UPDATEFLAG_ROTATION              = 0x0080,
+    UPDATEFLAG_ANIMKITS              = 0x0100,
 };
 
 class UpdateData

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -39,46 +39,43 @@ class modify_commandscript : public CommandScript
 public:
     modify_commandscript() : CommandScript("modify_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand modifyspeedCommandTable[] =
+        static std::vector<ChatCommand> modifyspeedCommandTable =
         {
-            { "all",      rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_ALL,      false, &HandleModifyASpeedCommand, "", NULL },
-            { "backwalk", rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_BACKWALK, false, &HandleModifyBWalkCommand,  "", NULL },
-            { "fly",      rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_FLY,      false, &HandleModifyFlyCommand,    "", NULL },
-            { "walk",     rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_WALK,     false, &HandleModifySpeedCommand,  "", NULL },
-            { "swim",     rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_SWIM,     false, &HandleModifySwimCommand,   "", NULL },
-            { "",         rbac::RBAC_PERM_COMMAND_MODIFY_SPEED,          false, &HandleModifyASpeedCommand, "", NULL },
-            { NULL,       0,                                       false, NULL,                       "", NULL }
+            { "all",      rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_ALL,      false, &HandleModifyASpeedCommand, "", },
+            { "backwalk", rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_BACKWALK, false, &HandleModifyBWalkCommand,  "", },
+            { "fly",      rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_FLY,      false, &HandleModifyFlyCommand,    "", },
+            { "walk",     rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_WALK,     false, &HandleModifySpeedCommand,  "", },
+            { "swim",     rbac::RBAC_PERM_COMMAND_MODIFY_SPEED_SWIM,     false, &HandleModifySwimCommand,   "", },
+            { "",         rbac::RBAC_PERM_COMMAND_MODIFY_SPEED,          false, &HandleModifyASpeedCommand, "", },
         };
-        static ChatCommand modifyCommandTable[] =
+        static std::vector<ChatCommand> modifyCommandTable =
         {
-            { "bit",          rbac::RBAC_PERM_COMMAND_MODIFY_BIT,          false, &HandleModifyBitCommand,           "", NULL },
-            { "drunk",        rbac::RBAC_PERM_COMMAND_MODIFY_DRUNK,        false, &HandleModifyDrunkCommand,         "", NULL },
-            { "energy",       rbac::RBAC_PERM_COMMAND_MODIFY_ENERGY,       false, &HandleModifyEnergyCommand,        "", NULL },
-            { "faction",      rbac::RBAC_PERM_COMMAND_MODIFY_FACTION,      false, &HandleModifyFactionCommand,       "", NULL },
-            { "gender",       rbac::RBAC_PERM_COMMAND_MODIFY_GENDER,       false, &HandleModifyGenderCommand,        "", NULL },
-            { "honor",        rbac::RBAC_PERM_COMMAND_MODIFY_HONOR,        false, &HandleModifyHonorCommand,         "", NULL },
-            { "hp",           rbac::RBAC_PERM_COMMAND_MODIFY_HP,           false, &HandleModifyHPCommand,            "", NULL },
-            { "mana",         rbac::RBAC_PERM_COMMAND_MODIFY_MANA,         false, &HandleModifyManaCommand,          "", NULL },
-            { "money",        rbac::RBAC_PERM_COMMAND_MODIFY_MONEY,        false, &HandleModifyMoneyCommand,         "", NULL },
-            { "mount",        rbac::RBAC_PERM_COMMAND_MODIFY_MOUNT,        false, &HandleModifyMountCommand,         "", NULL },
-            { "phase",        rbac::RBAC_PERM_COMMAND_MODIFY_PHASE,        false, &HandleModifyPhaseCommand,         "", NULL },
-            { "rage",         rbac::RBAC_PERM_COMMAND_MODIFY_RAGE,         false, &HandleModifyRageCommand,          "", NULL },
-            { "reputation",   rbac::RBAC_PERM_COMMAND_MODIFY_REPUTATION,   false, &HandleModifyRepCommand,           "", NULL },
-            { "runicpower",   rbac::RBAC_PERM_COMMAND_MODIFY_RUNICPOWER,   false, &HandleModifyRunicPowerCommand,    "", NULL },
-            { "scale",        rbac::RBAC_PERM_COMMAND_MODIFY_SCALE,        false, &HandleModifyScaleCommand,         "", NULL },
+            { "bit",          rbac::RBAC_PERM_COMMAND_MODIFY_BIT,          false, &HandleModifyBitCommand,           "", },
+            { "drunk",        rbac::RBAC_PERM_COMMAND_MODIFY_DRUNK,        false, &HandleModifyDrunkCommand,         "", },
+            { "energy",       rbac::RBAC_PERM_COMMAND_MODIFY_ENERGY,       false, &HandleModifyEnergyCommand,        "", },
+            { "faction",      rbac::RBAC_PERM_COMMAND_MODIFY_FACTION,      false, &HandleModifyFactionCommand,       "", },
+            { "gender",       rbac::RBAC_PERM_COMMAND_MODIFY_GENDER,       false, &HandleModifyGenderCommand,        "", },
+            { "honor",        rbac::RBAC_PERM_COMMAND_MODIFY_HONOR,        false, &HandleModifyHonorCommand,         "", },
+            { "hp",           rbac::RBAC_PERM_COMMAND_MODIFY_HP,           false, &HandleModifyHPCommand,            "", },
+            { "mana",         rbac::RBAC_PERM_COMMAND_MODIFY_MANA,         false, &HandleModifyManaCommand,          "", },
+            { "money",        rbac::RBAC_PERM_COMMAND_MODIFY_MONEY,        false, &HandleModifyMoneyCommand,         "", },
+            { "mount",        rbac::RBAC_PERM_COMMAND_MODIFY_MOUNT,        false, &HandleModifyMountCommand,         "", },
+            { "phase",        rbac::RBAC_PERM_COMMAND_MODIFY_PHASE,        false, &HandleModifyPhaseCommand,         "", },
+            { "rage",         rbac::RBAC_PERM_COMMAND_MODIFY_RAGE,         false, &HandleModifyRageCommand,          "", },
+            { "reputation",   rbac::RBAC_PERM_COMMAND_MODIFY_REPUTATION,   false, &HandleModifyRepCommand,           "", },
+            { "runicpower",   rbac::RBAC_PERM_COMMAND_MODIFY_RUNICPOWER,   false, &HandleModifyRunicPowerCommand,    "", },
+            { "scale",        rbac::RBAC_PERM_COMMAND_MODIFY_SCALE,        false, &HandleModifyScaleCommand,         "", },
             { "speed",        rbac::RBAC_PERM_COMMAND_MODIFY_SPEED,        false, NULL,           "", modifyspeedCommandTable },
-            { "spell",        rbac::RBAC_PERM_COMMAND_MODIFY_SPELL,        false, &HandleModifySpellCommand,         "", NULL },
-            { "standstate",   rbac::RBAC_PERM_COMMAND_MODIFY_STANDSTATE,   false, &HandleModifyStandStateCommand,    "", NULL },
-            { NULL,           0,                                     false, NULL,                              "", NULL }
+            { "spell",        rbac::RBAC_PERM_COMMAND_MODIFY_SPELL,        false, &HandleModifySpellCommand,         "", },
+            { "standstate",   rbac::RBAC_PERM_COMMAND_MODIFY_STANDSTATE,   false, &HandleModifyStandStateCommand,    "", },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "morph",   rbac::RBAC_PERM_COMMAND_MORPH,   false, &HandleModifyMorphCommand,          "", NULL },
-            { "demorph", rbac::RBAC_PERM_COMMAND_DEMORPH, false, &HandleDeMorphCommand,              "", NULL },
+            { "morph",   rbac::RBAC_PERM_COMMAND_MORPH,   false, &HandleModifyMorphCommand,          "", },
+            { "demorph", rbac::RBAC_PERM_COMMAND_DEMORPH, false, &HandleDeMorphCommand,              "", },
             { "modify",  rbac::RBAC_PERM_COMMAND_MODIFY,  false, NULL,                 "", modifyCommandTable },
-            { NULL,      0,                         false, NULL,                               "", NULL }
         };
         return commandTable;
     }
@@ -204,7 +201,7 @@ public:
         target->SetMaxPower(POWER_ENERGY, energym);
         target->SetPower(POWER_ENERGY, energy);
 
-        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
+        SF_LOG_DEBUG("misc", handler->GetSkyFireString(LANG_CURRENT_ENERGY), target->GetMaxPower(POWER_ENERGY));
 
         return true;
     }
@@ -964,7 +961,7 @@ public:
         {
             int64 newmoney = int64(targetMoney) + moneyToAdd;
 
-            TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_CURRENT_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(newmoney));
+            SF_LOG_DEBUG("misc", handler->GetSkyFireString(LANG_CURRENT_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(newmoney));
             if (newmoney <= 0)
             {
                 handler->PSendSysMessage(LANG_YOU_TAKE_ALL_MONEY, handler->GetNameLink(target).c_str());
@@ -1000,7 +997,7 @@ public:
             target->ModifyMoney(moneyToAdd);
         }
 
-        TC_LOG_DEBUG("misc", handler->GetTrinityString(LANG_NEW_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
+        SF_LOG_DEBUG("misc", handler->GetSkyFireString(LANG_NEW_MONEY), uint32(targetMoney), int32(moneyToAdd), uint32(target->GetMoney()));
 
         return true;
     }
@@ -1020,7 +1017,7 @@ public:
         }
 
         // check online security
-        if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
+        if (target->GetTypeId() == TypeID::TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
             return false;
 
         char* pField = strtok((char*)args, " ");
@@ -1142,7 +1139,7 @@ public:
             amount = -42000;
             for (; r < MAX_REPUTATION_RANK; ++r)
             {
-                std::string rank = handler->GetTrinityString(ReputationRankStrIndex[r]);
+                std::string rank = handler->GetSkyFireString(ReputationRankStrIndex[r]);
                 if (rank.empty())
                     continue;
 
@@ -1214,7 +1211,7 @@ public:
             target = handler->GetSession()->GetPlayer();
 
         // check online security
-        else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
+        else if (target->GetTypeId() == TypeID::TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
             return false;
 
         target->SetDisplayId(display_id);
@@ -1228,18 +1225,13 @@ public:
         if (!*args)
             return false;
 
-        uint32 phasemask = (uint32)atoi((char*)args);
+        uint32 phase = (uint32)atoi((char*)args);
 
         Unit* target = handler->getSelectedUnit();
-        if (target)
-        {
-            if (target->GetTypeId() == TYPEID_PLAYER)
-                target->ToPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
-            else
-                target->SetPhaseMask(phasemask, true);
-        }
-        else
-            handler->GetSession()->GetPlayer()->GetPhaseMgr().SetCustomPhase(phasemask);
+        if (!target)
+            target = handler->GetSession()->GetPlayer();
+
+        target->SetPhased(phase, true, !target->IsPhased(phase));
 
         return true;
     }
@@ -1324,7 +1316,7 @@ public:
             target = handler->GetSession()->GetPlayer();
 
         // check online security
-        else if (target->GetTypeId() == TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
+        else if (target->GetTypeId() == TypeID::TYPEID_PLAYER && handler->HasLowerSecurity(target->ToPlayer(), 0))
             return false;
 
         target->DeMorph();

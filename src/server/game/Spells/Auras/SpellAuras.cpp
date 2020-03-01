@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,10 +74,10 @@ _flags(AFLAG_NONE), _effectsToApply(effMask), _needClientUpdate(false), _effMask
             _slot = slot;
             GetTarget()->SetVisibleAura(slot, this);
             SetNeedClientUpdate();
-            TC_LOG_DEBUG("spells", "Aura: %u Effect: %d put to unit visible auras slot: %u", GetBase()->GetId(), GetEffectMask(), slot);
+            SF_LOG_DEBUG("spells", "Aura: %u Effect: %d put to unit visible auras slot: %u", GetBase()->GetId(), GetEffectMask(), slot);
         }
         else
-            TC_LOG_DEBUG("spells", "Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
+            SF_LOG_DEBUG("spells", "Aura: %u Effect: %d could not find empty unit visible slot", GetBase()->GetId(), GetEffectMask());
     }
 
     _InitFlags(caster, effMask);
@@ -159,7 +159,7 @@ void AuraApplication::_HandleEffect(uint8 effIndex, bool apply)
     ASSERT(aurEff);
     ASSERT(HasEffect(effIndex) == (!apply));
     ASSERT((1<<effIndex) & _effectsToApply);
-    TC_LOG_DEBUG("spells", "AuraApplication::_HandleEffect: %u, apply: %u: amount: %u", aurEff->GetAuraType(), apply, aurEff->GetAmount());
+    SF_LOG_DEBUG("spells", "AuraApplication::_HandleEffect: %u, apply: %u: amount: %u", aurEff->GetAuraType(), apply, aurEff->GetAmount());
 
     if (apply)
     {
@@ -305,15 +305,15 @@ uint32 Aura::BuildEffectMaskForOwner(SpellInfo const* spellProto, uint32 avalibl
     uint32 effMask = 0;
     switch (owner->GetTypeId())
     {
-        case TYPEID_UNIT:
-        case TYPEID_PLAYER:
+        case TypeID::TYPEID_UNIT:
+        case TypeID::TYPEID_PLAYER:
             for (uint32 i = 0; i< MAX_SPELL_EFFECTS; ++i)
             {
                 if (spellProto->Effects[i].IsUnitOwnedAuraEffect())
                     effMask |= 1 << i;
             }
             break;
-        case TYPEID_DYNAMICOBJECT:
+        case TypeID::TYPEID_DYNAMICOBJECT:
             for (uint32 i = 0; i< MAX_SPELL_EFFECTS; ++i)
             {
                 if (spellProto->Effects[i].Effect == SPELL_EFFECT_PERSISTENT_AREA_AURA)
@@ -392,11 +392,11 @@ Aura* Aura::Create(SpellInfo const* spellproto, uint32 effMask, WorldObject* own
     Aura* aura = NULL;
     switch (owner->GetTypeId())
     {
-        case TYPEID_UNIT:
-        case TYPEID_PLAYER:
+        case TypeID::TYPEID_UNIT:
+        case TypeID::TYPEID_PLAYER:
             aura = new UnitAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
             break;
-        case TYPEID_DYNAMICOBJECT:
+        case TypeID::TYPEID_DYNAMICOBJECT:
             aura = new DynObjAura(spellproto, effMask, owner, caster, baseAmount, castItem, casterGUID);
             break;
         default:
@@ -477,7 +477,7 @@ Unit* Aura::GetCaster() const
 
 AuraObjectType Aura::GetType() const
 {
-    return (m_owner->GetTypeId() == TYPEID_DYNAMICOBJECT) ? DYNOBJ_AURA_TYPE : UNIT_AURA_TYPE;
+    return (m_owner->GetTypeId() == TypeID::TYPEID_DYNAMICOBJECT) ? DYNOBJ_AURA_TYPE : UNIT_AURA_TYPE;
 }
 
 void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp)
@@ -490,7 +490,7 @@ void Aura::_ApplyForTarget(Unit* target, Unit* caster, AuraApplication * auraApp
     m_applications[target->GetGUID()] = auraApp;
 
     // set infinity cooldown state for spells
-    if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+    if (caster && caster->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
         if (m_spellInfo->IsCooldownStartedOnEvent())
         {
@@ -511,7 +511,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraA
     /// @todo Figure out why this happens
     if (itr == m_applications.end())
     {
-        TC_LOG_ERROR("spells", "Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
+        SF_LOG_ERROR("spells", "Aura::_UnapplyForTarget, target:%u, caster:%u, spell:%u was not found in owners application map!",
         target->GetGUIDLow(), caster ? caster->GetGUIDLow() : 0, auraApp->GetBase()->GetSpellInfo()->Id);
         ASSERT(false);
     }
@@ -523,7 +523,7 @@ void Aura::_UnapplyForTarget(Unit* target, Unit* caster, AuraApplication * auraA
     m_removedApplications.push_back(auraApp);
 
     // reset cooldown state for spells
-    if (caster && caster->GetTypeId() == TYPEID_PLAYER)
+    if (caster && caster->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
         if (GetSpellInfo()->IsCooldownStartedOnEvent())
             // note: item based cooldowns and cooldown spell mods with charges ignored (unknown existed cases)
@@ -563,7 +563,7 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
     UnitList targetsToRemove;
 
     // mark all auras as ready to remove
-    for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end();appIter++)
+    for (ApplicationMap::iterator appIter = m_applications.begin(); appIter != m_applications.end();++appIter)
     {
         std::map<Unit*, uint32>::iterator existing = targets.find(appIter->second->GetTarget());
         // not found in current area - remove the aura
@@ -653,7 +653,7 @@ void Aura::UpdateTargetMap(Unit* caster, bool apply)
             if (!GetOwner()->IsSelfOrInSameMap(itr->first))
             {
                 /// @todo There is a crash caused by shadowfiend load addon
-                TC_LOG_FATAL("spells", "Aura %u: Owner %s (map %u) is not in the same map as target %s (map %u).", GetSpellInfo()->Id,
+                SF_LOG_FATAL("spells", "Aura %u: Owner %s (map %u) is not in the same map as target %s (map %u).", GetSpellInfo()->Id,
                     GetOwner()->GetName().c_str(), GetOwner()->IsInWorld() ? GetOwner()->GetMap()->GetId() : uint32(-1),
                     itr->first->GetName().c_str(), itr->first->IsInWorld() ? itr->first->GetMap()->GetId() : uint32(-1));
                 ASSERT(false);
@@ -1008,10 +1008,6 @@ bool Aura::CanBeSaved() const
     if (HasEffectType(SPELL_AURA_CONVERT_RUNE))
         return false;
 
-    // No point in saving this, since the stable dialog can't be open on aura load anyway.
-    if (HasEffectType(SPELL_AURA_OPEN_STABLE))
-        return false;
-
     // Can't save vehicle auras, it requires both caster & target to be in world
     if (HasEffectType(SPELL_AURA_CONTROL_VEHICLE))
         return false;
@@ -1253,7 +1249,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 switch (GetId())
                 {
                     case 32474: // Buffeting Winds of Susurrus
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
                             target->ToPlayer()->ActivateTaxiPathTo(506, GetId());
                         break;
                     case 33572: // Gronn Lord's Grasp, becomes stoned
@@ -1265,7 +1261,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             target->CastSpell(target, 50812, true);
                         break;
                     case 60970: // Heroic Fury (remove Intercept cooldown)
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
                             target->ToPlayer()->RemoveSpellCooldown(20252, true);
                         break;
                 }
@@ -1314,7 +1310,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                                 case 31571: spellId = 57529; break;
                                 case 31572: spellId = 57531; break;
                                 default:
-                                    TC_LOG_ERROR("spells", "Aura::HandleAuraSpecificMods: Unknown rank of Arcane Potency (%d) found", aurEff->GetId());
+                                    SF_LOG_ERROR("spells", "Aura::HandleAuraSpecificMods: Unknown rank of Arcane Potency (%d) found", aurEff->GetId());
                             }
                             if (spellId)
                                 caster->CastSpell(caster, spellId, true);
@@ -1417,7 +1413,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                             case 53759: spellId = 60947; break;
                             case 53754: spellId = 60946; break;
                             default:
-                                TC_LOG_ERROR("spells", "Aura::HandleAuraSpecificMods: Unknown rank of Improved Fear (%d) found", aurEff->GetId());
+                                SF_LOG_ERROR("spells", "Aura::HandleAuraSpecificMods: Unknown rank of Improved Fear (%d) found", aurEff->GetId());
                         }
                         if (spellId)
                             caster->CastSpell(target, spellId, true);
@@ -1434,7 +1430,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                     if (Aura const* aura = caster->GetAuraOfRankedSpell(47535))
                     {
                         // check cooldown
-                        if (caster->GetTypeId() == TYPEID_PLAYER)
+                        if (caster->GetTypeId() == TypeID::TYPEID_PLAYER)
                         {
                             if (caster->ToPlayer()->HasSpellCooldown(aura->GetId()))
                             {
@@ -1475,7 +1471,7 @@ void Aura::HandleAuraSpecificMods(AuraApplication const* aurApp, Unit* caster, b
                 {
                     if (!GetEffect(0) || GetEffect(0)->GetAuraType() != SPELL_AURA_PERIODIC_DUMMY)
                         break;
-                    if (target->GetTypeId() != TYPEID_PLAYER)
+                    if (target->GetTypeId() != TypeID::TYPEID_PLAYER)
                         break;
                     if (target->ToPlayer()->getClass() != CLASS_DEATH_KNIGHT)
                         break;
@@ -1774,7 +1770,7 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
     // do that only for passive spells
     /// @todo this needs to be unified for all kinds of auras
     Unit* target = aurApp->GetTarget();
-    if (IsPassive() && target->GetTypeId() == TYPEID_PLAYER)
+    if (IsPassive() && target->GetTypeId() == TypeID::TYPEID_PLAYER)
     {
         if (GetSpellInfo()->EquippedItemClass == ITEM_CLASS_WEAPON)
         {
@@ -1785,9 +1781,9 @@ bool Aura::IsProcTriggeredOnEvent(AuraApplication* aurApp, ProcEventInfo& eventI
             {
                 WeaponAttackType attType = eventInfo.GetDamageInfo()->GetAttackType();
                 Item* item = NULL;
-                if (attType == BASE_ATTACK || attType == RANGED_ATTACK)
+                if (attType == WeaponAttackType::BASE_ATTACK || attType == WeaponAttackType::RANGED_ATTACK)
                     item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_MAINHAND);
-                else if (attType == OFF_ATTACK)
+                else if (attType == WeaponAttackType::OFF_ATTACK)
                     item = target->ToPlayer()->GetUseableItemByPos(INVENTORY_SLOT_BAG_0, EQUIPMENT_SLOT_OFFHAND);
 
                 if (!item || item->IsBroken() || item->GetTemplate()->Class != ITEM_CLASS_WEAPON || !((1<<item->GetTemplate()->SubClass) & GetSpellInfo()->EquippedItemSubClassMask))
@@ -1864,7 +1860,7 @@ void Aura::LoadScripts()
             m_loadedScripts.erase(bitr);
             continue;
         }
-        TC_LOG_DEBUG("spells", "Aura::LoadScripts: Script `%s` for aura `%u` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
+        SF_LOG_DEBUG("spells", "Aura::LoadScripts: Script `%s` for aura `%u` is loaded now", (*itr)->_GetScriptName()->c_str(), m_spellInfo->Id);
         (*itr)->Register();
         ++itr;
     }
@@ -2284,23 +2280,23 @@ void UnitAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* caster)
                     case SPELL_EFFECT_APPLY_AREA_AURA_RAID:
                     {
                         targetList.push_back(GetUnitOwner());
-                        Trinity::AnyGroupedUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius, GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID);
-                        Trinity::UnitListSearcher<Trinity::AnyGroupedUnitInObjectRangeCheck> searcher(GetUnitOwner(), targetList, u_check);
+                        Skyfire::AnyGroupedUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius, GetSpellInfo()->Effects[effIndex].Effect == SPELL_EFFECT_APPLY_AREA_AURA_RAID);
+                        Skyfire::UnitListSearcher<Skyfire::AnyGroupedUnitInObjectRangeCheck> searcher(GetUnitOwner(), targetList, u_check);
                         GetUnitOwner()->VisitNearbyObject(radius, searcher);
                         break;
                     }
                     case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
                     {
                         targetList.push_back(GetUnitOwner());
-                        Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius);
-                        Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(GetUnitOwner(), targetList, u_check);
+                        Skyfire::AnyFriendlyUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius);
+                        Skyfire::UnitListSearcher<Skyfire::AnyFriendlyUnitInObjectRangeCheck> searcher(GetUnitOwner(), targetList, u_check);
                         GetUnitOwner()->VisitNearbyObject(radius, searcher);
                         break;
                     }
                     case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
                     {
-                        Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius); // No GetCharmer in searcher
-                        Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(GetUnitOwner(), targetList, u_check);
+                        Skyfire::AnyAoETargetUnitInObjectRangeCheck u_check(GetUnitOwner(), GetUnitOwner(), radius); // No GetCharmer in searcher
+                        Skyfire::UnitListSearcher<Skyfire::AnyAoETargetUnitInObjectRangeCheck> searcher(GetUnitOwner(), targetList, u_check);
                         GetUnitOwner()->VisitNearbyObject(radius, searcher);
                         break;
                     }
@@ -2360,14 +2356,14 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint32> & targets, Unit* /*caster
         if (GetSpellInfo()->Effects[effIndex].TargetB.GetTarget() == TARGET_DEST_DYNOBJ_ALLY
             || GetSpellInfo()->Effects[effIndex].TargetB.GetTarget() == TARGET_UNIT_DEST_AREA_ALLY)
         {
-            Trinity::AnyFriendlyUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius);
-            Trinity::UnitListSearcher<Trinity::AnyFriendlyUnitInObjectRangeCheck> searcher(GetDynobjOwner(), targetList, u_check);
+            Skyfire::AnyFriendlyUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius);
+            Skyfire::UnitListSearcher<Skyfire::AnyFriendlyUnitInObjectRangeCheck> searcher(GetDynobjOwner(), targetList, u_check);
             GetDynobjOwner()->VisitNearbyObject(radius, searcher);
         }
         else
         {
-            Trinity::AnyAoETargetUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius);
-            Trinity::UnitListSearcher<Trinity::AnyAoETargetUnitInObjectRangeCheck> searcher(GetDynobjOwner(), targetList, u_check);
+            Skyfire::AnyAoETargetUnitInObjectRangeCheck u_check(GetDynobjOwner(), dynObjOwnerCaster, radius);
+            Skyfire::UnitListSearcher<Skyfire::AnyAoETargetUnitInObjectRangeCheck> searcher(GetDynobjOwner(), targetList, u_check);
             GetDynobjOwner()->VisitNearbyObject(radius, searcher);
         }
 

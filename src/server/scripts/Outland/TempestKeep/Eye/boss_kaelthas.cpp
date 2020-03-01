@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -376,7 +376,7 @@ class boss_kaelthas : public CreatureScript
 
                 if (!m_auiAdvisorGuid[0] || !m_auiAdvisorGuid[1] || !m_auiAdvisorGuid[2] || !m_auiAdvisorGuid[3])
                 {
-                    TC_LOG_ERROR("scripts", "Kael'Thas One or more advisors missing, Skipping Phases 1-3");
+                    SF_LOG_ERROR("scripts", "Kael'Thas One or more advisors missing, Skipping Phases 1-3");
 
                     Talk(SAY_PHASE4_INTRO2);
 
@@ -704,7 +704,7 @@ class boss_kaelthas : public CreatureScript
                                 Advisor = Unit::GetCreature(*me, m_auiAdvisorGuid[i]);
 
                                 if (!Advisor)
-                                    TC_LOG_ERROR("scripts", "SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
+                                    SF_LOG_ERROR("scripts", "SD2: Kael'Thas Advisor %u does not exist. Possibly despawned? Incorrectly Killed?", i);
                                 else
                                     CAST_AI(advisorbase_ai, Advisor->AI())->Revive(target);
                             }
@@ -797,7 +797,7 @@ class boss_kaelthas : public CreatureScript
                                 if (me->getThreatManager().getThreatList().size() >= 2)
                                     for (uint32 i = 0; i < 3; ++i)
                                 {
-                                    TC_LOG_DEBUG("scripts", "Kael'Thas mind control not supported.");
+                                    SF_LOG_DEBUG("scripts", "Kael'Thas mind control not supported.");
                                     //DoCast(unit, SPELL_MIND_CONTROL);
                                 }
 
@@ -908,7 +908,7 @@ class boss_kaelthas : public CreatureScript
                                         for (i = threatlist.begin(); i != threatlist.end(); ++i)
                                         {
                                             Unit* unit = Unit::GetUnit(*me, (*i)->getUnitGuid());
-                                            if (unit && (unit->GetTypeId() == TYPEID_PLAYER))
+                                            if (unit && (unit->GetTypeId() == TypeID::TYPEID_PLAYER))
                                             {
                                                 //Use work around packet to prevent player from being dropped from combat
                                                 DoTeleportPlayer(unit, afGravityPos[0], afGravityPos[1], afGravityPos[2], unit->GetOrientation());
@@ -1503,7 +1503,7 @@ class npc_phoenix_tk : public CreatureScript
             {
                 //is this spell in use anylonger?
                 //DoCast(me, SPELL_EMBER_BLAST, true);
-                me->SummonCreature(NPC_PHOENIX_EGG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 16000);
+                me->SummonCreature(NPC_PHOENIX_EGG, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 16000);
             }
 
             void UpdateAI(uint32 diff) OVERRIDE
@@ -1580,7 +1580,7 @@ class npc_phoenix_egg_tk : public CreatureScript
 
                 if (Rebirth_Timer <= diff)
                 {
-                    me->SummonCreature(NPC_PHOENIX, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 5000);
+                    me->SummonCreature(NPC_PHOENIX, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 5000);
                     Rebirth_Timer = 0;
                 }
                 else

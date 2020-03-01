@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,6 +59,11 @@ enum ServerMessageType
     SERVER_MSG_TICKET_SERVICED_SOON   = 11,
     SERVER_MSG_WAIT_TIME_UNAVAILABLE  = 12,
     SERVER_MSG_TICKET_WAIT_TIME       = 13,
+    SERVER_MSG_CONTENT_LAUNCHED       = 14,
+    SERVER_MSG_CONTENT_LAUNCH_H       = 15,
+    SERVER_MSG_CONTENT_LAUNCH_A       = 16,
+    SERVER_MSG_CROSS_REALM_SHUTDOWN   = 17,
+    SERVER_MSG_CROSS_REALM_RESTART    = 18
 };
 
 enum ShutdownMask
@@ -93,7 +98,7 @@ enum WorldTimers
 };
 
 /// Configuration elements
-enum WorldBoolConfigs
+enum class WorldBoolConfigs
 {
     CONFIG_DURABILITY_LOSS_IN_PVP = 0,
     CONFIG_ADDON_CHANNEL,
@@ -156,7 +161,6 @@ enum WorldBoolConfigs
     CONFIG_CHATLOG_ADDON,
     CONFIG_CHATLOG_BGROUND,
     CONFIG_AUTOBROADCAST,
-    CONFIG_ALLOW_TICKETS,
     CONFIG_DBC_ENFORCE_ITEM_ATTRIBUTES,
     CONFIG_PRESERVE_CUSTOM_CHANNELS,
     CONFIG_PDUMP_NO_PATHS,
@@ -172,10 +176,13 @@ enum WorldBoolConfigs
     CONFIG_STATS_LIMITS_ENABLE,
     CONFIG_INSTANCES_RESET_ANNOUNCE,
     CONFIG_BLACK_MARKET_OPEN,
+    CONFIG_TICKETS_GM_ENABLED,
+    CONFIG_TICKETS_FEEDBACK_SYSTEM_ENABLED,
+    CONFIG_BOOST_NEW_ACCOUNT,
     BOOL_CONFIG_VALUE_COUNT
 };
 
-enum WorldFloatConfigs
+enum class WorldFloatConfigs
 {
     CONFIG_GROUP_XP_DISTANCE = 0,
     CONFIG_MAX_RECRUIT_A_FRIEND_DISTANCE,
@@ -195,7 +202,7 @@ enum WorldFloatConfigs
     FLOAT_CONFIG_VALUE_COUNT
 };
 
-enum WorldIntConfigs
+enum class WorldIntConfigs
 {
     CONFIG_COMPRESSION = 0,
     CONFIG_INTERVAL_SAVE,
@@ -223,6 +230,7 @@ enum WorldIntConfigs
     CONFIG_CHARACTER_CREATING_MIN_LEVEL_FOR_HEROIC_CHARACTER,
     CONFIG_SKIP_CINEMATICS,
     CONFIG_MAX_PLAYER_LEVEL,
+    CONFIG_START_PETBAR_LEVEL,
     CONFIG_MIN_DUALSPEC_LEVEL,
     CONFIG_START_PLAYER_LEVEL,
     CONFIG_START_HEROIC_PLAYER_LEVEL,
@@ -363,11 +371,14 @@ enum WorldIntConfigs
     CONFIG_BLACK_MARKET_MAX_AUCTIONS,
     CONFIG_BLACK_MARKET_AUCTION_DELAY,
     CONFIG_BLACK_MARKET_AUCTION_DELAY_MOD,
+    CONFIG_BOOST_START_MONEY,
+    CONFIG_BOOST_START_LEVEL,
     INT_CONFIG_VALUE_COUNT
 };
 
 /// Server rates
-enum Rates
+
+enum class Rates
 {
     RATE_HEALTH = 0,
     RATE_POWER_MANA,
@@ -375,6 +386,7 @@ enum Rates
     RATE_POWER_RAGE_LOSS,
     RATE_POWER_RUNICPOWER_INCOME,
     RATE_POWER_RUNICPOWER_LOSS,
+    RATE_POWER_DEMONICFURY_LOSS,
     RATE_POWER_FOCUS,
     RATE_POWER_ENERGY,
     RATE_POWER_CHI,
@@ -395,6 +407,7 @@ enum Rates
     RATE_XP_EXPLORE,
     RATE_REPAIRCOST,
     RATE_REPUTATION_GAIN,
+    RATE_REPUTATION_LFG_BONUS,
     RATE_REPUTATION_LOWLEVEL_KILL,
     RATE_REPUTATION_LOWLEVEL_QUEST,
     RATE_REPUTATION_RECRUIT_A_FRIEND_BONUS,
@@ -526,14 +539,12 @@ struct CliCommandHolder
     CommandFinished* m_commandFinished;
 
     CliCommandHolder(void* callbackArg, const char *command, Print* zprint, CommandFinished* commandFinished)
-        : m_callbackArg(callbackArg), m_print(zprint), m_commandFinished(commandFinished)
-    {
-        size_t len = strlen(command)+1;
-        m_command = new char[len];
-        memcpy(m_command, command, len);
-    }
+        : m_callbackArg(callbackArg), m_command(strdup(command)), m_print(zprint), m_commandFinished(commandFinished) { }
 
-    ~CliCommandHolder() { delete [] m_command; }
+    ~CliCommandHolder() { free(m_command); }
+private:
+    CliCommandHolder(CliCommandHolder const& right) = delete;
+    CliCommandHolder & operator=(CliCommandHolder const& right) = delete;
 };
 
 typedef UNORDERED_MAP<uint32, WorldSession*> SessionMap;
@@ -633,7 +644,7 @@ class World
         uint32 GetUptime() const { return uint32(m_gameTime - m_startTime); }
         /// Update time
         uint32 GetUpdateTime() const { return m_updateTime; }
-        void SetRecordDiffInterval(int32 t) { if (t >= 0) m_int_configs[CONFIG_INTERVAL_LOG_UPDATE] = (uint32)t; }
+        void SetRecordDiffInterval(int32 t) { if (t >= 0) setIntConfig(WorldIntConfigs::CONFIG_INTERVAL_LOG_UPDATE, (uint32)t); }
 
         /// Next daily quests and random bg reset time
         time_t GetNextDailyQuestsResetTime() const { return m_NextDailyQuestReset; }
@@ -643,7 +654,7 @@ class World
         /// Get the maximum skill level a player can reach
         uint16 GetConfigMaxSkillValue() const
         {
-            uint8 lvl = uint8(getIntConfig(CONFIG_MAX_PLAYER_LEVEL));
+            uint8 lvl = uint8(getIntConfig(WorldIntConfigs::CONFIG_MAX_PLAYER_LEVEL));
             return lvl > 60 ? 300 + ((lvl - 60) * 75) / 10 : lvl * 5;
         }
 
@@ -673,47 +684,47 @@ class World
 
         void UpdateSessions(uint32 diff);
         /// Set a server rate (see #Rates)
-        void setRate(Rates rate, float value) { rate_values[rate]=value; }
+        void setRate(Rates rate, float value) { rate_values[uint8(rate)]=value; }
         /// Get a server rate (see #Rates)
-        float getRate(Rates rate) const { return rate_values[rate]; }
+        float getRate(Rates rate) const { return rate_values[uint8(rate)]; }
 
         /// Set a server configuration element (see #WorldConfigs)
-        void setBoolConfig(WorldBoolConfigs index, bool value)
+        void SetBoolConfig(WorldBoolConfigs index, bool value)
         {
-            if (index < BOOL_CONFIG_VALUE_COUNT)
-                m_bool_configs[index] = value;
+            if (index < WorldBoolConfigs::BOOL_CONFIG_VALUE_COUNT)
+                m_bool_configs[uint8(index)] = value;
         }
 
         /// Get a server configuration element (see #WorldConfigs)
-        bool getBoolConfig(WorldBoolConfigs index) const
+        bool GetBoolConfig(WorldBoolConfigs index) const
         {
-            return index < BOOL_CONFIG_VALUE_COUNT ? m_bool_configs[index] : 0;
+            return index < WorldBoolConfigs::BOOL_CONFIG_VALUE_COUNT ? m_bool_configs[uint8(index)] : false;
         }
 
         /// Set a server configuration element (see #WorldConfigs)
-        void setFloatConfig(WorldFloatConfigs index, float value)
+        void SetFloatConfig(WorldFloatConfigs index, float value)
         {
-            if (index < FLOAT_CONFIG_VALUE_COUNT)
-                m_float_configs[index] = value;
+            if (index < WorldFloatConfigs::FLOAT_CONFIG_VALUE_COUNT)
+                m_float_configs[uint8(index)] = value;
         }
 
         /// Get a server configuration element (see #WorldConfigs)
-        float getFloatConfig(WorldFloatConfigs index) const
+        float GetFloatConfig(WorldFloatConfigs index) const
         {
-            return index < FLOAT_CONFIG_VALUE_COUNT ? m_float_configs[index] : 0;
+            return index < WorldFloatConfigs::FLOAT_CONFIG_VALUE_COUNT ? m_float_configs[uint8(index)] : 0;
         }
 
         /// Set a server configuration element (see #WorldConfigs)
         void setIntConfig(WorldIntConfigs index, uint32 value)
         {
-            if (index < INT_CONFIG_VALUE_COUNT)
-                m_int_configs[index] = value;
+            if (index < WorldIntConfigs::INT_CONFIG_VALUE_COUNT)
+                m_int_configs[uint8(index)] = value;
         }
 
         /// Get a server configuration element (see #WorldConfigs)
         uint32 getIntConfig(WorldIntConfigs index) const
         {
-            return index < INT_CONFIG_VALUE_COUNT ? m_int_configs[index] : 0;
+            return index < WorldIntConfigs::INT_CONFIG_VALUE_COUNT ? m_int_configs[uint8(index)] : 0;
         }
 
         void setWorldState(uint32 index, uint64 value);
@@ -721,8 +732,8 @@ class World
         void LoadWorldStates();
 
         /// Are we on a "Player versus Player" server?
-        bool IsPvPRealm() const { return (getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
-        bool IsFFAPvPRealm() const { return getIntConfig(CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP; }
+        bool IsPvPRealm() const { return (getIntConfig(WorldIntConfigs::CONFIG_GAME_TYPE) == REALM_TYPE_PVP || getIntConfig(WorldIntConfigs::CONFIG_GAME_TYPE) == REALM_TYPE_RPPVP || getIntConfig(WorldIntConfigs::CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP); }
+        bool IsFFAPvPRealm() const { return getIntConfig(WorldIntConfigs::CONFIG_GAME_TYPE) == REALM_TYPE_FFA_PVP; }
 
         void KickAll();
         void KickAllLess(AccountTypes sec);
@@ -777,7 +788,6 @@ class World
         void   SetCleaningFlags(uint32 flags) { m_CleaningFlags = flags; }
         void   ResetEventSeasonalQuests(uint16 event_id);
 
-        void UpdatePhaseDefinitions();
         void ReloadRBAC();
 
     protected:
@@ -826,10 +836,10 @@ class World
 
         std::string m_newCharString;
 
-        float rate_values[MAX_RATES];
-        uint32 m_int_configs[INT_CONFIG_VALUE_COUNT];
-        bool m_bool_configs[BOOL_CONFIG_VALUE_COUNT];
-        float m_float_configs[FLOAT_CONFIG_VALUE_COUNT];
+        float rate_values[uint8(Rates::MAX_RATES)];
+        uint32 m_int_configs[uint8(WorldIntConfigs::INT_CONFIG_VALUE_COUNT)];
+        bool m_bool_configs[uint8(WorldBoolConfigs::BOOL_CONFIG_VALUE_COUNT)];
+        float m_float_configs[uint8(WorldFloatConfigs::FLOAT_CONFIG_VALUE_COUNT)];
         typedef std::map<uint32, uint64> WorldStatesMap;
         WorldStatesMap m_worldstates;
         uint32 m_playerLimit;

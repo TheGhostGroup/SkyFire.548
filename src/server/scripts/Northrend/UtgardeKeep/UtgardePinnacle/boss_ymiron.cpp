@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -202,7 +202,7 @@ public:
 
         void SpellHitTarget(Unit* who, SpellInfo const* spell) OVERRIDE
         {
-            if (who && who->GetTypeId() == TYPEID_PLAYER && spell->Id == 59302)
+            if (who && who->GetTypeId() == TypeID::TYPEID_PLAYER && spell->Id == 59302)
                 kingsBane = false;
         }
 
@@ -222,7 +222,7 @@ public:
                 {
                     Talk(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].say);
                     DoCast(me, SPELL_CHANNEL_YMIRON_TO_SPIRIT); // should be on spirit
-                    if (Creature* temp = me->SummonCreature(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].npc, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnX, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnY, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnZ, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnO, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* temp = me->SummonCreature(ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].npc, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnX, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnY, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnZ, ActiveBoat[m_uiActiveOrder[m_uiActivedNumber]].SpawnO, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         m_uiActivedCreatureGUID = temp->GetGUID();
                         temp->CastSpell(me, SPELL_CHANNEL_SPIRIT_TO_YMIRON, true);
@@ -293,7 +293,7 @@ public:
                 if (m_bIsActiveWithBJORN && m_uiAbility_BJORN_Timer <= diff)
                 {
                     //DoCast(me, SPELL_SUMMON_SPIRIT_FOUNT); // works fine, but using summon has better control
-                    if (Creature* temp = me->SummonCreature(NPC_SPIRIT_FOUNT, 385.0f + rand() % 10, -330.0f + rand() % 10, 104.756f, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
+                    if (Creature* temp = me->SummonCreature(NPC_SPIRIT_FOUNT, 385.0f + rand() % 10, -330.0f + rand() % 10, 104.756f, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 180000))
                     {
                         temp->SetSpeed(MOVE_RUN, 0.4f);
                         temp->CastSpell(temp, DUNGEON_MODE(SPELL_SPIRIT_FOUNT, H_SPELL_SPIRIT_FOUNT), true);
@@ -325,7 +325,7 @@ public:
                     for (uint8 i = 0; i < 4; ++i)
                     {
                         //DoCast(me, SPELL_SUMMON_AVENGING_SPIRIT); // works fine, but using summon has better control
-                        if (Creature* temp = me->SummonCreature(NPC_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                        if (Creature* temp = me->SummonCreature(NPC_AVENGING_SPIRIT, x + rand() % 10, y + rand() % 10, z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
                         {
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             {

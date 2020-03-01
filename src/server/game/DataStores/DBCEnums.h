@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,6 +19,8 @@
 
 #ifndef DBCENUMS_H
 #define DBCENUMS_H
+
+#include "Common.h"
 
 enum LevelLimit
 {
@@ -78,7 +80,8 @@ enum AchievementFlags
     ACHIEVEMENT_FLAG_SHOW_IN_GUILD_HEADER  = 0x00002000,    // Shows in guild news header
     ACHIEVEMENT_FLAG_GUILD                 = 0x00004000,    //
     ACHIEVEMENT_FLAG_SHOW_GUILD_MEMBERS    = 0x00008000,    //
-    ACHIEVEMENT_FLAG_SHOW_CRITERIA_MEMBERS = 0x00010000     //
+    ACHIEVEMENT_FLAG_SHOW_CRITERIA_MEMBERS = 0x00010000,    //
+    ACHIEVEMENT_FLAG_BNET_ACCOUNT_BOUND    = 0x00020000,    //
 };
 
 enum AchievementCriteriaLimits
@@ -323,56 +326,50 @@ enum AreaFlags
     AREA_FLAG_UNK9             = 0x40000000,
 };
 
-enum Difficulty
+enum DifficultyID : uint8
 {
-    REGULAR_DIFFICULTY           = 0,
-
-    DUNGEON_DIFFICULTY_NORMAL    = 0,
-    DUNGEON_DIFFICULTY_HEROIC    = 1,
-    DUNGEON_DIFFICULTY_CHALLENGE = 2,
-
-    RAID_DIFFICULTY_10MAN_NORMAL = 0,
-    RAID_DIFFICULTY_25MAN_NORMAL = 1,
-    RAID_DIFFICULTY_10MAN_HEROIC = 2,
-    RAID_DIFFICULTY_25MAN_HEROIC = 3,
-    RAID_DIFFICULTY_10MAN_FLEX   = 4,
-    RAID_DIFFICULTY_25MAN_LFR    = 5,
-
-    SCENARIO_DIFFICULTY_NORMAL   = 0,
-    SCENARIO_DIFFICULTY_HEROIC   = 1
+    DIFFICULTY_NONE            = 0,
+    DIFFICULTY_NORMAL          = 1,
+    DIFFICULTY_HEROIC          = 2,
+    DIFFICULTY_10MAN_NORMAL    = 3,
+    DIFFICULTY_25MAN_NORMAL    = 4,
+    DIFFICULTY_10MAN_HEROIC    = 5,
+    DIFFICULTY_25MAN_HEROIC    = 6,
+    DIFFICULTY_25MAN_LFR       = 7,
+    DIFFICULTY_CHALLENGE       = 8,
+    DIFFICULTY_40MAN           = 9,
+    DIFFICULTY_SCE_HEROIC      = 11,
+    DIFFICULTY_SCE_NORMAL      = 12,
+    DIFFICULTY_FLEX            = 14,
 };
-
-#define RAID_DIFFICULTY_MASK_25MAN 1    // since 25man difficulties are 1 and 3, we can check them like that
-
-#define MAX_DUNGEON_DIFFICULTY     3
-#define MAX_RAID_DIFFICULTY        6
-#define MAX_SCENARIO_DIFFICULTY    2
-#define MAX_DIFFICULTY             4 // temp hack Should be 6 but need to finish the DB side.
 
 enum SpawnMask
 {
-    SPAWNMASK_CONTINENT             = (1 << REGULAR_DIFFICULTY), // any maps without spawn modes
+    SPAWNMASK_CONTINENT             = (1 << DIFFICULTY_NONE), // any maps without spawn modes
 
-    SPAWNMASK_DUNGEON_NORMAL        = (1 << DUNGEON_DIFFICULTY_NORMAL),
-    SPAWNMASK_DUNGEON_HEROIC        = (1 << DUNGEON_DIFFICULTY_HEROIC),
-    SPAWNMASK_DUNGEON_CHALLENGE     = (1 << DUNGEON_DIFFICULTY_CHALLENGE),
+    SPAWNMASK_DUNGEON_NORMAL        = (1 << DIFFICULTY_NORMAL),
+    SPAWNMASK_DUNGEON_HEROIC        = (1 << DIFFICULTY_HEROIC),
+    SPAWNMASK_DUNGEON_CHALLENGE     = (1 << DIFFICULTY_CHALLENGE),
     SPAWNMASK_DUNGEON_ALL           = (SPAWNMASK_DUNGEON_NORMAL | SPAWNMASK_DUNGEON_HEROIC | SPAWNMASK_DUNGEON_CHALLENGE),
 
-    SPAWNMASK_RAID_10MAN_NORMAL     = (1 << RAID_DIFFICULTY_10MAN_NORMAL),
-    SPAWNMASK_RAID_25MAN_NORMAL     = (1 << RAID_DIFFICULTY_25MAN_NORMAL),
-    SPAWNMASK_RAID_10MAN_FLEX       = (1 << RAID_DIFFICULTY_10MAN_FLEX),
-    SPAWNMASK_RAID_25MAN_LFR        = (1 << RAID_DIFFICULTY_25MAN_LFR),
-    SPAWNMASK_RAID_NORMAL_ALL       = (SPAWNMASK_RAID_10MAN_NORMAL | SPAWNMASK_RAID_25MAN_NORMAL | SPAWNMASK_RAID_10MAN_FLEX | SPAWNMASK_RAID_25MAN_LFR),
 
-    SPAWNMASK_RAID_10MAN_HEROIC     = (1 << RAID_DIFFICULTY_10MAN_HEROIC),
-    SPAWNMASK_RAID_25MAN_HEROIC     = (1 << RAID_DIFFICULTY_25MAN_HEROIC),
+    SPAWNMASK_RAID_10MAN_NORMAL     = (1 << DIFFICULTY_10MAN_NORMAL),
+    SPAWNMASK_RAID_25MAN_NORMAL     = (1 << DIFFICULTY_25MAN_NORMAL),
+    SPAWNMASK_RAID_NORMAL_ALL       = (SPAWNMASK_RAID_10MAN_NORMAL | SPAWNMASK_RAID_25MAN_NORMAL),
+
+    SPAWNMASK_RAID_10MAN_HEROIC     = (1 << DIFFICULTY_10MAN_HEROIC),
+    SPAWNMASK_RAID_25MAN_HEROIC     = (1 << DIFFICULTY_25MAN_HEROIC),
     SPAWNMASK_RAID_HEROIC_ALL       = (SPAWNMASK_RAID_10MAN_HEROIC | SPAWNMASK_RAID_25MAN_HEROIC),
 
-    SPAWNMASK_RAID_ALL              = (SPAWNMASK_RAID_NORMAL_ALL | SPAWNMASK_RAID_HEROIC_ALL),
+    SPAWNMASK_RAID_ALL = (SPAWNMASK_RAID_NORMAL_ALL | SPAWNMASK_RAID_HEROIC_ALL),
 
-    SPAWNMASK_SCENARIO_NORMAL       = (1 << SCENARIO_DIFFICULTY_NORMAL),
-    SPAWNMASK_SCENARIO_HEROIC       = (1 << SCENARIO_DIFFICULTY_HEROIC),
-    SPAWNMASK_SCENARIO_ALL          = (SCENARIO_DIFFICULTY_NORMAL | SCENARIO_DIFFICULTY_HEROIC)
+    SPAWNMASK_RAID_25MAN_LFR        = (1 << DIFFICULTY_25MAN_LFR),
+
+
+    // Upgrade Spawnmask to higher interger before uncomment.
+    //SPAWNMASK_SCENARIO_NORMAL       = (1 << DIFFICULTY_SCE_NORMAL),
+    //SPAWNMASK_SCENARIO_HEROIC       = (1 << DIFFICULTY_SCE_HEROIC),
+    //SPAWNMASK_SCENARIO_ALL          = (SCENARIO_DIFFICULTY_NORMAL | SCENARIO_DIFFICULTY_HEROIC)
 };
 
 enum FactionTemplateFlags
@@ -394,9 +391,9 @@ enum FactionMasks
 enum MapTypes                                               // Lua_IsInInstance
 {
     MAP_COMMON          = 0,                                // none
-    MAP_INSTANCE        = 1,                                // party
+    MAP_DUNGEON         = 1,                                // dungeon
     MAP_RAID            = 2,                                // raid
-    MAP_BATTLEGROUND    = 3,                                // pvp
+    MAP_BATTLEGROUND    = 3,                                // battleground
     MAP_ARENA           = 4,                                // arena
     MAP_SCENARIO        = 5                                 // scenario
 };

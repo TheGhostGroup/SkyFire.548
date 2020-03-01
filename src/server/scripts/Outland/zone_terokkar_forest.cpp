@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -184,7 +184,7 @@ public:
 
         void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
         {
-            if (done_by && done_by->GetTypeId() == TYPEID_PLAYER)
+            if (done_by && done_by->GetTypeId() == TypeID::TYPEID_PLAYER)
                 if (me->GetHealth() <= damage)
                     if (rand()%100 < 75)
                         //Summon Wood Mites
@@ -271,7 +271,7 @@ public:
 
         void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
         {
-            if (done_by->GetTypeId() == TYPEID_PLAYER)
+            if (done_by->GetTypeId() == TypeID::TYPEID_PLAYER)
                 if (me->GetHealth() <= damage)
                     if (rand()%100 < 75)
                         //Summon Lots of Wood Mights
@@ -324,16 +324,16 @@ public:
             {
                 if (rand()%100 < 25)
                 {
-                    me->SummonCreature(QUEST_TARGET, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    me->SummonCreature(QUEST_TARGET, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
                     player->KilledMonsterCredit(QUEST_TARGET, 0);
                 }
                 else
-                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
                 if (rand()%100 < 75)
-                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                    me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
 
-                me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+                me->SummonCreature(netherwebVictims[rand()%6], 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
             }
         }
     };
@@ -481,7 +481,7 @@ public:
             {
                 case 0:
                     if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 10))
-                        Cage->SetGoState(GO_STATE_ACTIVE);
+                        Cage->SetGoState(GOState::GO_STATE_ACTIVE);
                     break;
                 case 2:
                     Talk(SAY_PROGRESS_1, player);
@@ -685,11 +685,11 @@ public:
             switch (waypointId)
             {
                 case 3:
-                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2795.99f, 5420.33f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
-                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2793.55f, 5412.79f, -34.53f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2795.99f, 5420.33f, -34.53f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(NPC_CABAL_SKRIMISHER, -2793.55f, 5412.79f, -34.53f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
                 case 11:
-                    if (player->GetTypeId() == TYPEID_PLAYER)
+                    if (player->GetTypeId() == TypeID::TYPEID_PLAYER)
                         player->GroupEventHappens(QUEST_ESCAPING_THE_TOMB, me);
                     break;
             }

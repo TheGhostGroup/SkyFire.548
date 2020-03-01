@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -453,7 +453,7 @@ class boss_prince_keleseth_icc : public CreatureScript
                 float angle = me->GetAngle(summon);
                 me->MovePositionToFirstCollision(pos, maxRange, angle);
                 summon->NearTeleportTo(pos.GetPositionX(), pos.GetPositionY(), pos.GetPositionZ(), pos.GetOrientation());
-                summon->ToTempSummon()->SetTempSummonType(TEMPSUMMON_CORPSE_DESPAWN);
+                summon->ToTempSummon()->SetTempSummonType(TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
             }
 
             void DamageDealt(Unit* /*target*/, uint32& damage, DamageEffectType damageType) OVERRIDE
@@ -476,7 +476,7 @@ class boss_prince_keleseth_icc : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_KELESETH_KILL);
             }
 
@@ -695,7 +695,7 @@ class boss_prince_taldaram_icc : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_TALDARAM_KILL);
             }
 
@@ -934,7 +934,7 @@ class boss_prince_valanar_icc : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_VALANAR_KILL);
             }
 
@@ -1082,7 +1082,7 @@ class npc_blood_queen_lana_thel : public CreatureScript
                 _events.SetPhase(1);
                 _events.ScheduleEvent(EVENT_INTRO_1, 14000);
                 // summon a visual trigger
-                if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15000, TEMPSUMMON_TIMED_DESPAWN))
+                if (Creature* summon = DoSummon(NPC_FLOATING_TRIGGER, triggerPos, 15000, TempSummonType::TEMPSUMMON_TIMED_DESPAWN))
                 {
                     summon->CastSpell(summon, SPELL_OOC_INVOCATION_VISUAL, true);
                     summon->SetSpeed(MOVE_FLIGHT, 0.15f, true);
@@ -1526,7 +1526,7 @@ class spell_valanar_kinetic_bomb : public SpellScriptLoader
             void HandleDummyTick(AuraEffect const* /*aurEff*/)
             {
                 Unit* target = GetTarget();
-                if (target->GetTypeId() != TYPEID_UNIT)
+                if (target->GetTypeId() != TypeID::TYPEID_UNIT)
                     return;
 
                 if (Creature* bomb = target->FindNearestCreature(NPC_KINETIC_BOMB, 1.0f, true))

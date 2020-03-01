@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@ SDComment:
 SDCategory:
 Script Data End */
 
+#include <random>
 #include <algorithm>
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
@@ -109,18 +110,22 @@ public:
         uint32 uiWaitingTimer;
         Phase currentPhase;
         uint8 AddCount;
-        Phase Sequence[4];
+        Phase Sequence[5];
 
         InstanceScript* instance;
 
         void Reset() OVERRIDE
         {
             /// There is a good reason to store them like this, we are going to shuffle the order.
-            for (uint32 i = PHASE_FRENZIED_WORGEN; i < PHASE_GORTOK_PALEHOOF; ++i)
+            for (uint32 i = PHASE_FRENZIED_WORGEN; i < PHASE_NONE; ++i)
                 Sequence[i] = Phase(i);
 
+            std::vector<int> v = { Sequence[0], Sequence[1], Sequence[2], Sequence[3], Sequence[4] };
+            std::random_device rd;
+            std::mt19937 g(rd());
+
             /// This ensures a random order and only executes each phase once.
-            std::random_shuffle(Sequence, Sequence + PHASE_GORTOK_PALEHOOF);
+            std::shuffle(v.begin(), v.end(), g);
 
             uiArcingSmashTimer = 15000;
             uiImpaleTimer = 12000;
@@ -155,7 +160,7 @@ public:
                 GameObject* go = instance->instance->GetGameObject(instance->GetData64(DATA_GORTOK_PALEHOOF_SPHERE));
                 if (go)
                 {
-                    go->SetGoState(GO_STATE_READY);
+                    go->SetGoState(GOState::GO_STATE_READY);
                     go->RemoveFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
                 }
             }
@@ -240,7 +245,7 @@ public:
                 if (instance)
                     instance->SetData(DATA_GORTOK_PALEHOOF_EVENT, IN_PROGRESS);
 
-                me->SummonCreature(NPC_STASIS_CONTROLLER, moveLocs[5].x, moveLocs[5].y, moveLocs[5].z, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                me->SummonCreature(NPC_STASIS_CONTROLLER, moveLocs[5].x, moveLocs[5].y, moveLocs[5].z, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
             }
             Phase move = PHASE_NONE;
             if (AddCount >= DUNGEON_MODE(2, 4))
@@ -835,7 +840,7 @@ public:
         if (pPalehoof && pPalehoof->IsAlive())
         {
             go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-            go->SetGoState(GO_STATE_ACTIVE);
+            go->SetGoState(GOState::GO_STATE_ACTIVE);
 
             CAST_AI(boss_palehoof::boss_palehoofAI, pPalehoof->AI())->NextPhase();
         }

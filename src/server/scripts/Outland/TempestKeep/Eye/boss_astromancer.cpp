@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -185,7 +185,7 @@ class boss_high_astromancer_solarian : public CreatureScript
 
             void SummonMinion(uint32 entry, float x, float y, float z)
             {
-                Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                Creature* Summoned = me->SummonCreature(entry, x, y, z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                 if (Summoned)
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -279,7 +279,7 @@ class boss_high_astromancer_solarian : public CreatureScript
                         //Target the tank ?
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1))
                         {
-                            if (target->GetTypeId() == TYPEID_PLAYER)
+                            if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
                             {
                                 DoCast(target, SPELL_WRATH_OF_THE_ASTROMANCER);
                                 m_uiWrathOfTheAstromancer_Timer = 25000;
@@ -314,17 +314,17 @@ class boss_high_astromancer_solarian : public CreatureScript
                                 Portals[i][2] = PORTAL_Z;
                             }
                         }
-                        if ((abs(Portals[2][0] - Portals[1][0]) < 7) && (abs(Portals[2][1] - Portals[1][1]) < 7))
+                        if ((std::abs(Portals[2][0] - Portals[1][0]) < 7) && (std::abs(Portals[2][1] - Portals[1][1]) < 7))
                         {
                             int i=1;
-                            if (abs(CENTER_X + 26.0f - Portals[2][0]) < 7)
+                            if (std::abs(CENTER_X + 26.0f - Portals[2][0]) < 7)
                                 i = -1;
                             Portals[2][0] = Portals[2][0]+7*i;
                             Portals[2][1] = Portal_Y(Portals[2][0], LARGE_PORTAL_RADIUS);
                         }
                         for (int i=0; i <= 2; ++i)
                         {
-                            if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700))
+                            if (Creature* Summoned = me->SummonCreature(NPC_ASTROMANCER_SOLARIAN_SPOTLIGHT, Portals[i][0], Portals[i][1], Portals[i][2], CENTER_O, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, Phase2_Timer+Phase3_Timer+AppearDelay_Timer+1700))
                             {
                                 Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 Summoned->CastSpell(Summoned, SPELL_SPOTLIGHT, false);

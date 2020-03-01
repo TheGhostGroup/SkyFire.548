@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -216,7 +216,7 @@ public:
                 instance->SetData(DATA_FATHOMLORDKARATHRESSEVENT, DONE);
 
             //support for quest 10944
-            me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TEMPSUMMON_TIMED_DESPAWN, 3600000);
+            me->SummonCreature(SEER_OLUM, OLUM_X, OLUM_Y, OLUM_Z, OLUM_O, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 3600000);
         }
 
         void EnterCombat(Unit* who) OVERRIDE
@@ -295,7 +295,7 @@ public:
                 if (continueTriggering)
                 {
                     DoCast(me, SPELL_BLESSING_OF_THE_TIDES);
-                    me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, LANG_UNIVERSAL, 0);
+                    me->MonsterYell(SAY_GAIN_BLESSING_OF_TIDES, Language::LANG_UNIVERSAL, 0);
                     DoPlaySoundToSet(me, SOUND_GAIN_BLESSING_OF_TIDES);
                 }
             }
@@ -439,7 +439,7 @@ public:
                 //DoCast(me, spell_id, true);
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
+                    if (Creature* Pet = DoSpawnCreature(pet_id, 0, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000))
                     {
                         Pet->AI()->AttackStart(target);
                         SummonedPet = Pet->GetGUID();
@@ -672,7 +672,7 @@ public:
                 //DoCast(me, SPELL_SUMMON_CYCLONE); // Doesn't work
                 Cyclone_Timer = 30000+rand()%10000;
 
-                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%5), TEMPSUMMON_TIMED_DESPAWN, 15000))
+                if (Creature* Cyclone = me->SummonCreature(CREATURE_CYCLONE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), float(rand()%5), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 15000))
                 {
                     Cyclone->SetObjectScale(3.0f);
                     Cyclone->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

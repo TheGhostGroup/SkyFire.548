@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,11 +34,11 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
 {
     switch (sender->GetTypeId())
     {
-        case TYPEID_UNIT:
+        case TypeID::TYPEID_UNIT:
             m_messageType = MAIL_CREATURE;
             m_senderId = sender->GetEntry();
             break;
-        case TYPEID_GAMEOBJECT:
+        case TypeID::TYPEID_GAMEOBJECT:
             m_messageType = MAIL_GAMEOBJECT;
             m_senderId = sender->GetEntry();
             break;
@@ -46,14 +46,14 @@ MailSender::MailSender(Object* sender, MailStationery stationery) : m_stationery
             m_messageType = MAIL_ITEM;
             m_senderId = sender->GetEntry();
             break;*/
-        case TYPEID_PLAYER:
+        case TypeID::TYPEID_PLAYER:
             m_messageType = MAIL_NORMAL;
             m_senderId = sender->GetGUIDLow();
             break;
         default:
             m_messageType = MAIL_NORMAL;
             m_senderId = 0;                                 // will show mail from not existed player
-            TC_LOG_ERROR("misc", "MailSender::MailSender - Mail have unexpected sender typeid (%u)", sender->GetTypeId());
+            SF_LOG_ERROR("misc", "MailSender::MailSender - Mail have unexpected sender typeid (%u)", uint8(sender->GetTypeId()));
             break;
     }
 }
@@ -167,7 +167,7 @@ void MailDraft::SendReturnToSender(uint32 sender_acc, uint32 sender_guid, uint32
     }
 
     // If theres is an item, there is a one hour delivery delay.
-    uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY) : 0;
+    uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(WorldIntConfigs::CONFIG_MAIL_DELIVERY_DELAY) : 0;
 
     // will delete item or place to receiver mail list
     SendMailTo(trans, MailReceiver(receiver, receiver_guid), MailSender(MAIL_NORMAL, sender_guid), MAIL_CHECK_MASK_RETURNED, deliver_delay);
@@ -190,9 +190,9 @@ void MailDraft::SendMailTo(SQLTransaction& trans, MailReceiver const& receiver, 
 
     // auction mail without any items and money
     if (sender.GetMailMessageType() == MAIL_AUCTION && m_items.empty() && !m_money)
-        expire_delay = sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY);
+        expire_delay = sWorld->getIntConfig(WorldIntConfigs::CONFIG_MAIL_DELIVERY_DELAY);
     // mail from battlemaster (rewardmarks) should last only one day
-    else if (sender.GetMailMessageType() == MAIL_CREATURE && sBattlegroundMgr->GetBattleMasterBG(sender.GetSenderId()) != BATTLEGROUND_TYPE_NONE)
+    else if (sender.GetMailMessageType() == MAIL_CREATURE && sBattlegroundMgr->GetBattleMasterBG(sender.GetSenderId()) != BattlegroundTypeId::BATTLEGROUND_TYPE_NONE)
         expire_delay = DAY;
      // default case: expire time if COD 3 days, if no COD 30 days (or 90 days if sender is a game master)
     else

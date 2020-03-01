@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -97,7 +97,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger)
             if (m_Gathered_A >= SI_MAX_RESOURCES)
             {
                 TeamApplyBuff(TEAM_ALLIANCE, SI_CENARION_FAVOR);
-                sWorld->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_A));
+                sWorld->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetSkyFireStringForDBCLocale(LANG_OPVP_SI_CAPTURE_A));
                 m_LastController = ALLIANCE;
                 m_Gathered_A = 0;
                 m_Gathered_H = 0;
@@ -122,7 +122,7 @@ bool OutdoorPvPSI::HandleAreaTrigger(Player* player, uint32 trigger)
             if (m_Gathered_H >= SI_MAX_RESOURCES)
             {
                 TeamApplyBuff(TEAM_HORDE, SI_CENARION_FAVOR);
-                sWorld->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(LANG_OPVP_SI_CAPTURE_H));
+                sWorld->SendZoneText(OutdoorPvPSIBuffZones[0], sObjectMgr->GetSkyFireStringForDBCLocale(LANG_OPVP_SI_CAPTURE_H));
                 m_LastController = HORDE;
                 m_Gathered_A = 0;
                 m_Gathered_H = 0;
@@ -166,11 +166,14 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                             return true;
                         }
 
-                        if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), 0, 0, 0, 0, 100, GO_STATE_READY))
+                        if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), SI_SILITHYST_MOUND, map, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), 0, 0, 0, 0, 100, GOState::GO_STATE_READY))
                         {
                             delete go;
                             return true;
                         }
+
+                        for (auto phase : player->GetPhases())
+                            go->SetPhased(phase, false, true);
 
                         go->SetRespawnTime(0);
 
@@ -200,11 +203,14 @@ bool OutdoorPvPSI::HandleDropFlag(Player* player, uint32 spellId)
                             return true;
                         }
 
-                        if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), SI_SILITHYST_MOUND, map, player->GetPhaseMask(), player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), 0, 0, 0, 0, 100, GO_STATE_READY))
+                        if (!go->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_GAMEOBJECT), SI_SILITHYST_MOUND, map, player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetOrientation(), 0, 0, 0, 0, 100, GOState::GO_STATE_READY))
                         {
                             delete go;
                             return true;
                         }
+
+                        for (auto phase : player->GetPhases())
+                            go->SetPhased(phase, false, true);
 
                         go->SetRespawnTime(0);
 

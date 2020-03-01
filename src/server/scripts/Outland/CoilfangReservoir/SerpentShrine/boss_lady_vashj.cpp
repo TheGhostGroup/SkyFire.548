@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -211,7 +211,7 @@ public:
                 {
                     if (Unit* remo = Unit::GetUnit(*me, ShieldGeneratorChannel[i]))
                     {
-                        remo->setDeathState(JUST_DIED);
+                        remo->setDeathState(DeathState::JUST_DIED);
                         ShieldGeneratorChannel[i] = 0;
                     }
                 }
@@ -401,7 +401,7 @@ public:
                         DoTeleportTo(MIDDLE_X, MIDDLE_Y, MIDDLE_Z);
 
                         for (uint8 i = 0; i < 4; ++i)
-                            if (Creature* creature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TEMPSUMMON_CORPSE_DESPAWN, 0))
+                            if (Creature* creature = me->SummonCreature(SHIED_GENERATOR_CHANNEL, ShieldGeneratorChannelPos[i][0],  ShieldGeneratorChannelPos[i][1],  ShieldGeneratorChannelPos[i][2],  ShieldGeneratorChannelPos[i][3], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0))
                                 ShieldGeneratorChannel[i] = creature->GetGUID();
 
                         Talk(SAY_PHASE2);
@@ -413,7 +413,7 @@ public:
                     // SummonSporebatTimer
                     if (SummonSporebatTimer <= diff)
                     {
-                        if (Creature* sporebat = me->SummonCreature(TOXIC_SPOREBAT, SPOREBAT_X, SPOREBAT_Y, SPOREBAT_Z, SPOREBAT_O, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        if (Creature* sporebat = me->SummonCreature(TOXIC_SPOREBAT, SPOREBAT_X, SPOREBAT_Y, SPOREBAT_Z, SPOREBAT_O, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0))
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                                 sporebat->AI()->AttackStart(target);
 
@@ -475,7 +475,7 @@ public:
                 // EnchantedElementalTimer
                 if (EnchantedElementalTimer <= diff)
                 {
-                    me->SummonCreature(ENCHANTED_ELEMENTAL, ElementPos[EnchantedElementalPos][0], ElementPos[EnchantedElementalPos][1], ElementPos[EnchantedElementalPos][2], ElementPos[EnchantedElementalPos][3], TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    me->SummonCreature(ENCHANTED_ELEMENTAL, ElementPos[EnchantedElementalPos][0], ElementPos[EnchantedElementalPos][1], ElementPos[EnchantedElementalPos][2], ElementPos[EnchantedElementalPos][3], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0);
 
                     if (EnchantedElementalPos == 7)
                         EnchantedElementalPos = 0;
@@ -489,7 +489,7 @@ public:
                 if (TaintedElementalTimer <= diff)
                 {
                     uint32 pos = rand()%8;
-                    me->SummonCreature(TAINTED_ELEMENTAL, ElementPos[pos][0], ElementPos[pos][1], ElementPos[pos][2], ElementPos[pos][3], TEMPSUMMON_DEAD_DESPAWN, 0);
+                    me->SummonCreature(TAINTED_ELEMENTAL, ElementPos[pos][0], ElementPos[pos][1], ElementPos[pos][2], ElementPos[pos][3], TempSummonType::TEMPSUMMON_DEAD_DESPAWN, 0);
 
                     TaintedElementalTimer = 120000;
                 } else TaintedElementalTimer -= diff;
@@ -498,7 +498,7 @@ public:
                 if (CoilfangEliteTimer <= diff)
                 {
                     uint32 pos = rand()%3;
-                    Creature* coilfangElite = me->SummonCreature(COILFANG_ELITE, CoilfangElitePos[pos][0], CoilfangElitePos[pos][1], CoilfangElitePos[pos][2], CoilfangElitePos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                    Creature* coilfangElite = me->SummonCreature(COILFANG_ELITE, CoilfangElitePos[pos][0], CoilfangElitePos[pos][1], CoilfangElitePos[pos][2], CoilfangElitePos[pos][3], TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                     if (coilfangElite)
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
@@ -513,7 +513,7 @@ public:
                 if (CoilfangStriderTimer <= diff)
                 {
                     uint32 pos = rand()%3;
-                    if (Creature* CoilfangStrider = me->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                    if (Creature* CoilfangStrider = me->SummonCreature(COILFANG_STRIDER, CoilfangStriderPos[pos][0], CoilfangStriderPos[pos][1], CoilfangStriderPos[pos][2], CoilfangStriderPos[pos][3], TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                             CoilfangStrider->AI()->AttackStart(target);
@@ -703,7 +703,7 @@ public:
             if (DespawnTimer <= diff)
             {
                 // call Unsummon()
-                me->setDeathState(DEAD);
+                me->setDeathState(DeathState::DEAD);
 
                 // to prevent crashes
                 DespawnTimer = 1000;
@@ -779,7 +779,7 @@ public:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                 {
-                    if (Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                    if (Creature* trig = me->SummonCreature(TOXIC_SPORES_TRIGGER, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 30000))
                     {
                         trig->setFaction(14);
                         trig->CastSpell(trig, SPELL_TOXIC_SPORES, true);
@@ -799,7 +799,7 @@ public:
                     if (!Vashj || !Vashj->IsAlive() || CAST_AI(boss_lady_vashj::boss_lady_vashjAI, Vashj->ToCreature()->AI())->Phase != 3)
                     {
                         // remove
-                        me->setDeathState(DEAD);
+                        me->setDeathState(DeathState::DEAD);
                         me->RemoveCorpse();
                         me->setFaction(35);
                     }
@@ -923,7 +923,7 @@ public:
 
                 // get and remove channel
                 if (Unit* channel = Unit::GetCreature(*vashj, CAST_AI(boss_lady_vashj::boss_lady_vashjAI, vashj->AI())->ShieldGeneratorChannel[channelIdentifier]))
-                    channel->setDeathState(JUST_DIED); // call Unsummon()
+                    channel->setDeathState(DeathState::JUST_DIED); // call Unsummon()
 
                 instance->SetData(identifier, 1);
 
@@ -931,9 +931,9 @@ public:
                 player->DestroyItemCount(31088, 1, true);
                 return true;
             }
-            else if (targets.GetUnitTarget()->GetTypeId() == TYPEID_UNIT)
+            else if (targets.GetUnitTarget()->GetTypeId() == TypeID::TYPEID_UNIT)
                 return false;
-            else if (targets.GetUnitTarget()->GetTypeId() == TYPEID_PLAYER)
+            else if (targets.GetUnitTarget()->GetTypeId() == TypeID::TYPEID_PLAYER)
             {
                 player->DestroyItemCount(31088, 1, true);
                 player->CastSpell(targets.GetUnitTarget(), 38134, true);

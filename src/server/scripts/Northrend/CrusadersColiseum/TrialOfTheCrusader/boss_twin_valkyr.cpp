@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -119,7 +119,7 @@ class OrbsDespawner : public BasicEvent
 
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
         {
-            Trinity::CreatureWorker<OrbsDespawner> worker(_creature, *this);
+            Skyfire::CreatureWorker<OrbsDespawner> worker(_creature, *this);
             _creature->VisitNearbyGridObject(5000.0f, worker);
             return true;
         }
@@ -192,7 +192,7 @@ struct boss_twin_baseAI : public BossAI
 
     void KilledUnit(Unit* who) OVERRIDE
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
+        if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
         {
             Talk(SAY_KILL_PLAYER);
             if (instance)
@@ -291,7 +291,7 @@ struct boss_twin_baseAI : public BossAI
     {
         SetEquipmentSlots(false, Weapon, mode ? Weapon : int32(EQUIP_UNEQUIP), EQUIP_UNEQUIP);
         me->SetCanDualWield(mode);
-        me->UpdateDamagePhysical(mode ? OFF_ATTACK : BASE_ATTACK);
+        me->UpdateDamagePhysical(mode ? WeaponAttackType::OFF_ATTACK : WeaponAttackType::BASE_ATTACK);
     }
 
     void UpdateAI(uint32 diff) OVERRIDE
@@ -432,7 +432,7 @@ class boss_fjola : public CreatureScript
                 if (instance)
                     instance->DoStartTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT,  EVENT_START_TWINS_FIGHT);
 
-                me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TEMPSUMMON_MANUAL_DESPAWN);
+                me->SummonCreature(NPC_BULLET_CONTROLLER, ToCCommonLoc[1].GetPositionX(), ToCCommonLoc[1].GetPositionY(), ToCCommonLoc[1].GetPositionZ(), 0.0f, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
                 boss_twin_baseAI::EnterCombat(who);
             }
 
@@ -844,7 +844,7 @@ class spell_power_of_the_twins : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void HandleEffectApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)

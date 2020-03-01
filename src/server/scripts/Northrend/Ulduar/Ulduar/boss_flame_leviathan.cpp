@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -433,7 +433,7 @@ class boss_flame_leviathan : public CreatureScript
                         case EVENT_THORIM_S_HAMMER: // Tower of Storms
                             for (uint8 i = 0; i < 7; ++i)
                             {
-                                if (Creature* thorim = DoSummon(NPC_THORIM_BEACON, me, float(urand(20, 60)), 20000, TEMPSUMMON_TIMED_DESPAWN))
+                                if (Creature* thorim = DoSummon(NPC_THORIM_BEACON, me, float(urand(20, 60)), 20000, TempSummonType::TEMPSUMMON_TIMED_DESPAWN))
                                     thorim->GetMotionMaster()->MoveRandom(100);
                             }
                             Talk(SAY_TOWER_STORM);
@@ -664,7 +664,7 @@ class boss_flame_leviathan_defense_cannon : public CreatureScript
 
             bool CanAIAttack(Unit const* who) const OVERRIDE
             {
-                if (who->GetTypeId() != TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() == NPC_SEAT)
+                if (who->GetTypeId() != TypeID::TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() == NPC_SEAT)
                     return false;
                 return true;
             }
@@ -693,7 +693,7 @@ class boss_flame_leviathan_defense_turret : public CreatureScript
 
             bool CanAIAttack(Unit const* who) const OVERRIDE
             {
-                if (who->GetTypeId() != TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() != NPC_SEAT)
+                if (who->GetTypeId() != TypeID::TYPEID_PLAYER || !who->GetVehicle() || who->GetVehicleBase()->GetEntry() != NPC_SEAT)
                     return false;
                 return true;
             }
@@ -921,9 +921,9 @@ class npc_thorims_hammer : public CreatureScript
             void MoveInLineOfSight(Unit* who) OVERRIDE
 
             {
-                if (who->GetTypeId() == TYPEID_PLAYER && who->IsVehicle() && me->IsInRange(who, 0, 10, false))
+                if (who->GetTypeId() == TypeID::TYPEID_PLAYER && who->IsVehicle() && me->IsInRange(who, 0, 10, false))
                 {
-                    if (Creature* trigger = DoSummonFlyer(NPC_THORIM_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
+                    if (Creature* trigger = DoSummonFlyer(NPC_THORIM_TARGET_BEACON, me, 20, 0, 1000, TempSummonType::TEMPSUMMON_TIMED_DESPAWN))
                         trigger->CastSpell(who, SPELL_THORIM_S_HAMMER, true);
                 }
             }
@@ -984,7 +984,7 @@ public:
             {
                 if (infernoTimer <= diff)
                 {
-                    if (Creature* trigger = DoSummonFlyer(NPC_MIMIRON_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
+                    if (Creature* trigger = DoSummonFlyer(NPC_MIMIRON_TARGET_BEACON, me, 20, 0, 1000, TempSummonType::TEMPSUMMON_TIMED_DESPAWN))
                     {
                         trigger->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_MIMIRON_S_INFERNO, true);
                         infernoTimer = 2000;
@@ -1017,9 +1017,9 @@ class npc_hodirs_fury : public CreatureScript
             void MoveInLineOfSight(Unit* who) OVERRIDE
 
             {
-                if (who->GetTypeId() == TYPEID_PLAYER && who->IsVehicle() && me->IsInRange(who, 0, 5, false))
+                if (who->GetTypeId() == TypeID::TYPEID_PLAYER && who->IsVehicle() && me->IsInRange(who, 0, 5, false))
                 {
-                    if (Creature* trigger = DoSummonFlyer(NPC_HODIR_TARGET_BEACON, me, 20, 0, 1000, TEMPSUMMON_TIMED_DESPAWN))
+                    if (Creature* trigger = DoSummonFlyer(NPC_HODIR_TARGET_BEACON, me, 20, 0, 1000, TempSummonType::TEMPSUMMON_TIMED_DESPAWN))
                         trigger->CastSpell(who, SPELL_HODIR_S_FURY, true);
                 }
             }
@@ -1145,11 +1145,11 @@ class npc_lorekeeper : public CreatureScript
                 if (action == ACTION_SPAWN_VEHICLES)
                 {
                     for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
-                        DoSummon(VEHICLE_SIEGE, PosSiege[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                        DoSummon(VEHICLE_SIEGE, PosSiege[i], 3000, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
-                        DoSummon(VEHICLE_CHOPPER, PosChopper[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                        DoSummon(VEHICLE_CHOPPER, PosChopper[i], 3000, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     for (int32 i = 0; i < RAID_MODE(2, 5); ++i)
-                        DoSummon(VEHICLE_DEMOLISHER, PosDemolisher[i], 3000, TEMPSUMMON_CORPSE_TIMED_DESPAWN);
+                        DoSummon(VEHICLE_DEMOLISHER, PosDemolisher[i], 3000, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN);
                     return;
                 }
             }
@@ -1671,7 +1671,7 @@ class spell_pursue : public SpellScriptLoader
                 else
                 {
                     //! In the end, only one target should be selected
-                    _target = Trinity::Containers::SelectRandomContainerElement(targets);
+                    _target = Skyfire::Containers::SelectRandomContainerElement(targets);
                     FilterTargetsSubsequently(targets);
                 }
             }
@@ -1736,8 +1736,8 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
                         {
                             // use 99 because it is 3d search
                             std::list<WorldObject*> targetList;
-                            Trinity::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, NULL);
-                            Trinity::WorldObjectListSearcher<Trinity::WorldObjectSpellAreaTargetCheck> searcher(GetCaster(), targetList, check);
+                            Skyfire::WorldObjectSpellAreaTargetCheck check(99, GetExplTargetDest(), GetCaster(), GetCaster(), GetSpellInfo(), TARGET_CHECK_DEFAULT, NULL);
+                            Skyfire::WorldObjectListSearcher<Skyfire::WorldObjectSpellAreaTargetCheck> searcher(GetCaster(), targetList, check);
                             GetCaster()->GetMap()->VisitAll(GetCaster()->m_positionX, GetCaster()->m_positionY, 99, searcher);
                             float minDist = 99 * 99;
                             Unit* target = NULL;

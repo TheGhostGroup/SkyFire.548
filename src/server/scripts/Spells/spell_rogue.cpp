@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,16 +34,12 @@ enum RogueSpells
     SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK           = 22482,
     SPELL_ROGUE_CHEAT_DEATH_COOLDOWN                = 31231,
     SPELL_ROGUE_CRIPPLING_POISON                    = 3409,
-    SPELL_ROGUE_GLYPH_OF_PREPARATION                = 56819,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT   = 31665,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE          = 31223,
     SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC         = 31666,
     SPELL_ROGUE_OVERKILL_TALENT                     = 58426,
-    SPELL_ROGUE_OVERKILL_PERIODIC                   = 58428,
     SPELL_ROGUE_OVERKILL_POWER_REGEN                = 58427,
-    SPELL_ROGUE_PREY_ON_THE_WEAK                    = 58670,
-    SPELL_ROGUE_SHIV_TRIGGERED                      = 5940,
-    SPELL_ROGUE_SILCE_AND_DICE                      = 5171,
+    SPELL_ROGUE_SLICE_AND_DICE                      = 5171,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_DMG_BOOST       = 57933,
     SPELL_ROGUE_TRICKS_OF_THE_TRADE_PROC            = 59628
 };
@@ -86,7 +82,7 @@ class spell_rog_blade_flurry : public SpellScriptLoader
             {
                 PreventDefaultAction();
 
-                TC_LOG_ERROR("misc", "damage: %u procSpell: %u",
+                SF_LOG_ERROR("misc", "damage: %u procSpell: %u",
                     eventInfo.GetDamageInfo()->GetDamage(), eventInfo.GetDamageInfo()->GetSpellInfo() ? eventInfo.GetDamageInfo()->GetSpellInfo()->Id : 0);
 
                 GetTarget()->CastCustomSpell(SPELL_ROGUE_BLADE_FLURRY_EXTRA_ATTACK, SPELLVALUE_BASE_POINT0, eventInfo.GetDamageInfo()->GetDamage(), _procTarget, true, NULL, aurEff);
@@ -222,7 +218,7 @@ class spell_rog_cut_to_the_chase : public SpellScriptLoader
             void HandleProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
             {
                 PreventDefaultAction();
-                if (Aura* aur = GetTarget()->GetAura(SPELL_ROGUE_SILCE_AND_DICE))
+                if (Aura* aur = GetTarget()->GetAura(SPELL_ROGUE_SLICE_AND_DICE))
                     aur->SetDuration(aur->GetSpellInfo()->GetMaxDuration(), true);
             }
 
@@ -252,7 +248,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
             {
                 _stackAmount = 0;
                 // at this point CastItem must already be initialized
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER && GetCastItem();
             }
 
             void HandleBeforeHit()
@@ -299,7 +295,7 @@ class spell_rog_deadly_poison : public SpellScriptLoader
                             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(enchant->spellid[s]);
                             if (!spellInfo)
                             {
-                                TC_LOG_ERROR("spells", "Player::CastItemCombatSpell Enchant %i, player (Name: %s, GUID: %u) cast unknown spell %i", enchant->ID, player->GetName().c_str(), player->GetGUIDLow(), enchant->spellid[s]);
+                                SF_LOG_ERROR("spells", "Player::CastItemCombatSpell Enchant %i, player (Name: %s, GUID: %u) cast unknown spell %i", enchant->ID, player->GetName().c_str(), player->GetGUIDLow(), enchant->spellid[s]);
                                 continue;
                             }
 
@@ -465,14 +461,7 @@ class spell_rog_preparation : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_GLYPH_OF_PREPARATION))
-                    return false;
-                return true;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -489,18 +478,7 @@ class spell_rog_preparation : public SpellScriptLoader
                         ++itr;
                         continue;
                     }
-
-                    if ((spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_SHADOWSTEP ||              // Shadowstep
-                        spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_VAN_SPRINT) ||              // Vanish, Sprint
-                        // Glyph of Preparation
-                        (caster->HasAura(SPELL_ROGUE_GLYPH_OF_PREPARATION) &&
-                        (spellInfo->SpellFamilyFlags[1] & SPELLFAMILYFLAG1_ROGUE_DISMANTLE_SMOKE_BOMB ||    // Dismantle, Smoke Bomb
-                        spellInfo->SpellFamilyFlags[0] & SPELLFAMILYFLAG0_ROGUE_KICK)))                     // Kick
-                    {
-                        caster->RemoveSpellCooldown((itr++)->first, true);
-                    }
-                    else
-                        ++itr;
+                    ++itr;
                 }
             }
 
@@ -516,51 +494,6 @@ class spell_rog_preparation : public SpellScriptLoader
         }
 };
 
-// 51685 - Prey on the Weak
-class spell_rog_prey_on_the_weak : public SpellScriptLoader
-{
-    public:
-        spell_rog_prey_on_the_weak() : SpellScriptLoader("spell_rog_prey_on_the_weak") { }
-
-        class spell_rog_prey_on_the_weak_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_rog_prey_on_the_weak_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_PREY_ON_THE_WEAK))
-                    return false;
-                return true;
-            }
-
-            void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
-            {
-                Unit* target = GetTarget();
-                Unit* victim = target->GetVictim();
-                if (victim && (target->GetHealthPct() > victim->GetHealthPct()))
-                {
-                    if (!target->HasAura(SPELL_ROGUE_PREY_ON_THE_WEAK))
-                    {
-                        int32 bp = GetSpellInfo()->Effects[EFFECT_0].CalcValue();
-                        target->CastCustomSpell(target, SPELL_ROGUE_PREY_ON_THE_WEAK, &bp, 0, 0, true);
-                    }
-                }
-                else
-                    target->RemoveAurasDueToSpell(SPELL_ROGUE_PREY_ON_THE_WEAK);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_rog_prey_on_the_weak_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_rog_prey_on_the_weak_AuraScript();
-        }
-};
-
 // 73651 - Recuperate
 class spell_rog_recuperate : public SpellScriptLoader
 {
@@ -573,7 +506,7 @@ class spell_rog_recuperate : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void OnPeriodic(AuraEffect const* /*aurEff*/)
@@ -623,7 +556,7 @@ class spell_rog_rupture : public SpellScriptLoader
             bool Load() OVERRIDE
             {
                 Unit* caster = GetCaster();
-                return caster && caster->GetTypeId() == TYPEID_PLAYER;
+                return caster && caster->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void CalculateAmount(AuraEffect const* /*aurEff*/, int32& amount, bool& canBeRecalculated)
@@ -646,7 +579,7 @@ class spell_rog_rupture : public SpellScriptLoader
                     if (cp > 5)
                         cp = 5;
 
-                    amount += int32(caster->GetTotalAttackPowerValue(BASE_ATTACK) * attackpowerPerCombo[cp]);
+                    amount += int32(caster->GetTotalAttackPowerValue(WeaponAttackType::BASE_ATTACK) * attackpowerPerCombo[cp]);
                 }
             }
 
@@ -659,47 +592,6 @@ class spell_rog_rupture : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_rog_rupture_AuraScript();
-        }
-};
-
-// 5938 - Shiv
-class spell_rog_shiv : public SpellScriptLoader
-{
-    public:
-        spell_rog_shiv() : SpellScriptLoader("spell_rog_shiv") { }
-
-        class spell_rog_shiv_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_rog_shiv_SpellScript);
-
-            bool Load() OVERRIDE
-            {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
-            }
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_ROGUE_SHIV_TRIGGERED))
-                    return false;
-                return true;
-            }
-
-            void HandleDummy(SpellEffIndex /*effIndex*/)
-            {
-                Unit* caster = GetCaster();
-                if (Unit* unitTarget = GetHitUnit())
-                    caster->CastSpell(unitTarget, SPELL_ROGUE_SHIV_TRIGGERED, true);
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectHitTarget += SpellEffectFn(spell_rog_shiv_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_rog_shiv_SpellScript();
         }
 };
 
@@ -719,8 +611,7 @@ class spell_rog_stealth : public SpellScriptLoader
                     !sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_DAMAGE_PERCENT) ||
                     !sSpellMgr->GetSpellInfo(SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC) ||
                     !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_TALENT) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_POWER_REGEN) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_PERIODIC))
+                    !sSpellMgr->GetSpellInfo(SPELL_ROGUE_OVERKILL_POWER_REGEN))
                     return false;
                 return true;
             }
@@ -748,10 +639,6 @@ class spell_rog_stealth : public SpellScriptLoader
                 // Master of subtlety
                 if (target->HasAura(SPELL_ROGUE_MASTER_OF_SUBTLETY_PASSIVE))
                     target->CastSpell(target, SPELL_ROGUE_MASTER_OF_SUBTLETY_PERIODIC, true);
-
-                // Overkill
-                if (target->HasAura(SPELL_ROGUE_OVERKILL_TALENT))
-                    target->CastSpell(target, SPELL_ROGUE_OVERKILL_PERIODIC, true);
             }
 
             void Register()
@@ -869,10 +756,8 @@ void AddSC_rogue_spell_scripts()
     new spell_rog_nerves_of_steel();
     new spell_rog_overkill();
     new spell_rog_preparation();
-    new spell_rog_prey_on_the_weak();
     new spell_rog_recuperate();
     new spell_rog_rupture();
-    new spell_rog_shiv();
     new spell_rog_stealth();
     new spell_rog_tricks_of_the_trade();
     new spell_rog_tricks_of_the_trade_proc();

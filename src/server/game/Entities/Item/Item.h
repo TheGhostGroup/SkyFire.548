@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_ITEM_H
-#define TRINITYCORE_ITEM_H
+#ifndef SKYFIRESERVER_ITEM_H
+#define SKYFIRESERVER_ITEM_H
 
 #include "Common.h"
 #include "Object.h"
@@ -216,11 +216,13 @@ class Item : public Object
 {
     public:
         static Item* CreateItem(uint32 itemEntry, uint32 count, Player const* player = NULL);
+        static Item* CreateItem(uint32 itemEntry, uint32 count, uint64 playerGuid);
         Item* CloneItem(uint32 count, Player const* player = NULL) const;
 
         Item();
 
         virtual bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
+        bool Create(uint32 guidlow, uint32 itemid, uint64 playerGuid);
 
         ItemTemplate const* GetTemplate() const;
 
@@ -264,7 +266,6 @@ class Item : public Object
         bool IsInTrade() const { return mb_in_trade; }
 
         bool HasEnchantRequiredSkill(const Player* player) const;
-        uint32 GetEnchantRequiredLevel() const;
 
         bool IsFitToSpellRequirements(SpellInfo const* spellInfo) const;
         bool IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) const;
@@ -305,8 +306,6 @@ class Item : public Object
 
         std::string const& GetText() const { return m_text; }
         void SetText(std::string const& text) { m_text = text; }
-
-        void SendUpdateSockets();
 
         void SendTimeUpdate(Player* owner);
         void UpdateDuration(Player* owner, uint32 diff);

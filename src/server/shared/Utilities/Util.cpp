@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -224,8 +224,8 @@ std::string TimeToTimestampStr(time_t t)
     //       HH     hour (2 digits 00-23)
     //       MM     minutes (2 digits 00-59)
     //       SS     seconds (2 digits 00-59)
-    char buf[20];
-    snprintf(buf, 20, "%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year+1900, aTm.tm_mon+1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
+    char buf[72];
+    snprintf(buf, sizeof(buf), "%04d-%02d-%02d_%02d-%02d-%02d", aTm.tm_year+1900, aTm.tm_mon+1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
     return std::string(buf);
 }
 
@@ -522,7 +522,7 @@ void vutf8printf(FILE* out, const char *str, va_list* ap)
 #endif
 }
 
-std::string ByteArrayToHexStr(uint8 const* bytes, uint32 arrayLen, bool reverse /* = false */)
+std::string ByteArrayToHexStr(uint8 const* bytes, int32 arrayLen, bool reverse /* = false */)
 {
     int32 init = 0;
     int32 end = arrayLen;
@@ -539,7 +539,7 @@ std::string ByteArrayToHexStr(uint8 const* bytes, uint32 arrayLen, bool reverse 
     for (int32 i = init; i != end; i += op)
     {
         char buffer[4];
-        sprintf(buffer, "%02X", bytes[i]);
+        snprintf(buffer, sizeof(buffer), "%02X", bytes[i]);
         ss << buffer;
     }
 

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -122,7 +122,7 @@ class boss_sjonnir : public CreatureScript
 
             void KilledUnit(Unit* who) OVERRIDE
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
@@ -174,13 +174,13 @@ class boss_sjonnir : public CreatureScript
                         {
                             uint8 summonPipe = urand(0, 1);
                             if (HealthAbovePct(75))
-                                me->SummonCreature(NPC_FORGED_IRON_DWARF, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                                me->SummonCreature(NPC_FORGED_IRON_DWARF, PipeLocations[summonPipe], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                             else if (HealthAbovePct(50))
-                                me->SummonCreature(NPC_FORGED_IRON_TROGG, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                                me->SummonCreature(NPC_FORGED_IRON_TROGG, PipeLocations[summonPipe], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                             else if (HealthAbovePct(25))
-                                me->SummonCreature(NPC_MALFORMED_OOZE, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                                me->SummonCreature(NPC_MALFORMED_OOZE, PipeLocations[summonPipe], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
                             else
-                                me->SummonCreature(NPC_EARTHEN_DWARF, PipeLocations[summonPipe], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
+                                me->SummonCreature(NPC_EARTHEN_DWARF, PipeLocations[summonPipe], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
 
                             events.ScheduleEvent(EVENT_SUMMON, 20000);
                             break;
@@ -227,7 +227,7 @@ class npc_malformed_ooze : public CreatureScript
                 {
                     if (Creature* temp = me->FindNearestCreature(NPC_MALFORMED_OOZE, 3.0f, true))
                     {
-                        DoSpawnCreature(NPC_IRON_SLUDGE, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
+                        DoSpawnCreature(NPC_IRON_SLUDGE, 0, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
                         temp->DisappearAndDie();
                         me->DisappearAndDie();
                     }

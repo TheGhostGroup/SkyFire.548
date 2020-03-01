@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,7 +29,7 @@
 Bag::Bag(): Item()
 {
     m_objectType |= TYPEMASK_CONTAINER;
-    m_objectTypeId = TYPEID_CONTAINER;
+    m_objectTypeId = TypeID::TYPEID_CONTAINER;
 
     m_valuesCount = CONTAINER_END;
 
@@ -43,7 +43,7 @@ Bag::~Bag()
         {
             if (item->IsInWorld())
             {
-                TC_LOG_FATAL("entities.player.items", "Item %u (slot %u, bag slot %u) in bag %u (slot %u, bag slot %u, m_bagslot %u) is to be deleted but is still in world.",
+                SF_LOG_FATAL("entities.player.items", "Item %u (slot %u, bag slot %u) in bag %u (slot %u, bag slot %u, m_bagslot %u) is to be deleted but is still in world.",
                     item->GetEntry(), (uint32)item->GetSlot(), (uint32)item->GetBagSlot(),
                     GetEntry(), (uint32)GetSlot(), (uint32)GetBagSlot(), (uint32)i);
                 item->RemoveFromWorld();

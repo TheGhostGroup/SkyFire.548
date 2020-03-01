@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -145,7 +145,7 @@ public:
             Position targetPos;
             target->GetPosition(&targetPos);
 
-            if (TempSummon* impaleTarget = me->SummonCreature(CREATURE_IMPALE_TARGET, targetPos, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 6*IN_MILLISECONDS))
+            if (TempSummon* impaleTarget = me->SummonCreature(CREATURE_IMPALE_TARGET, targetPos, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 6*IN_MILLISECONDS))
             {
                 ImpaleTarget = impaleTarget->GetGUID();
                 impaleTarget->SetReactState(REACT_PASSIVE);
@@ -218,7 +218,7 @@ public:
                 {
                     for (uint8 i = 0; i < 2; ++i)
                     {
-                        if (Creature* Guardian = me->SummonCreature(CREATURE_GUARDIAN, SpawnPointGuardian[i], TEMPSUMMON_CORPSE_DESPAWN, 0))
+                        if (Creature* Guardian = me->SummonCreature(CREATURE_GUARDIAN, SpawnPointGuardian[i], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0))
                         {
                             Guardian->AddThreat(me->GetVictim(), 0.0f);
                             DoZoneInCombat(Guardian);
@@ -235,7 +235,7 @@ public:
                         {
                             for (uint8 i = 0; i < 2; ++i)
                             {
-                                if (Creature* Venomancer = me->SummonCreature(CREATURE_VENOMANCER, SpawnPoint[i], TEMPSUMMON_CORPSE_DESPAWN, 0))
+                                if (Creature* Venomancer = me->SummonCreature(CREATURE_VENOMANCER, SpawnPoint[i], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0))
                                 {
                                     Venomancer->AddThreat(me->GetVictim(), 0.0f);
                                     DoZoneInCombat(Venomancer);
@@ -254,7 +254,7 @@ public:
                         {
                             for (uint8 i = 0; i < 2; ++i)
                             {
-                                if (Creature* Datter = me->SummonCreature(CREATURE_DATTER, SpawnPoint[i], TEMPSUMMON_CORPSE_DESPAWN, 0))
+                                if (Creature* Datter = me->SummonCreature(CREATURE_DATTER, SpawnPoint[i], TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0))
                                 {
                                     Datter->AddThreat(me->GetVictim(), 0.0f);
                                     DoZoneInCombat(Datter);
@@ -344,7 +344,7 @@ public:
 
         void KilledUnit(Unit* victim) OVERRIDE
         {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
+            if (victim->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return;
 
             Talk(SAY_SLAY);

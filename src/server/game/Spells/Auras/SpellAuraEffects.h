@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_SPELLAURAEFFECTS_H
-#define TRINITY_SPELLAURAEFFECTS_H
+#ifndef SKYFIRE_SPELLAURAEFFECTS_H
+#define SKYFIRE_SPELLAURAEFFECTS_H
 
 class Unit;
 class AuraEffect;
@@ -135,6 +135,7 @@ class AuraEffect
         void HandleSpiritOfRedemption(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraGhost(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandlePhase(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandlePhaseGroup(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  unit model
         void HandleAuraModShapeshift(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraTransform(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -209,16 +210,14 @@ class AuraEffect
         void HandleModPercentStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellDamagePercentFromStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellHealingPercentFromStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModSpellDamagePercentFromAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModSpellHealingPercentFromAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+
         void HandleModHealingDone(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModTotalPercentStat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraModResistenceOfStatPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModExpertise(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   heal and energize
         void HandleModPowerRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerRegenPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModManaRegen(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+
         void HandleAuraModIncreaseHealth(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseMaxHealth(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModIncreaseMaxPowerFlat(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -226,6 +225,7 @@ class AuraEffect
         void HandleAuraModIncreaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraIncreaseBaseHealthPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   fight
+        void HandleAuraMastery(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModParryPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModDodgePercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModBlockPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -234,7 +234,7 @@ class AuraEffect
         void HandleModHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellHitChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModSpellCritChance(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleModSpellCritChanceShool(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+
         void HandleAuraModCritPct(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //   attack speed
         void HandleModCastingSpeed(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -251,7 +251,7 @@ class AuraEffect
         void HandleAuraModRangedAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraModRangedAttackPowerPercent(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraModAttackPowerOfArmor(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+
         //   damage bonus
         void HandleModDamageDone(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModDamagePercentDone(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -261,7 +261,7 @@ class AuraEffect
         void HandleModPowerCostPCT(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleModPowerCost(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleArenaPreparation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleNoReagentUseAura(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+
         void HandleAuraRetainComboPoints(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         //  others
         void HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool apply) const;
@@ -273,15 +273,16 @@ class AuraEffect
         void HandleComprehendLanguage(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraConvertRune(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraLinked(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleAuraOpenStable(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+
         void HandleAuraModFakeInebriation(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraOverrideSpells(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraSetVehicle(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandlePreventResurrection(AuraApplication const* aurApp, uint8 mode, bool apply) const;
-        void HandleMastery(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraForceWeather(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleEnableAltPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleOverrideSpellPowerByAttackPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
         void HandleAuraOverrideAutoattackWithSpell(AuraApplication const* aurApp, uint8 mode, bool apply) const;
+        void HandleOverrideAttackPowerBySpellPower(AuraApplication const* aurApp, uint8 mode, bool apply) const;
 
         // aura effect periodic tick handlers
         void HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const;
@@ -304,7 +305,7 @@ class AuraEffect
         void HandleRaidProcFromChargeWithValueAuraProc(AuraApplication* aurApp, ProcEventInfo& eventInfo);
 };
 
-namespace Trinity
+namespace Skyfire
 {
     // Binary predicate for sorting the priority of absorption aura effects
     class AbsorbAuraOrderPred

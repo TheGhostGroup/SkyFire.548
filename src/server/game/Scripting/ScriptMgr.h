@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -69,6 +69,11 @@ struct OutdoorPvPData;
 
 #define VISIBLE_RANGE       166.0f                          //MAX visible range (size of grid)
 
+struct TSpellSummary
+{
+    uint8 Targets;                                          // set of enum SelectTarget
+    uint8 Effects;                                          // set of enum SelectEffect
+};
 
 /*
     @todo Add more script type classes.
@@ -178,10 +183,8 @@ template<class TObject> class UpdatableScript
 {
     protected:
 
-        UpdatableScript()
-        {
-        }
-
+        UpdatableScript() { }
+        virtual ~UpdatableScript() { }
     public:
 
         virtual void OnUpdate(TObject* /*obj*/, uint32 /*diff*/) { }
@@ -311,7 +314,7 @@ template<class TMap> class MapScript : public UpdatableScript<TMap>
             : _mapEntry(sMapStore.LookupEntry(mapId))
         {
             if (!_mapEntry)
-                TC_LOG_ERROR("scripts", "Invalid MapScript for %u; no such map ID.", mapId);
+                SF_LOG_ERROR("scripts", "Invalid MapScript for %u; no such map ID.", mapId);
         }
 
     public:
@@ -551,7 +554,7 @@ class CommandScript : public ScriptObject
     public:
 
         // Should return a pointer to a valid command table (ChatCommand array) to be used by ChatHandler.
-        virtual ChatCommand* GetCommands() const = 0;
+        virtual std::vector<ChatCommand> GetCommands() const = 0;
 };
 
 class WeatherScript : public ScriptObject, public UpdatableScript<Weather>
@@ -719,15 +722,15 @@ class PlayerScript : public UnitScript
         virtual void OnDuelEnd(Player* /*winner*/, Player* /*loser*/, DuelCompleteType /*type*/) { }
 
         // The following methods are called when a player sends a chat message.
-        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/) { }
+        virtual void OnChat(Player* /*player*/, ChatMsg /*type*/, Language /*lang*/, std::string& /*msg*/) { }
 
-        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Player* /*receiver*/) { }
+        virtual void OnChat(Player* /*player*/, ChatMsg /*type*/, Language /*lang*/, std::string& /*msg*/, Player* /*receiver*/) { }
 
-        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Group* /*group*/) { }
+        virtual void OnChat(Player* /*player*/, ChatMsg /*type*/, Language /*lang*/, std::string& /*msg*/, Group* /*group*/) { }
 
-        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Guild* /*guild*/) { }
+        virtual void OnChat(Player* /*player*/, ChatMsg /*type*/, Language /*lang*/, std::string& /*msg*/, Guild* /*guild*/) { }
 
-        virtual void OnChat(Player* /*player*/, uint32 /*type*/, uint32 /*lang*/, std::string& /*msg*/, Channel* /*channel*/) { }
+        virtual void OnChat(Player* /*player*/, ChatMsg /*type*/, Language /*lang*/, std::string& /*msg*/, Channel* /*channel*/) { }
 
         // Both of the below are called on emote opcodes.
         virtual void OnEmote(Player* /*player*/, uint32 /*emote*/) { }
@@ -738,7 +741,7 @@ class PlayerScript : public UnitScript
         virtual void OnSpellCast(Player* /*player*/, Spell* /*spell*/, bool /*skipCheck*/) { }
 
         // Called when a player logs in.
-        virtual void OnLogin(Player* /*player*/) { }
+        virtual void OnLogin(Player* /*player*/, bool /*firstLogin*/) { }
 
         // Called when a player logs out.
         virtual void OnLogout(Player* /*player*/) { }
@@ -753,7 +756,7 @@ class PlayerScript : public UnitScript
         virtual void OnSave(Player* /*player*/) { }
 
         // Called when a player is bound to an instance
-        virtual void OnBindToInstance(Player* /*player*/, Difficulty /*difficulty*/, uint32 /*mapId*/, bool /*permanent*/) { }
+        virtual void OnBindToInstance(Player* /*player*/, DifficultyID /*difficulty*/, uint32 /*mapId*/, bool /*permanent*/) { }
 
         // Called when a player switches to a new zone
         virtual void OnUpdateZone(Player* /*player*/, uint32 /*newZone*/, uint32 /*newArea*/) { }
@@ -851,7 +854,7 @@ class ScriptMgr
         void LoadDatabase();
         void FillSpellSummary();
 
-        const char* ScriptsVersion() const { return "Integrated Trinity Scripts"; }
+        const char* ScriptsVersion() const { return "Integrated Skyfire Scripts"; }
 
         void IncrementScriptCount() { ++_scriptCount; }
         uint32 GetScriptCount() const { return _scriptCount; }
@@ -962,7 +965,7 @@ class ScriptMgr
 
     public: /* CommandScript */
 
-        std::vector<ChatCommand*> GetChatCommands();
+        std::vector<ChatCommand> GetChatCommands();
 
     public: /* WeatherScript */
 
@@ -1019,20 +1022,20 @@ class ScriptMgr
         void OnPlayerDuelRequest(Player* target, Player* challenger);
         void OnPlayerDuelStart(Player* player1, Player* player2);
         void OnPlayerDuelEnd(Player* winner, Player* loser, DuelCompleteType type);
-        void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg);
-        void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Player* receiver);
-        void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group);
-        void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild);
-        void OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel);
+        void OnPlayerChat(Player* player, ChatMsg type, Language lang, std::string& msg);
+        void OnPlayerChat(Player* player, ChatMsg type, Language lang, std::string& msg, Player* receiver);
+        void OnPlayerChat(Player* player, ChatMsg type, Language lang, std::string& msg, Group* group);
+        void OnPlayerChat(Player* player, ChatMsg type, Language lang, std::string& msg, Guild* guild);
+        void OnPlayerChat(Player* player, ChatMsg type, Language lang, std::string& msg, Channel* channel);
         void OnPlayerEmote(Player* player, uint32 emote);
         void OnPlayerTextEmote(Player* player, uint32 textEmote, uint32 emoteNum, uint64 guid);
         void OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck);
-        void OnPlayerLogin(Player* player);
+        void OnPlayerLogin(Player* player, bool firstLogin);
         void OnPlayerLogout(Player* player);
         void OnPlayerCreate(Player* player);
         void OnPlayerDelete(uint64 guid);
         void OnPlayerSave(Player* player);
-        void OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent);
+        void OnPlayerBindToInstance(Player* player, DifficultyID difficulty, uint32 mapid, bool permanent);
         void OnPlayerUpdateZone(Player* player, uint32 newZone, uint32 newArea);
 
     public: /* GuildScript */
@@ -1080,5 +1083,60 @@ class ScriptMgr
         //atomic op counter for active scripts amount
         ACE_Atomic_Op<ACE_Thread_Mutex, long> _scheduledScripts;
 };
+
+template <class S>
+class GenericSpellScriptLoader : public SpellScriptLoader
+{
+public:
+    GenericSpellScriptLoader(char const* name) : SpellScriptLoader(name) { }
+    SpellScript * GetSpellScript() const override { return new S(); }
+};
+#define RegisterSpellScript(spell_script) new GenericSpellScriptLoader<spell_script>(#spell_script)
+
+template <class A>
+class GenericAuraScriptLoader : public SpellScriptLoader
+{
+public:
+    GenericAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
+    AuraScript * GetAuraScript() const override { return new A(); }
+};
+#define RegisterAuraScript(aura_script) new GenericAuraScriptLoader<aura_script>(#aura_script)
+
+template <class S, class A>
+class GenericSpellAndAuraScriptLoader : public SpellScriptLoader
+{
+public:
+    GenericSpellAndAuraScriptLoader(char const* name) : SpellScriptLoader(name) { }
+    SpellScript * GetSpellScript() const override { return new S(); }
+    AuraScript * GetAuraScript() const override { return new A(); }
+};
+#define RegisterSpellAndAuraScriptPair(spell_script, aura_script) new GenericSpellAndAuraScriptLoader<spell_script, aura_script>(#spell_script)
+
+template <class AI>
+class GenericCreatureScript : public CreatureScript
+{
+public:
+    GenericCreatureScript(char const* name) : CreatureScript(name) { }
+    CreatureAI * GetAI(Creature* me) const override { return new AI(me); }
+};
+#define RegisterCreatureAI(ai_name) new GenericCreatureScript<ai_name>(#ai_name)
+
+template <class AI, AI*(*AIFactory)(Creature*)>
+class FactoryCreatureScript : public CreatureScript
+{
+public:
+    FactoryCreatureScript(char const* name) : CreatureScript(name) { }
+    CreatureAI * GetAI(Creature* me) const override { return AIFactory(me); }
+};
+#define RegisterCreatureAIWithFactory(ai_name, factory_fn) new FactoryCreatureScript<ai_name, &factory_fn>(#ai_name)
+
+template <class AI>
+class GenericGameObjectScript : public GameObjectScript
+{
+public:
+    GenericGameObjectScript(char const* name) : GameObjectScript(name) { }
+    GameObjectAI * GetAI(GameObject* go) const override { return new AI(go); }
+};
+#define RegisterGameObjectAI(ai_name) new GenericGameObjectScript<ai_name>(#ai_name)
 
 #endif

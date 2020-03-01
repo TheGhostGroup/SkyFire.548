@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -177,7 +177,7 @@ void PlayerSocial::SendSocialList(Player* player)
     }
 
     player->GetSession()->SendPacket(&data);
-    TC_LOG_DEBUG("network", "WORLD: Sent SMSG_CONTACT_LIST");
+    SF_LOG_DEBUG("network", "WORLD: Sent SMSG_CONTACT_LIST");
 }
 
 bool PlayerSocial::HasFriend(uint32 friendGuid)
@@ -222,7 +222,7 @@ void SocialMgr::GetFriendInfo(Player* player, uint32 friendGUID, FriendInfo &fri
     // MODERATOR, GAME MASTER, ADMINISTRATOR can see all
 
     if (!player->GetSession()->HasPermission(rbac::RBAC_PERM_WHO_SEE_ALL_SEC_LEVELS) &&
-        target->GetSession()->GetSecurity() > AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST)))
+        target->GetSession()->GetSecurity() > AccountTypes(sWorld->getIntConfig(WorldIntConfigs::CONFIG_GM_LEVEL_IN_WHO_LIST)))
         return;
 
     // player can see member of other team only if CONFIG_ALLOW_TWO_SIDE_WHO_LIST
@@ -292,7 +292,7 @@ void SocialMgr::BroadcastToFriendListers(Player* player, WorldPacket* packet)
     if (!player)
         return;
 
-    AccountTypes gmSecLevel = AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST));
+    AccountTypes gmSecLevel = AccountTypes(sWorld->getIntConfig(WorldIntConfigs::CONFIG_GM_LEVEL_IN_WHO_LIST));
     for (SocialMap::const_iterator itr = m_socialMap.begin(); itr != m_socialMap.end(); ++itr)
     {
         PlayerSocialMap::const_iterator itr2 = itr->second.m_playerSocialMap.find(player->GetGUID());

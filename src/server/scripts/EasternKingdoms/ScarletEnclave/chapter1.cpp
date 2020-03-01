@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -147,7 +147,7 @@ public:
                 me->CastSpell(me, SPELL_DK_INITIATE_VISUAL, true);
 
                 if (Player* starter = ObjectAccessor::GetPlayer(*me, playerGUID))
-                    sCreatureTextMgr->SendChat(me, SAY_EVENT_ATTACK, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, starter);
+                    sCreatureTextMgr->SendChat(me, SAY_EVENT_ATTACK, 0, ChatMsg::CHAT_MSG_ADDON, Language::LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, starter);
 
                 phase = PHASE_TO_ATTACK;
             }
@@ -183,7 +183,7 @@ public:
                         anchorGUID = anchor->GetGUID();
                     }
                     else
-                        TC_LOG_ERROR("scripts", "npc_unworthy_initiateAI: unable to find anchor!");
+                        SF_LOG_ERROR("scripts", "npc_unworthy_initiateAI: unable to find anchor!");
 
                     float dist = 99.0f;
                     GameObject* prison = NULL;
@@ -203,7 +203,7 @@ public:
                     if (prison)
                         prison->ResetDoorOrButton();
                     else
-                        TC_LOG_ERROR("scripts", "npc_unworthy_initiateAI: unable to find prison!");
+                        SF_LOG_ERROR("scripts", "npc_unworthy_initiateAI: unable to find prison!");
                 }
                 break;
             case PHASE_TO_EQUIP:
@@ -214,7 +214,7 @@ public:
                     else
                     {
                         me->GetMotionMaster()->MovePoint(1, anchorX, anchorY, me->GetPositionZ());
-                        //TC_LOG_DEBUG("scripts", "npc_unworthy_initiateAI: move to %f %f %f", anchorX, anchorY, me->GetPositionZ());
+                        //SF_LOG_DEBUG("scripts", "npc_unworthy_initiateAI: move to %f %f %f", anchorX, anchorY, me->GetPositionZ());
                         phase = PHASE_EQUIPING;
                         wait_timer = 0;
                     }
@@ -374,7 +374,7 @@ public:
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_IMMUNE_TO_PC);
             creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_UNK_15);
 
-            sCreatureTextMgr->SendChat(creature, SAY_DUEL, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+            sCreatureTextMgr->SendChat(creature, SAY_DUEL, 0, ChatMsg::CHAT_MSG_ADDON, Language::LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
 
             player->CastSpell(creature, SPELL_DUEL, false);
             player->CastSpell(player, SPELL_DUEL_FLAG, true);
@@ -487,7 +487,7 @@ public:
                         EnterEvadeMode();
                     return;
                 }
-                else if (me->GetVictim()->GetTypeId() == TYPEID_PLAYER && me->GetVictim()->HealthBelowPct(10))
+                else if (me->GetVictim()->GetTypeId() == TypeID::TYPEID_PLAYER && me->GetVictim()->HealthBelowPct(10))
                 {
                     me->GetVictim()->CastSpell(me->GetVictim(), 7267, true); // beg
                     me->GetVictim()->RemoveGameObject(SPELL_DUEL_FLAG, true);
@@ -624,7 +624,7 @@ public:
         {
             if (spell->Id == SPELL_DELIVER_STOLEN_HORSE)
             {
-                if (caster->GetTypeId() == TYPEID_UNIT && caster->IsVehicle())
+                if (caster->GetTypeId() == TypeID::TYPEID_UNIT && caster->IsVehicle())
                 {
                     if (Unit* charmer = caster->GetCharmer())
                     {
@@ -646,7 +646,7 @@ public:
         {
             ScriptedAI::MoveInLineOfSight(who);
 
-            if (who->GetTypeId() == TYPEID_UNIT && who->IsVehicle() && me->IsWithinDistInMap(who, 5.0f))
+            if (who->GetTypeId() == TypeID::TYPEID_UNIT && who->IsVehicle() && me->IsWithinDistInMap(who, 5.0f))
             {
                 if (Unit* charmer = who->GetCharmer())
                 {
@@ -716,7 +716,7 @@ public:
             if (!deathcharger)
                 return;
 
-            if (killer->GetTypeId() == TYPEID_PLAYER && deathcharger->GetTypeId() == TYPEID_UNIT && deathcharger->IsVehicle())
+            if (killer->GetTypeId() == TypeID::TYPEID_PLAYER && deathcharger->GetTypeId() == TypeID::TYPEID_UNIT && deathcharger->IsVehicle())
             {
                 deathcharger->SetFlag(UNIT_FIELD_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
                 deathcharger->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

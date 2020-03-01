@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -193,7 +193,7 @@ public:
         {
             //will update once TargetGUID is 0. In case noone actually moves(not likely) and this is 0
             //when UpdateAI needs it, it will be forced to select randomPoint
-            if (!TargetGUID && who->GetTypeId() == TYPEID_PLAYER)
+            if (!TargetGUID && who->GetTypeId() == TypeID::TYPEID_PLAYER)
                 TargetGUID = who->GetGUID();
         }
 
@@ -318,7 +318,7 @@ public:
         {
             Talk(SAY_SLAY);
 
-            if (victim && victim->GetTypeId() == TYPEID_PLAYER)
+            if (victim && victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                 GainSoulCharge(victim->ToPlayer());
         }
 
@@ -379,7 +379,7 @@ public:
             if (targets.empty())
                 return false;
 
-            targets.sort(Trinity::ObjectDistanceOrderPred(me));
+            targets.sort(Skyfire::ObjectDistanceOrderPred(me));
             Unit* target = targets.front();
             if (target)
             {
@@ -426,11 +426,11 @@ public:
         {
             me->SummonCreature(CREATURE_DOOMFIRE_SPIRIT,
                 target->GetPositionX()+15.0f, target->GetPositionY()+15.0f, target->GetPositionZ(), 0,
-                TEMPSUMMON_TIMED_DESPAWN, 27000);
+                TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 27000);
 
             me->SummonCreature(CREATURE_DOOMFIRE,
                 target->GetPositionX()-15.0f, target->GetPositionY()-15.0f, target->GetPositionZ(), 0,
-                TEMPSUMMON_TIMED_DESPAWN, 27000);
+                TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 27000);
         }
 
         void UnleashSoulCharge()
@@ -492,7 +492,7 @@ public:
                 {
                     if (!IsChanneling)
                     {
-                        Creature* temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 1200000);
+                        Creature* temp = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 1200000);
 
                         if (temp)
                             WorldTreeGUID = temp->GetGUID();
@@ -536,7 +536,7 @@ public:
                 if (CheckDistanceTimer <= diff)
                 {
                     // To simplify the check, we simply summon a Creature in the location and then check how far we are from the creature
-                    Creature* Check = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TEMPSUMMON_TIMED_DESPAWN, 2000);
+                    Creature* Check = me->SummonCreature(CREATURE_CHANNEL_TARGET, NordrassilLoc, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 2000);
                     if (Check)
                     {
                         Check->SetVisible(false);
@@ -568,7 +568,7 @@ public:
 
                 if (SummonWispTimer <= diff)
                 {
-                    DoSpawnCreature(CREATURE_ANCIENT_WISP, float(rand()%40), float(rand()%40), 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                    DoSpawnCreature(CREATURE_ANCIENT_WISP, float(rand()%40), float(rand()%40), 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
                     SummonWispTimer = 1500;
                     ++WispCount;
                 } else SummonWispTimer -= diff;

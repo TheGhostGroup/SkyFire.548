@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -163,7 +163,7 @@ class RisenArchmageCheck
         }
 };
 
-struct ManaVoidSelector : public std::unary_function<Unit*, bool>
+struct ManaVoidSelector : public SF_UNARY_FUNCTION<Unit*, bool>
 {
         explicit ManaVoidSelector(WorldObject const* source) : _source(source) { }
 
@@ -224,7 +224,7 @@ class ValithriaDespawner : public BasicEvent
 
         bool Execute(uint64 /*currTime*/, uint32 /*diff*/)
         {
-            Trinity::CreatureWorker<ValithriaDespawner> worker(_creature, *this);
+            Skyfire::CreatureWorker<ValithriaDespawner> worker(_creature, *this);
             _creature->VisitNearbyGridObject(333.0f, worker);
             return true;
         }
@@ -524,13 +524,13 @@ class npc_green_dragon_combat_trigger : public CreatureScript
 
             void AttackStart(Unit* target) OVERRIDE
             {
-                if (target->GetTypeId() == TYPEID_PLAYER)
+                if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
                     BossAI::AttackStart(target);
             }
 
             bool CanAIAttack(Unit const* target) const OVERRIDE
             {
-                return target->GetTypeId() == TYPEID_PLAYER;
+                return target->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void JustReachedHome() OVERRIDE
@@ -568,7 +568,7 @@ class npc_green_dragon_combat_trigger : public CreatureScript
                 // check if there is any player on threatlist, if not - evade
                 for (std::list<HostileReference*>::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
                     if (Unit* target = (*itr)->getTarget())
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
                             return; // found any player, return
 
                 EnterEvadeMode();
@@ -706,7 +706,7 @@ class npc_risen_archmage : public CreatureScript
                 {
                     std::list<Creature*> archmages;
                     RisenArchmageCheck check;
-                    Trinity::CreatureListSearcher<RisenArchmageCheck> searcher(me, archmages, check);
+                    Skyfire::CreatureListSearcher<RisenArchmageCheck> searcher(me, archmages, check);
                     me->VisitNearbyGridObject(100.0f, searcher);
                     for (std::list<Creature*>::iterator itr = archmages.begin(); itr != archmages.end(); ++itr)
                         (*itr)->AI()->DoAction(ACTION_ENTER_COMBAT);
@@ -1080,8 +1080,8 @@ class npc_dream_cloud : public CreatureScript
                         case EVENT_CHECK_PLAYER:
                         {
                             Player* player = NULL;
-                            Trinity::AnyPlayerInObjectRangeCheck check(me, 5.0f);
-                            Trinity::PlayerSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
+                            Skyfire::AnyPlayerInObjectRangeCheck check(me, 5.0f);
+                            Skyfire::PlayerSearcher<Skyfire::AnyPlayerInObjectRangeCheck> searcher(me, player, check);
                             me->VisitNearbyWorldObject(7.5f, searcher);
                             _events.ScheduleEvent(player ? EVENT_EXPLODE : EVENT_CHECK_PLAYER, 1000);
                             break;
@@ -1195,11 +1195,11 @@ class spell_dreamwalker_summoner : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
+                targets.remove_if(Skyfire::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }
@@ -1244,8 +1244,8 @@ class spell_dreamwalker_summon_suppresser : public SpellScriptLoader
 
                 std::list<Creature*> summoners;
                 GetCreatureListWithEntryInGrid(summoners, caster, NPC_WORLD_TRIGGER, 100.0f);
-                summoners.remove_if(Trinity::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
-                Trinity::Containers::RandomResizeList(summoners, 2);
+                summoners.remove_if(Skyfire::UnitAuraCheck(true, SPELL_RECENTLY_SPAWNED));
+                Skyfire::Containers::RandomResizeList(summoners, 2);
                 if (summoners.empty())
                     return;
 

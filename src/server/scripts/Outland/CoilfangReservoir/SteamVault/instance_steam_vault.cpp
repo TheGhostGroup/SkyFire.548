@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -36,13 +36,13 @@ class go_main_chambers_access_panel : public GameObjectScript
             if (go->GetEntry() == GO_ACCESS_PANEL_HYDRO && (instance->GetBossState(DATA_HYDROMANCER_THESPIA) == DONE || instance->GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL))
             {
                 instance->SetBossState(DATA_HYDROMANCER_THESPIA, SPECIAL);
-                go->SetGoState(GO_STATE_ACTIVE);
+                go->SetGoState(GOState::GO_STATE_ACTIVE);
             }
 
             if (go->GetEntry() == GO_ACCESS_PANEL_MEK && (instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == DONE || instance->GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL))
             {
                 instance->SetBossState(DATA_MEKGINEER_STEAMRIGGER, SPECIAL);
-                go->SetGoState(GO_STATE_ACTIVE);
+                go->SetGoState(GOState::GO_STATE_ACTIVE);
             }
 
             return true;
@@ -140,7 +140,7 @@ class instance_steam_vault : public InstanceMapScript
                             if (GetBossState(DATA_MEKGINEER_STEAMRIGGER) == SPECIAL)
                                 HandleGameObject(MainChambersDoorGUID, true);
 
-                            TC_LOG_DEBUG("scripts", "Instance Steamvault: Access panel used.");
+                            SF_LOG_DEBUG("scripts", "Instance Steamvault: Access panel used.");
                         }
                         break;
                     case DATA_MEKGINEER_STEAMRIGGER:
@@ -149,7 +149,7 @@ class instance_steam_vault : public InstanceMapScript
                             if (GetBossState(DATA_HYDROMANCER_THESPIA) == SPECIAL)
                                 HandleGameObject(MainChambersDoorGUID, true);
 
-                            TC_LOG_DEBUG("scripts", "Instance Steamvault: Access panel used.");
+                            SF_LOG_DEBUG("scripts", "Instance Steamvault: Access panel used.");
                         }
                         break;
                     default:

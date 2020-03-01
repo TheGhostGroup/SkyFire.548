@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -142,7 +142,7 @@ class boss_skarvald_the_constructor : public CreatureScript
                             me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
                             //DoCast(me, SPELL_SUMMON_SKARVALD_GHOST, true);
-                            if (Creature* temp = me->SummonCreature(NPC_SKARVALD_GHOST, *me, TEMPSUMMON_CORPSE_DESPAWN, 5000))
+                            if (Creature* temp = me->SummonCreature(NPC_SKARVALD_GHOST, *me, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 5000))
                             {
                                 temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 temp->AI()->AttackStart(killer);
@@ -160,7 +160,7 @@ class boss_skarvald_the_constructor : public CreatureScript
 
             void KilledUnit(Unit* who) OVERRIDE
             {
-                if (!ghost && who->GetTypeId() == TYPEID_PLAYER)
+                if (!ghost && who->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(YELL_SKARVALD_KILL);
             }
 
@@ -289,7 +289,7 @@ class boss_dalronn_the_controller : public CreatureScript
                             me->RemoveFlag(OBJECT_FIELD_DYNAMIC_FLAGS, UNIT_DYNFLAG_LOOTABLE);
 
                             //DoCast(me, SPELL_SUMMON_DALRONN_GHOST, true);
-                            if (Creature* temp = me->SummonCreature(NPC_DALRONN_GHOST, *me, TEMPSUMMON_CORPSE_DESPAWN, 5000))
+                            if (Creature* temp = me->SummonCreature(NPC_DALRONN_GHOST, *me, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 5000))
                             {
                                 temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                                 temp->AI()->AttackStart(killer);
@@ -307,7 +307,7 @@ class boss_dalronn_the_controller : public CreatureScript
 
             void KilledUnit(Unit* who) OVERRIDE
             {
-                if (!ghost && who->GetTypeId() == TYPEID_PLAYER)
+                if (!ghost && who->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(YELL_DALRONN_KILL);
             }
 

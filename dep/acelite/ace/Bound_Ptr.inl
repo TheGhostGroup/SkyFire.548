@@ -1,11 +1,7 @@
 /* -*- C++ -*- */
-// $Id: Bound_Ptr.inl 91626 2010-09-07 10:59:20Z johnnyw $
-
-// Bound_Ptr.i
-
 #include "ace/Guard_T.h"
 #if !defined (ACE_NEW_THROWS_EXCEPTIONS)
-#  include "ace/Log_Msg.h"
+#  include "ace/Log_Category.h"
 #endif /* ACE_NEW_THROWS_EXCEPTIONS */
 
 ACE_BEGIN_VERSIONED_NAMESPACE_DECL
@@ -150,12 +146,14 @@ ACE_Strong_Bound_Ptr<X, ACE_LOCK>::ACE_Strong_Bound_Ptr (X *p)
 {
 }
 
+#if !defined (ACE_HAS_CPP11)
 template <class X, class ACE_LOCK> inline
 ACE_Strong_Bound_Ptr<X, ACE_LOCK>::ACE_Strong_Bound_Ptr (auto_ptr<X> p)
   : counter_ (COUNTER::create_strong ()),
     ptr_ (p.release())
 {
 }
+#endif /* !ACE_HAS_CPP11 */
 
 template <class X, class ACE_LOCK> inline
 ACE_Strong_Bound_Ptr<X, ACE_LOCK>::ACE_Strong_Bound_Ptr (const ACE_Strong_Bound_Ptr<X, ACE_LOCK> &r)
@@ -305,6 +303,7 @@ ACE_Strong_Bound_Ptr<X, ACE_LOCK>::reset (X *p)
     delete old_ptr;
 }
 
+#if !defined (ACE_HAS_CPP11)
 template<class X, class ACE_LOCK> inline void
 ACE_Strong_Bound_Ptr<X, ACE_LOCK>::reset (auto_ptr<X> p)
 {
@@ -315,6 +314,7 @@ ACE_Strong_Bound_Ptr<X, ACE_LOCK>::reset (auto_ptr<X> p)
   if (COUNTER::detach_strong (old_counter) == 0)
     delete old_ptr;
 }
+#endif /* !ACE_HAS_CPP11 */
 
 template <class X, class ACE_LOCK> inline
 ACE_Weak_Bound_Ptr<X, ACE_LOCK>::ACE_Weak_Bound_Ptr (X *p)

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -154,7 +154,7 @@ class boss_rotface : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
@@ -200,7 +200,7 @@ class boss_rotface : public CreatureScript
                         case EVENT_SLIME_SPRAY:
                             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1, 0.0f, true))
                             {
-                                DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8000, TEMPSUMMON_TIMED_DESPAWN);
+                                DoSummon(NPC_OOZE_SPRAY_STALKER, *target, 8000, TempSummonType::TEMPSUMMON_TIMED_DESPAWN);
                                 Talk(EMOTE_SLIME_SPRAY);
                                 DoCast(me, SPELL_SLIME_SPRAY);
                             }
@@ -471,14 +471,14 @@ class spell_rotface_ooze_flood : public SpellScriptLoader
                 if (triggers.empty())
                     return;
 
-                triggers.sort(Trinity::ObjectDistanceOrderPred(GetHitUnit()));
+                triggers.sort(Skyfire::ObjectDistanceOrderPred(GetHitUnit()));
                 GetHitUnit()->CastSpell(triggers.back(), uint32(GetEffectValue()), false, NULL, NULL, GetOriginalCaster() ? GetOriginalCaster()->GetGUID() : 0);
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 // get 2 targets except 2 nearest
-                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                targets.sort(Skyfire::ObjectDistanceOrderPred(GetCaster()));
 
                 // .resize() runs pop_back();
                 if (targets.size() > 4)
@@ -520,11 +520,11 @@ class spell_rotface_mutated_infection : public SpellScriptLoader
             {
                 // remove targets with this aura already
                 // tank is not on this list
-                targets.remove_if(Trinity::UnitAuraCheck(true, GetSpellInfo()->Id));
+                targets.remove_if(Skyfire::UnitAuraCheck(true, GetSpellInfo()->Id));
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
                 _target = target;
@@ -714,7 +714,7 @@ class spell_rotface_unstable_ooze_explosion_init : public SpellScriptLoader
 
                 float x, y, z;
                 GetHitUnit()->GetPosition(x, y, z);
-                Creature* dummy = GetCaster()->SummonCreature(NPC_UNSTABLE_EXPLOSION_STALKER, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 60000);
+                Creature* dummy = GetCaster()->SummonCreature(NPC_UNSTABLE_EXPLOSION_STALKER, x, y, z, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60000);
                 GetCaster()->CastSpell(dummy, SPELL_UNSTABLE_OOZE_EXPLOSION_TRIGGER, true);
             }
 
@@ -780,7 +780,7 @@ class spell_rotface_unstable_ooze_explosion_suicide : public SpellScriptLoader
             {
                 PreventDefaultAction();
                 Unit* target = GetTarget();
-                if (target->GetTypeId() != TYPEID_UNIT)
+                if (target->GetTypeId() != TypeID::TYPEID_UNIT)
                     return;
 
                 target->RemoveAllAuras();
@@ -811,7 +811,7 @@ class spell_rotface_vile_gas_trigger : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.sort(Trinity::ObjectDistanceOrderPred(GetCaster()));
+                targets.sort(Skyfire::ObjectDistanceOrderPred(GetCaster()));
                 if (targets.empty())
                     return;
 
@@ -835,13 +835,13 @@ class spell_rotface_vile_gas_trigger : public SpellScriptLoader
                     if (melee.empty())
                         break;
 
-                    WorldObject* target = Trinity::Containers::SelectRandomContainerElement(melee);
+                    WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(melee);
                     ranged.push_back(target);
                     melee.remove(target);
                 }
 
                 if (!ranged.empty())
-                    Trinity::Containers::RandomResizeList(ranged, GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1);
+                    Skyfire::Containers::RandomResizeList(ranged, GetCaster()->GetMap()->Is25ManRaid() ? 3 : 1);
 
                 targets.swap(ranged);
             }

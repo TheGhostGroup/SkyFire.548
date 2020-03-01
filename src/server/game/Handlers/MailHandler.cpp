@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -113,9 +113,9 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     Player* player = _player;
 
-    if (player->getLevel() < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
+    if (player->getLevel() < sWorld->getIntConfig(WorldIntConfigs::CONFIG_MAIL_LEVEL_REQ))
     {
-        SendNotification(GetTrinityString(LANG_MAIL_SENDER_REQ), sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ));
+        SendNotification(GetSkyFireString(LANG_MAIL_SENDER_REQ), sWorld->getIntConfig(WorldIntConfigs::CONFIG_MAIL_LEVEL_REQ));
         return;
     }
 
@@ -125,7 +125,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
 
     if (!receiverGuid)
     {
-        TC_LOG_INFO("network", "Player %u is sending mail to %s (GUID: not existed!) with subject %s "
+        SF_LOG_INFO("network", "Player %u is sending mail to %s (GUID: not existed!) with subject %s "
             "and body %s includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with unk1 = %u, unk2 = %u",
             player->GetGUIDLow(), receiverName.c_str(), subject.c_str(), body.c_str(),
             itemCount, money, COD, unk1, unk2);
@@ -133,7 +133,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         return;
     }
 
-    TC_LOG_INFO("network", "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s "
+    SF_LOG_INFO("network", "Player %u is sending mail to %s (GUID: %u) with subject %s and body %s "
         "includes %u items, " UI64FMTD " copper and " UI64FMTD " COD copper with unk1 = %u, unk2 = %u",
         player->GetGUIDLow(), receiverName.c_str(), GUID_LOPART(receiverGuid), subject.c_str(),
         body.c_str(), itemCount, money, COD, unk1, unk2);
@@ -223,9 +223,9 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
         return;
     }
 
-    if (receiverLevel < sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ))
+    if (receiverLevel < sWorld->getIntConfig(WorldIntConfigs::CONFIG_MAIL_LEVEL_REQ))
     {
-        SendNotification(GetTrinityString(LANG_MAIL_RECEIVER_REQ), sWorld->getIntConfig(CONFIG_MAIL_LEVEL_REQ));
+        SendNotification(GetSkyFireString(LANG_MAIL_RECEIVER_REQ), sWorld->getIntConfig(WorldIntConfigs::CONFIG_MAIL_LEVEL_REQ));
         return;
     }
 
@@ -330,7 +330,7 @@ void WorldSession::HandleSendMail(WorldPacket& recvData)
     }
 
     // If theres is an item, there is a one hour delivery delay if sent to another account's character.
-    uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(CONFIG_MAIL_DELIVERY_DELAY) : 0;
+    uint32 deliver_delay = needItemDelay ? sWorld->getIntConfig(WorldIntConfigs::CONFIG_MAIL_DELIVERY_DELAY) : 0;
 
     // Mail sent between guild members arrives instantly if they have the guild perk "Guild Mail"
     if (Guild* guild = sGuildMgr->GetGuildById(player->GetGuildId()))
@@ -565,7 +565,7 @@ void WorldSession::HandleMailTakeItem(WorldPacket& recvData)
                     sender_accId = sObjectMgr->GetPlayerAccountIdByGUID(sender_guid);
 
                     if (!sObjectMgr->GetPlayerNameByGUID(sender_guid, sender_name))
-                        sender_name = sObjectMgr->GetTrinityStringForDBCLocale(LANG_UNKNOWN);
+                        sender_name = sObjectMgr->GetSkyFireStringForDBCLocale(LANG_UNKNOWN);
                 }
                 sLog->outCommand(GetAccountId(), "GM %s (Account: %u) receiver mail item: %s (Entry: %u Count: %u) and send COD money: " UI64FMTD " to player: %s (Account: %u)",
                     GetPlayerName().c_str(), GetAccountId(), it->GetTemplate()->Name1.c_str(), it->GetEntry(), it->GetCount(), m->COD, sender_name.c_str(), sender_accId);
@@ -809,7 +809,7 @@ void WorldSession::HandleGetMailList(WorldPacket& recvData)
         mailData << uint64(mail->COD);
         mailData.WriteString(mail->subject);
         mailData << uint32(mail->stationery);
-        mailData << float(float(mail->expire_time - time(NULL)) / DAY);
+        mailData << float(float(mail->expire_time - time(NULL)) / float(DAY));
         mailData << uint64(mail->money);
         mailData << uint32(mail->checked);
 
@@ -898,7 +898,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
     bodyItem->SetUInt32Value(ITEM_FIELD_CREATOR, m->sender);
     bodyItem->SetFlag(ITEM_FIELD_DYNAMIC_FLAGS, ITEM_FLAG_MAIL_TEXT_MASK);
 
-    TC_LOG_INFO("network", "HandleMailCreateTextItem mailid=%u", mailId);
+    SF_LOG_INFO("network", "HandleMailCreateTextItem mailid=%u", mailId);
 
     ItemPosCountVec dest;
     uint8 msg = _player->CanStoreItem(NULL_BAG, NULL_SLOT, dest, bodyItem, false);
@@ -921,7 +921,7 @@ void WorldSession::HandleMailCreateTextItem(WorldPacket& recvData)
 /// @todo Fix me! ... this void has probably bad condition, but good data are sent
 void WorldSession::HandleQueryNextMailTime(WorldPacket& /*recvData*/)
 {
-    WorldPacket data(SMSG_MAIL_QUERY_NEXT_TIME_RESULT, 8);
+    WorldPacket data(MSG_QUERY_NEXT_MAIL_TIME, 8);
 
     if (!_player->m_mailsLoaded)
         _player->_LoadMail();

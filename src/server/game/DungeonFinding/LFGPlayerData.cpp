@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -36,7 +36,7 @@ void LfgPlayerData::SetState(LfgState state)
         case LFG_STATE_FINISHED_DUNGEON:
             m_Roles = 0;
             m_SelectedDungeons.clear();
-            m_Comment = "";
+            m_Comment.clear();
             // No break on purpose
         case LFG_STATE_DUNGEON:
             m_OldState = state;
@@ -54,11 +54,6 @@ void LfgPlayerData::RestoreState()
         m_Roles = 0;
     }
     m_State = m_OldState;
-}
-
-void LfgPlayerData::SetLockedDungeons(LfgLockMap const& lockStatus)
-{
-    m_LockedDungeons = lockStatus;
 }
 
 void LfgPlayerData::SetTeam(uint8 team)
@@ -94,11 +89,6 @@ LfgState LfgPlayerData::GetState() const
 LfgState LfgPlayerData::GetOldState() const
 {
     return m_OldState;
-}
-
-const LfgLockMap& LfgPlayerData::GetLockedDungeons() const
-{
-    return m_LockedDungeons;
 }
 
 uint8 LfgPlayerData::GetTeam() const

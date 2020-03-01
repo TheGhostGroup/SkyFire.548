@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,7 +68,7 @@ bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellIn
         return false;
 
     // not to GM
-    if (hatedUnit->GetTypeId() == TYPEID_PLAYER && hatedUnit->ToPlayer()->IsGameMaster())
+    if (hatedUnit->GetTypeId() == TypeID::TYPEID_PLAYER && hatedUnit->ToPlayer()->IsGameMaster())
         return false;
 
     // not to dead and not for dead
@@ -83,7 +83,7 @@ bool ThreatCalcHelper::isValidProcess(Unit* hatedUnit, Unit* hatingUnit, SpellIn
     if (threatSpell && threatSpell->AttributesEx & SPELL_ATTR1_NO_THREAT)
         return false;
 
-    ASSERT(hatingUnit->GetTypeId() == TYPEID_UNIT);
+    ASSERT(hatingUnit->GetTypeId() == TypeID::TYPEID_UNIT);
 
     return true;
 }
@@ -180,7 +180,7 @@ void HostileReference::updateOnlineStatus()
     // target is no player or not gamemaster
     // target is not in flight
     if (isValid()
-        && (getTarget()->GetTypeId() != TYPEID_PLAYER || !getTarget()->ToPlayer()->IsGameMaster())
+        && (getTarget()->GetTypeId() != TypeID::TYPEID_PLAYER || !getTarget()->ToPlayer()->IsGameMaster())
         && !getTarget()->HasUnitState(UNIT_STATE_IN_FLIGHT)
         && getTarget()->IsInMap(GetSourceUnit())
         && getTarget()->InSamePhase(GetSourceUnit())
@@ -306,7 +306,7 @@ void ThreatContainer::modifyThreatPercent(Unit* victim, int32 percent)
 void ThreatContainer::update()
 {
     if (iDirty && iThreatList.size() > 1)
-        iThreatList.sort(Trinity::ThreatOrderPred());
+        iThreatList.sort(Skyfire::ThreatOrderPred());
 
     iDirty = false;
 }
@@ -444,7 +444,7 @@ void ThreatManager::_addThreat(Unit* victim, float threat)
         HostileReference* hostileRef = new HostileReference(victim, this, 0);
         iThreatContainer.addReference(hostileRef);
         hostileRef->addThreat(threat); // now we add the real threat
-        if (victim->GetTypeId() == TYPEID_PLAYER && victim->ToPlayer()->IsGameMaster())
+        if (victim->GetTypeId() == TypeID::TYPEID_PLAYER && victim->ToPlayer()->IsGameMaster())
             hostileRef->setOnlineOfflineState(false); // GM is always offline
     }
 }

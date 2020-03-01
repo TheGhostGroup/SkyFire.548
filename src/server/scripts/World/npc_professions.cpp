@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -248,7 +248,7 @@ bool EquippedOk(Player* player, uint32 spellId)
             if (item && item->GetTemplate()->RequiredSpell == reqSpell)
             {
                 //player has item equipped that require specialty. Not allow to unlearn, player has to unequip first
-                TC_LOG_DEBUG("scripts", "player attempt to unlearn spell %u, but item %u is equipped.", reqSpell, item->GetEntry());
+                SF_LOG_DEBUG("scripts", "player attempt to unlearn spell %u, but item %u is equipped.", reqSpell, item->GetEntry());
                 return false;
             }
         }

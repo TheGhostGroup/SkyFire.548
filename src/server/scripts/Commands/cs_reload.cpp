@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@ EndScriptData */
 #include "AccountMgr.h"
 #include "AchievementMgr.h"
 #include "AuctionHouseMgr.h"
+#include "BlackMarketMgr.h"
 #include "Chat.h"
 #include "CreatureTextMgr.h"
 #include "DisableMgr.h"
@@ -48,119 +49,122 @@ class reload_commandscript : public CommandScript
 public:
     reload_commandscript() : CommandScript("reload_commandscript") { }
 
-    ChatCommand* GetCommands() const
+    std::vector<ChatCommand> GetCommands() const
     {
-        static ChatCommand reloadAllCommandTable[] =
+        static std::vector<ChatCommand> reloadAllCommandTable =
         {
-            { "achievement", rbac::RBAC_PERM_COMMAND_RELOAD_ALL_ACHIEVEMENT, true,  &HandleReloadAllAchievementCommand, "", NULL },
-            { "area",        rbac::RBAC_PERM_COMMAND_RELOAD_ALL_AREA,        true,  &HandleReloadAllAreaCommand,       "", NULL },
-            { "gossips",     rbac::RBAC_PERM_COMMAND_RELOAD_ALL_GOSSIP,      true,  &HandleReloadAllGossipsCommand,    "", NULL },
-            { "item",        rbac::RBAC_PERM_COMMAND_RELOAD_ALL_ITEM,        true,  &HandleReloadAllItemCommand,       "", NULL },
-            { "locales",     rbac::RBAC_PERM_COMMAND_RELOAD_ALL_LOCALES,     true,  &HandleReloadAllLocalesCommand,    "", NULL },
-            { "loot",        rbac::RBAC_PERM_COMMAND_RELOAD_ALL_LOOT,        true,  &HandleReloadAllLootCommand,       "", NULL },
-            { "npc",         rbac::RBAC_PERM_COMMAND_RELOAD_ALL_NPC,         true,  &HandleReloadAllNpcCommand,        "", NULL },
-            { "quest",       rbac::RBAC_PERM_COMMAND_RELOAD_ALL_QUEST,       true,  &HandleReloadAllQuestCommand,      "", NULL },
-            { "scripts",     rbac::RBAC_PERM_COMMAND_RELOAD_ALL_SCRIPTS,     true,  &HandleReloadAllScriptsCommand,    "", NULL },
-            { "spell",       rbac::RBAC_PERM_COMMAND_RELOAD_ALL_SPELL,       true,  &HandleReloadAllSpellCommand,      "", NULL },
-            { "",            rbac::RBAC_PERM_COMMAND_RELOAD_ALL,             true,  &HandleReloadAllCommand,           "", NULL },
-            { NULL,          0,                  false, NULL,                              "", NULL }
+            { "achievement", rbac::RBAC_PERM_COMMAND_RELOAD_ALL_ACHIEVEMENT, true,  &HandleReloadAllAchievementCommand, "", },
+            { "area",        rbac::RBAC_PERM_COMMAND_RELOAD_ALL_AREA,        true,  &HandleReloadAllAreaCommand,       "",  },
+            { "gossips",     rbac::RBAC_PERM_COMMAND_RELOAD_ALL_GOSSIP,      true,  &HandleReloadAllGossipsCommand,    "",  },
+            { "item",        rbac::RBAC_PERM_COMMAND_RELOAD_ALL_ITEM,        true,  &HandleReloadAllItemCommand,       "",  },
+            { "locales",     rbac::RBAC_PERM_COMMAND_RELOAD_ALL_LOCALES,     true,  &HandleReloadAllLocalesCommand,    "",  },
+            { "loot",        rbac::RBAC_PERM_COMMAND_RELOAD_ALL_LOOT,        true,  &HandleReloadAllLootCommand,       "",  },
+            { "npc",         rbac::RBAC_PERM_COMMAND_RELOAD_ALL_NPC,         true,  &HandleReloadAllNpcCommand,        "",  },
+            { "quest",       rbac::RBAC_PERM_COMMAND_RELOAD_ALL_QUEST,       true,  &HandleReloadAllQuestCommand,      "",  },
+            { "scripts",     rbac::RBAC_PERM_COMMAND_RELOAD_ALL_SCRIPTS,     true,  &HandleReloadAllScriptsCommand,    "",  },
+            { "spell",       rbac::RBAC_PERM_COMMAND_RELOAD_ALL_SPELL,       true,  &HandleReloadAllSpellCommand,      "",  },
+            { "",            rbac::RBAC_PERM_COMMAND_RELOAD_ALL,             true,  &HandleReloadAllCommand,           "",  },
         };
-        static ChatCommand reloadCommandTable[] =
+        static std::vector<ChatCommand> reloadCommandTable =
         {
-            { "auctions",                      rbac::RBAC_PERM_COMMAND_RELOAD_AUCTIONS, true,  &HandleReloadAuctionsCommand,                   "", NULL },
-            { "access_requirement",            rbac::RBAC_PERM_COMMAND_RELOAD_ACCESS_REQUIREMENT, true,  &HandleReloadAccessRequirementCommand,          "", NULL },
-            { "achievement_criteria_data",     rbac::RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_CRITERIA_DATA, true,  &HandleReloadAchievementCriteriaDataCommand,    "", NULL },
-            { "achievement_reward",            rbac::RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_REWARD, true,  &HandleReloadAchievementRewardCommand,          "", NULL },
-            { "all",                           rbac::RBAC_PERM_COMMAND_RELOAD_ALL, true,  NULL,                          "", reloadAllCommandTable },
-            { "areatrigger_involvedrelation",  rbac::RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_INVOLVEDRELATION, true,  &HandleReloadQuestAreaTriggersCommand,          "", NULL },
-            { "areatrigger_tavern",            rbac::RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TAVERN, true,  &HandleReloadAreaTriggerTavernCommand,          "", NULL },
-            { "areatrigger_teleport",          rbac::RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TELEPORT, true,  &HandleReloadAreaTriggerTeleportCommand,        "", NULL },
-            { "autobroadcast",                 rbac::RBAC_PERM_COMMAND_RELOAD_AUTOBROADCAST, true,  &HandleReloadAutobroadcastCommand,              "", NULL },
-            { "command",                       rbac::RBAC_PERM_COMMAND_RELOAD_COMMAND, true,  &HandleReloadCommandCommand,                    "", NULL },
-            { "conditions",                    rbac::RBAC_PERM_COMMAND_RELOAD_CONDITIONS, true,  &HandleReloadConditions,                        "", NULL },
-            { "config",                        rbac::RBAC_PERM_COMMAND_RELOAD_CONFIG, true,  &HandleReloadConfigCommand,                     "", NULL },
-            { "creature_text",                 rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEXT, true,  &HandleReloadCreatureText,                      "", NULL },
-            { "creature_questender",           rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTENDER, true,  &HandleReloadCreatureQuestEnderCommand,  "", NULL },
-            { "creature_linked_respawn",       rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_LINKED_RESPAWN,    true,  &HandleReloadLinkedRespawnCommand,              "", NULL },
-            { "creature_loot_template",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesCreatureCommand,      "", NULL },
-            { "creature_onkill_reputation",    rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_ONKILL_REPUTATION, true,  &HandleReloadOnKillReputationCommand,           "", NULL },
-            { "creature_queststarter",         rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTSTARTER, true,  &HandleReloadCreatureQuestStarterCommand,     "", NULL },
-            { "creature_summon_groups",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_SUMMON_GROUPS, true,  &HandleReloadCreatureSummonGroupsCommand,       "", NULL },
-            { "creature_template",             rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE, true,  &HandleReloadCreatureTemplateCommand,           "", NULL },
-            //{ "db_script_string",              rbac::RBAC_PERM_COMMAND_RELOAD_, true,  &HandleReloadDbScriptStringCommand,            "", NULL },
-            { "disables",                      rbac::RBAC_PERM_COMMAND_RELOAD_DISABLES, true,  &HandleReloadDisablesCommand,                   "", NULL },
-            { "disenchant_loot_template",      rbac::RBAC_PERM_COMMAND_RELOAD_DISENCHANT_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesDisenchantCommand,    "", NULL },
-            { "event_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_EVENT_SCRIPTS, true,  &HandleReloadEventScriptsCommand,               "", NULL },
-            { "fishing_loot_template",         rbac::RBAC_PERM_COMMAND_RELOAD_FISHING_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesFishingCommand,       "", NULL },
-            { "game_graveyard_zone",           rbac::RBAC_PERM_COMMAND_RELOAD_GAME_GRAVEYARD_ZONE, true,  &HandleReloadGameGraveyardZoneCommand,          "", NULL },
-            { "game_tele",                     rbac::RBAC_PERM_COMMAND_RELOAD_GAME_TELE, true,  &HandleReloadGameTeleCommand,                   "", NULL },
-            { "gameobject_questender",         rbac::RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTENDER, true,  &HandleReloadGOQuestEnderCommand,        "", NULL },
-            { "gameobject_loot_template",      rbac::RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUEST_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesGameobjectCommand,    "", NULL },
-            { "gameobject_queststarter",       rbac::RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTSTARTER, true,  &HandleReloadGOQuestStarterCommand,           "", NULL },
-            { "gm_tickets",                    rbac::RBAC_PERM_COMMAND_RELOAD_GM_TICKETS, true,  &HandleReloadGMTicketsCommand,                  "", NULL },
-            { "gossip_menu",                   rbac::RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU, true,  &HandleReloadGossipMenuCommand,                 "", NULL },
-            { "gossip_menu_option",            rbac::RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU_OPTION, true,  &HandleReloadGossipMenuOptionCommand,           "", NULL },
-            { "item_enchantment_template",     rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_ENCHANTMENT_TEMPLATE, true,  &HandleReloadItemEnchantementsCommand,          "", NULL },
-            { "item_loot_template",            rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesItemCommand,          "", NULL },
-            { "lfg_dungeon_rewards",           rbac::RBAC_PERM_COMMAND_RELOAD_LFG_DUNGEON_REWARDS, true,  &HandleReloadLfgRewardsCommand,                 "", NULL },
-            { "locales_achievement_reward",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_ACHIEVEMENT_REWARD, true,  &HandleReloadLocalesAchievementRewardCommand,   "", NULL },
-            { "locales_creature",              rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE, true,  &HandleReloadLocalesCreatureCommand,            "", NULL },
-            { "locales_creature_text",         rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE_TEXT, true,  &HandleReloadLocalesCreatureTextCommand,        "", NULL },
-            { "locales_gameobject",            rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_GAMEOBJECT, true,  &HandleReloadLocalesGameobjectCommand,          "", NULL },
-            { "locales_gossip_menu_option",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_GOSSIP_MENU_OPTION, true,  &HandleReloadLocalesGossipMenuOptionCommand,    "", NULL },
-            { "locales_item",                  rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM, true,  &HandleReloadLocalesItemCommand,                "", NULL },
-            { "locales_npc_text",              rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_NPC_TEXT, true,  &HandleReloadLocalesNpcTextCommand,             "", NULL },
-            { "locales_page_text",             rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_PAGE_TEXT, true,  &HandleReloadLocalesPageTextCommand,            "", NULL },
-            { "locales_points_of_interest",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_POINTS_OF_INTEREST, true,  &HandleReloadLocalesPointsOfInterestCommand,    "", NULL },
-            { "locales_quest",                 rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_QUEST, true,  &HandleReloadLocalesQuestCommand,               "", NULL },
-            { "mail_level_reward",             rbac::RBAC_PERM_COMMAND_RELOAD_MAIL_LEVEL_REWARD, true,  &HandleReloadMailLevelRewardCommand,            "", NULL },
-            { "mail_loot_template",            rbac::RBAC_PERM_COMMAND_RELOAD_MAIL_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesMailCommand,          "", NULL },
-            { "milling_loot_template",         rbac::RBAC_PERM_COMMAND_RELOAD_MILLING_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesMillingCommand,       "", NULL },
-            { "npc_spellclick_spells",         rbac::RBAC_PERM_COMMAND_RELOAD_NPC_SPELLCLICK_SPELLS, true,  &HandleReloadSpellClickSpellsCommand,           "", NULL},
-            { "npc_trainer",                   rbac::RBAC_PERM_COMMAND_RELOAD_NPC_TRAINER, true,  &HandleReloadNpcTrainerCommand,                 "", NULL },
-            { "npc_vendor",                    rbac::RBAC_PERM_COMMAND_RELOAD_NPC_VENDOR, true,  &HandleReloadNpcVendorCommand,                  "", NULL },
-            { "page_text",                     rbac::RBAC_PERM_COMMAND_RELOAD_PAGE_TEXT, true,  &HandleReloadPageTextsCommand,                  "", NULL },
-            { "pickpocketing_loot_template",   rbac::RBAC_PERM_COMMAND_RELOAD_PICKPOCKETING_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesPickpocketingCommand, "", NULL},
-            { "points_of_interest",            rbac::RBAC_PERM_COMMAND_RELOAD_POINTS_OF_INTEREST, true,  &HandleReloadPointsOfInterestCommand,           "", NULL },
-            { "prospecting_loot_template",     rbac::RBAC_PERM_COMMAND_RELOAD_PROSPECTING_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesProspectingCommand,   "", NULL },
-            { "quest_poi",                     rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_POI, true,  &HandleReloadQuestPOICommand,                   "", NULL },
-            { "quest_template",                rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_TEMPLATE, true,  &HandleReloadQuestTemplateCommand,              "", NULL },
-            { "rbac",                          rbac::RBAC_PERM_COMMAND_RELOAD_RBAC, true,  &HandleReloadRBACCommand,                       "", NULL },
-            { "reference_loot_template",       rbac::RBAC_PERM_COMMAND_RELOAD_REFERENCE_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesReferenceCommand,     "", NULL },
-            { "reserved_name",                 rbac::RBAC_PERM_COMMAND_RELOAD_RESERVED_NAME, true,  &HandleReloadReservedNameCommand,               "", NULL },
-            { "reputation_reward_rate",        rbac::RBAC_PERM_COMMAND_RELOAD_REPUTATION_REWARD_RATE, true,  &HandleReloadReputationRewardRateCommand,       "", NULL },
-            { "reputation_spillover_template", rbac::RBAC_PERM_COMMAND_RELOAD_SPILLOVER_TEMPLATE, true,  &HandleReloadReputationRewardRateCommand,       "", NULL },
-            { "skill_discovery_template",      rbac::RBAC_PERM_COMMAND_RELOAD_SKILL_DISCOVERY_TEMPLATE, true,  &HandleReloadSkillDiscoveryTemplateCommand,     "", NULL },
-            { "skill_extra_item_template",     rbac::RBAC_PERM_COMMAND_RELOAD_SKILL_EXTRA_ITEM_TEMPLATE, true,  &HandleReloadSkillExtraItemTemplateCommand,     "", NULL },
-            { "skill_fishing_base_level",      rbac::RBAC_PERM_COMMAND_RELOAD_SKILL_FISHING_BASE_LEVEL, true,  &HandleReloadSkillFishingBaseLevelCommand,      "", NULL },
-            { "skinning_loot_template",        rbac::RBAC_PERM_COMMAND_RELOAD_SKINNING_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesSkinningCommand,      "", NULL },
-            { "smart_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_SMART_SCRIPTS, true,  &HandleReloadSmartScripts,                      "", NULL },
-            { "spell_required",                rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_REQUIRED, true,  &HandleReloadSpellRequiredCommand,              "", NULL },
-            { "spell_area",                    rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_AREA, true,  &HandleReloadSpellAreaCommand,                  "", NULL },
-            { "spell_bonus_data",              rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_BONUS_DATA, true,  &HandleReloadSpellBonusesCommand,               "", NULL },
-            { "spell_group",                   rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP, true,  &HandleReloadSpellGroupsCommand,                "", NULL },
-            { "spell_learn_spell",             rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_LEARN_SPELL, true,  &HandleReloadSpellLearnSpellCommand,            "", NULL },
-            { "spell_loot_template",           rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesSpellCommand,         "", NULL },
-            { "spell_linked_spell",            rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_LINKED_SPELL, true,  &HandleReloadSpellLinkedSpellCommand,           "", NULL },
-            { "spell_pet_auras",               rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_PET_AURAS, true,  &HandleReloadSpellPetAurasCommand,              "", NULL },
-            { "spell_proc_event",              rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_PROC_EVENT, true,  &HandleReloadSpellProcEventCommand,             "", NULL },
-            { "spell_proc",                    rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_PROC, true,  &HandleReloadSpellProcsCommand,                 "", NULL },
-            { "spell_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPTS, true,  &HandleReloadSpellScriptsCommand,               "", NULL },
-            { "spell_target_position",         rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_TARGET_POSITION, true,  &HandleReloadSpellTargetPositionCommand,        "", NULL },
-            { "spell_threats",                 rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_THREATS, true,  &HandleReloadSpellThreatsCommand,               "", NULL },
-            { "spell_group_stack_rules",       rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP_STACK_RULES, true,  &HandleReloadSpellGroupStackRulesCommand,       "", NULL },
-            { "trinity_string",                rbac::RBAC_PERM_COMMAND_RELOAD_TRINITY_STRING, true,  &HandleReloadTrinityStringCommand,              "", NULL },
-            { "warden_action",                 rbac::RBAC_PERM_COMMAND_RELOAD_WARDEN_ACTION, true,  &HandleReloadWardenactionCommand,               "", NULL },
-            { "waypoint_scripts",              rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_SCRIPTS, true,  &HandleReloadWpScriptsCommand,                  "", NULL },
-            { "waypoint_data",                 rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA, true,  &HandleReloadWpCommand,                         "", NULL },
-            { "vehicle_accessory",             rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY, true,  &HandleReloadVehicleAccessoryCommand,           "", NULL },
-            { "vehicle_template_accessory",    rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY, true,  &HandleReloadVehicleTemplateAccessoryCommand,   "", NULL },
-            { NULL,                            0,                          false, NULL,                                           "", NULL }
+            { "auctions",                      rbac::RBAC_PERM_COMMAND_RELOAD_AUCTIONS,                   true,  &HandleReloadAuctionsCommand,                   "", },
+            { "access_requirement",            rbac::RBAC_PERM_COMMAND_RELOAD_ACCESS_REQUIREMENT,         true,  &HandleReloadAccessRequirementCommand,          "", },
+            { "achievement_criteria_data",     rbac::RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_CRITERIA_DATA,  true,  &HandleReloadAchievementCriteriaDataCommand,    "", },
+            { "achievement_reward",            rbac::RBAC_PERM_COMMAND_RELOAD_ACHIEVEMENT_REWARD,         true,  &HandleReloadAchievementRewardCommand,          "", },
+            { "areatrigger_involvedrelation",  rbac::RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_INVOLVEDRELATION, true,  &HandleReloadQuestAreaTriggersCommand,        "", },
+            { "areatrigger_tavern",            rbac::RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TAVERN,         true,  &HandleReloadAreaTriggerTavernCommand,          "", },
+            { "areatrigger_teleport",          rbac::RBAC_PERM_COMMAND_RELOAD_AREATRIGGER_TELEPORT,       true,  &HandleReloadAreaTriggerTeleportCommand,        "", },
+            { "autobroadcast",                 rbac::RBAC_PERM_COMMAND_RELOAD_AUTOBROADCAST,              true,  &HandleReloadAutobroadcastCommand,              "", },
+            { "bmauctions",                    rbac::RBAC_PERM_COMMAND_RELOAD_BLACKMARKET_AUCTIONS,       true,  &HandleReloadBlackMarketAuctionsCommand,        "", },
+            { "blackmarket_template",          rbac::RBAC_PERM_COMMAND_RELOAD_BLACKMARKET_TEMPLATE,       true,  &HandleReloadBlackMarketTemplateCommand,        "", },
+            { "command",                       rbac::RBAC_PERM_COMMAND_RELOAD_COMMAND,                    true,  &HandleReloadCommandCommand,                    "", },
+            { "conditions",                    rbac::RBAC_PERM_COMMAND_RELOAD_CONDITIONS,                 true,  &HandleReloadConditions,                        "", },
+            { "config",                        rbac::RBAC_PERM_COMMAND_RELOAD_CONFIG,                     true,  &HandleReloadConfigCommand,                     "", },
+            { "creature_text",                 rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEXT,              true,  &HandleReloadCreatureText,                      "", },
+            { "creature_questender",           rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTENDER,        true,  &HandleReloadCreatureQuestEnderCommand,         "", },
+            { "creature_linked_respawn",       rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_LINKED_RESPAWN,    true,  &HandleReloadLinkedRespawnCommand,              "", },
+            { "creature_loot_template",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_LOOT_TEMPLATE,     true,  &HandleReloadLootTemplatesCreatureCommand,      "", },
+            { "creature_onkill_reputation",    rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_ONKILL_REPUTATION, true,  &HandleReloadOnKillReputationCommand,           "", },
+            { "creature_queststarter",         rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_QUESTSTARTER,      true,  &HandleReloadCreatureQuestStarterCommand,       "", },
+            { "creature_summon_groups",        rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_SUMMON_GROUPS,     true,  &HandleReloadCreatureSummonGroupsCommand,       "", },
+            { "creature_template",             rbac::RBAC_PERM_COMMAND_RELOAD_CREATURE_TEMPLATE,          true,  &HandleReloadCreatureTemplateCommand,           "", },
+            //{ "db_script_string",              rbac::RBAC_PERM_COMMAND_RELOAD_, true,  &HandleReloadDbScriptStringCommand,            "", },
+            { "disables",                      rbac::RBAC_PERM_COMMAND_RELOAD_DISABLES,                   true,  &HandleReloadDisablesCommand,                   "", },
+            { "disenchant_loot_template",      rbac::RBAC_PERM_COMMAND_RELOAD_DISENCHANT_LOOT_TEMPLATE,   true,  &HandleReloadLootTemplatesDisenchantCommand,    "", },
+            { "event_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_EVENT_SCRIPTS,              true,  &HandleReloadEventScriptsCommand,               "", },
+            { "fishing_loot_template",         rbac::RBAC_PERM_COMMAND_RELOAD_FISHING_LOOT_TEMPLATE,      true,  &HandleReloadLootTemplatesFishingCommand,       "", },
+            { "game_graveyard_zone",           rbac::RBAC_PERM_COMMAND_RELOAD_GAME_GRAVEYARD_ZONE,        true,  &HandleReloadGameGraveyardZoneCommand,          "", },
+            { "game_tele",                     rbac::RBAC_PERM_COMMAND_RELOAD_GAME_TELE,                  true,  &HandleReloadGameTeleCommand,                   "", },
+            { "gameobject_questender",         rbac::RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTENDER,      true,  &HandleReloadGOQuestEnderCommand,               "", },
+            { "gameobject_loot_template",      rbac::RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUEST_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesGameobjectCommand, "", },
+            { "gameobject_queststarter",       rbac::RBAC_PERM_COMMAND_RELOAD_GAMEOBJECT_QUESTSTARTER,    true,  &HandleReloadGOQuestStarterCommand,             "", },
+            { "gm_tickets",                    rbac::RBAC_PERM_COMMAND_RELOAD_GM_TICKETS,                 true,  &HandleReloadGMTicketsCommand,                  "", },
+            { "gossip_menu",                   rbac::RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU,                true,  &HandleReloadGossipMenuCommand,                 "", },
+            { "gossip_menu_option",            rbac::RBAC_PERM_COMMAND_RELOAD_GOSSIP_MENU_OPTION,         true,  &HandleReloadGossipMenuOptionCommand,           "", },
+            { "item_enchantment_template",     rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_ENCHANTMENT_TEMPLATE,  true,  &HandleReloadItemEnchantementsCommand,          "", },
+            { "item_loot_template",            rbac::RBAC_PERM_COMMAND_RELOAD_ITEM_LOOT_TEMPLATE,         true,  &HandleReloadLootTemplatesItemCommand,          "", },
+            { "lfg_dungeon_rewards",           rbac::RBAC_PERM_COMMAND_RELOAD_LFG_DUNGEON_REWARDS,        true,  &HandleReloadLfgRewardsCommand,                 "", },
+            { "locales_achievement_reward",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_ACHIEVEMENT_REWARD, true,  &HandleReloadLocalesAchievementRewardCommand,   "", },
+            { "locales_creature",              rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE,            true,  &HandleReloadLocalesCreatureCommand,            "", },
+            { "locales_creature_text",         rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_CRETURE_TEXT,       true,  &HandleReloadLocalesCreatureTextCommand,        "", },
+            { "locales_gameobject",            rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_GAMEOBJECT,         true,  &HandleReloadLocalesGameobjectCommand,          "", },
+            { "locales_gossip_menu_option",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_GOSSIP_MENU_OPTION, true,  &HandleReloadLocalesGossipMenuOptionCommand,    "", },
+            { "locales_item",                  rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_ITEM,               true,  &HandleReloadLocalesItemCommand,                "", },
+            { "locales_npc_text",              rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_NPC_TEXT,           true,  &HandleReloadLocalesNpcTextCommand,             "", },
+            { "locales_page_text",             rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_PAGE_TEXT,          true,  &HandleReloadLocalesPageTextCommand,            "", },
+            { "locales_points_of_interest",    rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_POINTS_OF_INTEREST, true,  &HandleReloadLocalesPointsOfInterestCommand,    "", },
+            { "locales_quest",                 rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_QUEST,              true,  &HandleReloadLocalesQuestCommand,               "", },
+            { "locales_quest_objective",       rbac::RBAC_PERM_COMMAND_RELOAD_LOCALES_QUEST_OBJECTIVE,    true,  &HandleReloadLocalesQuestObjectiveCommand,      "", },
+            { "mail_level_reward",             rbac::RBAC_PERM_COMMAND_RELOAD_MAIL_LEVEL_REWARD,          true,  &HandleReloadMailLevelRewardCommand,            "", },
+            { "mail_loot_template",            rbac::RBAC_PERM_COMMAND_RELOAD_MAIL_LOOT_TEMPLATE,         true,  &HandleReloadLootTemplatesMailCommand,          "", },
+            { "milling_loot_template",         rbac::RBAC_PERM_COMMAND_RELOAD_MILLING_LOOT_TEMPLATE,      true,  &HandleReloadLootTemplatesMillingCommand,       "", },
+            { "npc_spellclick_spells",         rbac::RBAC_PERM_COMMAND_RELOAD_NPC_SPELLCLICK_SPELLS,      true,  &HandleReloadSpellClickSpellsCommand,           "", },
+            { "npc_trainer",                   rbac::RBAC_PERM_COMMAND_RELOAD_NPC_TRAINER,                true,  &HandleReloadNpcTrainerCommand,                 "", },
+            { "npc_vendor",                    rbac::RBAC_PERM_COMMAND_RELOAD_NPC_VENDOR,                 true,  &HandleReloadNpcVendorCommand,                  "", },
+            { "page_text",                     rbac::RBAC_PERM_COMMAND_RELOAD_PAGE_TEXT,                  true,  &HandleReloadPageTextsCommand,                  "", },
+            { "pickpocketing_loot_template",   rbac::RBAC_PERM_COMMAND_RELOAD_PICKPOCKETING_LOOT_TEMPLATE, true,  &HandleReloadLootTemplatesPickpocketingCommand, "",},
+            { "points_of_interest",            rbac::RBAC_PERM_COMMAND_RELOAD_POINTS_OF_INTEREST,         true,  &HandleReloadPointsOfInterestCommand,           "", },
+            { "prospecting_loot_template",     rbac::RBAC_PERM_COMMAND_RELOAD_PROSPECTING_LOOT_TEMPLATE,  true,  &HandleReloadLootTemplatesProspectingCommand,   "", },
+            { "quest_objective",               rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_OBJECTIVES,           true,  &HandleReloadQuestObjectivesCommand,            "", },
+            { "quest_objective_effects",       rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_OBJECTIVE_EFFECTS,    true,  &HandleReloadQuestObjectiveEffectsCommand,      "", },
+            { "quest_poi",                     rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_POI,                  true,  &HandleReloadQuestPOICommand,                   "", },
+            { "quest_template",                rbac::RBAC_PERM_COMMAND_RELOAD_QUEST_TEMPLATE,             true,  &HandleReloadQuestTemplateCommand,              "", },
+            { "rbac",                          rbac::RBAC_PERM_COMMAND_RELOAD_RBAC,                       true,  &HandleReloadRBACCommand,                       "", },
+            { "reference_loot_template",       rbac::RBAC_PERM_COMMAND_RELOAD_REFERENCE_LOOT_TEMPLATE,    true,  &HandleReloadLootTemplatesReferenceCommand,     "", },
+            { "reserved_name",                 rbac::RBAC_PERM_COMMAND_RELOAD_RESERVED_NAME,              true,  &HandleReloadReservedNameCommand,               "", },
+            { "reputation_reward_rate",        rbac::RBAC_PERM_COMMAND_RELOAD_REPUTATION_REWARD_RATE,     true,  &HandleReloadReputationRewardRateCommand,       "", },
+            { "reputation_spillover_template", rbac::RBAC_PERM_COMMAND_RELOAD_SPILLOVER_TEMPLATE,         true,  &HandleReloadReputationRewardRateCommand,       "", },
+            { "skill_discovery_template",      rbac::RBAC_PERM_COMMAND_RELOAD_SKILL_DISCOVERY_TEMPLATE,   true,  &HandleReloadSkillDiscoveryTemplateCommand,     "", },
+            { "skill_extra_item_template",     rbac::RBAC_PERM_COMMAND_RELOAD_SKILL_EXTRA_ITEM_TEMPLATE,  true,  &HandleReloadSkillExtraItemTemplateCommand,     "", },
+            { "skill_fishing_base_level",      rbac::RBAC_PERM_COMMAND_RELOAD_SKILL_FISHING_BASE_LEVEL,   true,  &HandleReloadSkillFishingBaseLevelCommand,      "", },
+            { "skinning_loot_template",        rbac::RBAC_PERM_COMMAND_RELOAD_SKINNING_LOOT_TEMPLATE,     true,  &HandleReloadLootTemplatesSkinningCommand,      "", },
+            { "smart_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_SMART_SCRIPTS,              true,  &HandleReloadSmartScripts,                      "", },
+            { "spell_required",                rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_REQUIRED,             true,  &HandleReloadSpellRequiredCommand,              "", },
+            { "spell_area",                    rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_AREA,                 true,  &HandleReloadSpellAreaCommand,                  "", },
+            { "spell_bonus_data",              rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_BONUS_DATA,           true,  &HandleReloadSpellBonusesCommand,               "", },
+            { "spell_group",                   rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP,                true,  &HandleReloadSpellGroupsCommand,                "", },
+            { "spell_learn_spell",             rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_LEARN_SPELL,          true,  &HandleReloadSpellLearnSpellCommand,            "", },
+            { "spell_loot_template",           rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_LOOT_TEMPLATE,        true,  &HandleReloadLootTemplatesSpellCommand,         "", },
+            { "spell_linked_spell",            rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_LINKED_SPELL,         true,  &HandleReloadSpellLinkedSpellCommand,           "", },
+            { "spell_pet_auras",               rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_PET_AURAS,            true,  &HandleReloadSpellPetAurasCommand,              "", },
+            { "spell_proc_event",              rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_PROC_EVENT,           true,  &HandleReloadSpellProcEventCommand,             "", },
+            { "spell_proc",                    rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_PROC,                 true,  &HandleReloadSpellProcsCommand,                 "", },
+            { "spell_scripts",                 rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_SCRIPTS,              true,  &HandleReloadSpellScriptsCommand,               "", },
+            { "spell_target_position",         rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_TARGET_POSITION,      true,  &HandleReloadSpellTargetPositionCommand,        "", },
+            { "spell_threats",                 rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_THREATS,              true,  &HandleReloadSpellThreatsCommand,               "", },
+            { "spell_group_stack_rules",       rbac::RBAC_PERM_COMMAND_RELOAD_SPELL_GROUP_STACK_RULES,    true,  &HandleReloadSpellGroupStackRulesCommand,       "", },
+            { "skyfire_string",                rbac::RBAC_PERM_COMMAND_RELOAD_SKYFIRE_STRING,             true,  &HandleReloadSkyFireStringCommand,              "", },
+            { "warden_action",                 rbac::RBAC_PERM_COMMAND_RELOAD_WARDEN_ACTION,              true,  &HandleReloadWardenactionCommand,               "", },
+            { "waypoint_scripts",              rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_SCRIPTS,           true,  &HandleReloadWpScriptsCommand,                  "", },
+            { "waypoint_data",                 rbac::RBAC_PERM_COMMAND_RELOAD_WAYPOINT_DATA,              true,  &HandleReloadWpCommand,                         "", },
+            { "vehicle_accessory",             rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_ACCESORY,           true,  &HandleReloadVehicleAccessoryCommand,           "", },
+            { "vehicle_template_accessory",    rbac::RBAC_PERM_COMMAND_RELOAD_VEHICLE_TEMPLATE_ACCESSORY, true,  &HandleReloadVehicleTemplateAccessoryCommand,   "", },
+
+            { "all", rbac::RBAC_PERM_COMMAND_RELOAD_ALL, true,  NULL, "", reloadAllCommandTable },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "reload", rbac::RBAC_PERM_COMMAND_RELOAD,  true, NULL, "", reloadCommandTable },
-            { NULL,     0,                         false, NULL,               "", NULL }
         };
         return commandTable;
     }
@@ -168,7 +172,7 @@ public:
     //reload commands
     static bool HandleReloadGMTicketsCommand(ChatHandler* /*handler*/, const char* /*args*/)
     {
-        sTicketMgr->LoadTickets();
+        sTicketMgr->LoadGmTickets();
         return true;
     }
 
@@ -190,7 +194,7 @@ public:
         HandleReloadMailLevelRewardCommand(handler, "");
         HandleReloadCommandCommand(handler, "");
         HandleReloadReservedNameCommand(handler, "");
-        HandleReloadTrinityStringCommand(handler, "");
+        HandleReloadSkyFireStringCommand(handler, "");
         HandleReloadGameTeleCommand(handler, "");
 
         HandleReloadCreatureSummonGroupsCommand(handler, "");
@@ -220,7 +224,7 @@ public:
 
     static bool HandleReloadAllLootCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables...");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables...");
         LoadLootTables();
         handler->SendGlobalGMSysMessage("DB tables `*_loot_template` reloaded.");
         sConditionMgr->LoadConditions(true);
@@ -240,10 +244,12 @@ public:
     static bool HandleReloadAllQuestCommand(ChatHandler* handler, const char* /*args*/)
     {
         HandleReloadQuestAreaTriggersCommand(handler, "a");
+        HandleReloadQuestObjectivesCommand(handler, "a");
+        HandleReloadQuestObjectiveEffectsCommand(handler, "a");
         HandleReloadQuestPOICommand(handler, "a");
         HandleReloadQuestTemplateCommand(handler, "a");
 
-        TC_LOG_INFO("misc", "Re-Loading Quests Relations...");
+        SF_LOG_INFO("misc", "Re-Loading Quests Relations...");
         sObjectMgr->LoadQuestStartersAndEnders();
         handler->SendGlobalGMSysMessage("DB tables `*_queststarter` and `*_questender` reloaded.");
         return true;
@@ -258,7 +264,7 @@ public:
             return false;
         }
 
-        TC_LOG_INFO("misc", "Re-Loading Scripts...");
+        SF_LOG_INFO("misc", "Re-Loading Scripts...");
         HandleReloadEventScriptsCommand(handler, "a");
         HandleReloadSpellScriptsCommand(handler, "a");
         handler->SendGlobalGMSysMessage("DB tables `*_scripts` reloaded.");
@@ -315,12 +321,13 @@ public:
         HandleReloadLocalesPageTextCommand(handler, "a");
         HandleReloadLocalesPointsOfInterestCommand(handler, "a");
         HandleReloadLocalesQuestCommand(handler, "a");
+        HandleReloadLocalesQuestObjectiveCommand(handler, "a");
         return true;
     }
 
     static bool HandleReloadConfigCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading config settings...");
+        SF_LOG_INFO("misc", "Re-Loading config settings...");
         sWorld->LoadConfigSettings(true);
         sMapMgr->InitializeVisibilityDistanceInfo();
         handler->SendGlobalGMSysMessage("World config settings reloaded.");
@@ -329,7 +336,7 @@ public:
 
     static bool HandleReloadAccessRequirementCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Access Requirement definitions...");
+        SF_LOG_INFO("misc", "Re-Loading Access Requirement definitions...");
         sObjectMgr->LoadAccessRequirements();
         handler->SendGlobalGMSysMessage("DB table `access_requirement` reloaded.");
         return true;
@@ -337,7 +344,7 @@ public:
 
     static bool HandleReloadAchievementCriteriaDataCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Additional Achievement Criteria Data...");
+        SF_LOG_INFO("misc", "Re-Loading Additional Achievement Criteria Data...");
         sAchievementMgr->LoadAchievementCriteriaData();
         handler->SendGlobalGMSysMessage("DB table `achievement_criteria_data` reloaded.");
         return true;
@@ -345,7 +352,7 @@ public:
 
     static bool HandleReloadAchievementRewardCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Achievement Reward Data...");
+        SF_LOG_INFO("misc", "Re-Loading Achievement Reward Data...");
         sAchievementMgr->LoadRewards();
         handler->SendGlobalGMSysMessage("DB table `achievement_reward` reloaded.");
         return true;
@@ -353,7 +360,7 @@ public:
 
     static bool HandleReloadAreaTriggerTavernCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Tavern Area Triggers...");
+        SF_LOG_INFO("misc", "Re-Loading Tavern Area Triggers...");
         sObjectMgr->LoadTavernAreaTriggers();
         handler->SendGlobalGMSysMessage("DB table `areatrigger_tavern` reloaded.");
         return true;
@@ -361,7 +368,7 @@ public:
 
     static bool HandleReloadAreaTriggerTeleportCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading AreaTrigger teleport definitions...");
+        SF_LOG_INFO("misc", "Re-Loading AreaTrigger teleport definitions...");
         sObjectMgr->LoadAreaTriggerTeleports();
         handler->SendGlobalGMSysMessage("DB table `areatrigger_teleport` reloaded.");
         return true;
@@ -369,9 +376,17 @@ public:
 
     static bool HandleReloadAutobroadcastCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Autobroadcasts...");
+        SF_LOG_INFO("misc", "Re-Loading Autobroadcasts...");
         sWorld->LoadAutobroadcasts();
         handler->SendGlobalGMSysMessage("DB table `autobroadcast` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadBlackMarketTemplateCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        SF_LOG_INFO("misc", "Re-Loading BlackMarket Templates...");
+        sBlackMarketMgr->LoadBlackMarketTemplates();
+        handler->SendGlobalGMSysMessage("DB table `blackmarket_template` reloaded.");
         return true;
     }
 
@@ -384,7 +399,7 @@ public:
 
     static bool HandleReloadOnKillReputationCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading creature award reputation definitions...");
+        SF_LOG_INFO("misc", "Re-Loading creature award reputation definitions...");
         sObjectMgr->LoadReputationOnKill();
         handler->SendGlobalGMSysMessage("DB table `creature_onkill_reputation` reloaded.");
         return true;
@@ -392,7 +407,7 @@ public:
 
     static bool HandleReloadCreatureSummonGroupsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Reloading creature summon groups...");
+        SF_LOG_INFO("misc", "Reloading creature summon groups...");
         sObjectMgr->LoadTempSummons();
         handler->SendGlobalGMSysMessage("DB table `creature_summon_groups` reloaded.");
         return true;
@@ -426,11 +441,11 @@ public:
                 continue;
             }
 
-            TC_LOG_INFO("misc", "Reloading creature template entry %u", entry);
+            SF_LOG_INFO("misc", "Reloading creature template entry %u", entry);
 
             Field* fields = result->Fetch();
 
-            for (uint8 i = 0; i < MAX_DIFFICULTY - 1; ++i)
+            for (uint8 i = 0; i < 3; ++i)
                 cInfo->DifficultyEntry[i] = fields[0 + i].GetUInt32();
 
             for (uint8 i = 0; i < MAX_KILL_CREDIT; ++i)
@@ -518,7 +533,7 @@ public:
 
     static bool HandleReloadCreatureQuestStarterCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Loading Quests Relations... (`creature_queststarter`)");
+        SF_LOG_INFO("misc", "Loading Quests Relations... (`creature_queststarter`)");
         sObjectMgr->LoadCreatureQuestStarters();
         handler->SendGlobalGMSysMessage("DB table `creature_queststarter` reloaded.");
         return true;
@@ -526,7 +541,7 @@ public:
 
     static bool HandleReloadLinkedRespawnCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Loading Linked Respawns... (`creature_linked_respawn`)");
+        SF_LOG_INFO("misc", "Loading Linked Respawns... (`creature_linked_respawn`)");
         sObjectMgr->LoadLinkedRespawn();
         handler->SendGlobalGMSysMessage("DB table `creature_linked_respawn` (creature linked respawns) reloaded.");
         return true;
@@ -534,7 +549,7 @@ public:
 
     static bool HandleReloadCreatureQuestEnderCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Loading Quests Relations... (`creature_questender`)");
+        SF_LOG_INFO("misc", "Loading Quests Relations... (`creature_questender`)");
         sObjectMgr->LoadCreatureQuestEnders();
         handler->SendGlobalGMSysMessage("DB table `creature_questender` reloaded.");
         return true;
@@ -542,7 +557,7 @@ public:
 
     static bool HandleReloadGossipMenuCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading `gossip_menu` Table!");
+        SF_LOG_INFO("misc", "Re-Loading `gossip_menu` Table!");
         sObjectMgr->LoadGossipMenu();
         handler->SendGlobalGMSysMessage("DB table `gossip_menu` reloaded.");
         sConditionMgr->LoadConditions(true);
@@ -551,7 +566,7 @@ public:
 
     static bool HandleReloadGossipMenuOptionCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading `gossip_menu_option` Table!");
+        SF_LOG_INFO("misc", "Re-Loading `gossip_menu_option` Table!");
         sObjectMgr->LoadGossipMenuItems();
         handler->SendGlobalGMSysMessage("DB table `gossip_menu_option` reloaded.");
         sConditionMgr->LoadConditions(true);
@@ -560,7 +575,7 @@ public:
 
     static bool HandleReloadGOQuestStarterCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Loading Quests Relations... (`gameobject_queststarter`)");
+        SF_LOG_INFO("misc", "Loading Quests Relations... (`gameobject_queststarter`)");
         sObjectMgr->LoadGameobjectQuestStarters();
         handler->SendGlobalGMSysMessage("DB table `gameobject_queststarter` reloaded.");
         return true;
@@ -568,7 +583,7 @@ public:
 
     static bool HandleReloadGOQuestEnderCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Loading Quests Relations... (`gameobject_questender`)");
+        SF_LOG_INFO("misc", "Loading Quests Relations... (`gameobject_questender`)");
         sObjectMgr->LoadGameobjectQuestEnders();
         handler->SendGlobalGMSysMessage("DB table `gameobject_questender` reloaded.");
         return true;
@@ -576,20 +591,39 @@ public:
 
     static bool HandleReloadQuestAreaTriggersCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Quest Area Triggers...");
+        SF_LOG_INFO("misc", "Re-Loading Quest Area Triggers...");
         sObjectMgr->LoadQuestAreaTriggers();
         handler->SendGlobalGMSysMessage("DB table `areatrigger_involvedrelation` (quest area triggers) reloaded.");
         return true;
     }
 
+    static bool HandleReloadQuestObjectivesCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        SF_LOG_INFO("misc", "Re-Loading Quest Objectives...");
+        sObjectMgr->LoadQuestObjectives();
+        handler->SendGlobalGMSysMessage("DB table `quest_objective` reloaded.");
+        return true;
+    }
+
+    static bool HandleReloadQuestObjectiveEffectsCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        SF_LOG_INFO("misc", "Re-Loading Quest Objective Effects...");
+        sObjectMgr->LoadQuestObjectiveVisualEffects();
+        handler->SendGlobalGMSysMessage("DB table `quest_objective_effects` (quest objective visual effects reloaded.");
+        return true;
+    }
+
     static bool HandleReloadQuestTemplateCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Quest Templates...");
+        SF_LOG_INFO("misc", "Re-Loading Quest Templates...");
         sObjectMgr->LoadQuests();
         handler->SendGlobalGMSysMessage("DB table `quest_template` (quest definitions) reloaded.");
 
+        HandleReloadQuestObjectivesCommand(handler, "a");
+        HandleReloadQuestObjectiveEffectsCommand(handler, "a");
+
         /// dependent also from `gameobject` but this table not reloaded anyway
-        TC_LOG_INFO("misc", "Re-Loading GameObjects for quests...");
+        SF_LOG_INFO("misc", "Re-Loading GameObjects for quests...");
         sObjectMgr->LoadGameObjectForQuests();
         handler->SendGlobalGMSysMessage("Data GameObjects for quests reloaded.");
         return true;
@@ -597,7 +631,7 @@ public:
 
     static bool HandleReloadLootTemplatesCreatureCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`creature_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`creature_loot_template`)");
         LoadLootTemplates_Creature();
         LootTemplates_Creature.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `creature_loot_template` reloaded.");
@@ -607,7 +641,7 @@ public:
 
     static bool HandleReloadLootTemplatesDisenchantCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`disenchant_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`disenchant_loot_template`)");
         LoadLootTemplates_Disenchant();
         LootTemplates_Disenchant.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `disenchant_loot_template` reloaded.");
@@ -617,7 +651,7 @@ public:
 
     static bool HandleReloadLootTemplatesFishingCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`fishing_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`fishing_loot_template`)");
         LoadLootTemplates_Fishing();
         LootTemplates_Fishing.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `fishing_loot_template` reloaded.");
@@ -627,7 +661,7 @@ public:
 
     static bool HandleReloadLootTemplatesGameobjectCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`gameobject_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`gameobject_loot_template`)");
         LoadLootTemplates_Gameobject();
         LootTemplates_Gameobject.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `gameobject_loot_template` reloaded.");
@@ -637,7 +671,7 @@ public:
 
     static bool HandleReloadLootTemplatesItemCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`item_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`item_loot_template`)");
         LoadLootTemplates_Item();
         LootTemplates_Item.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `item_loot_template` reloaded.");
@@ -647,7 +681,7 @@ public:
 
     static bool HandleReloadLootTemplatesMillingCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`milling_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`milling_loot_template`)");
         LoadLootTemplates_Milling();
         LootTemplates_Milling.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `milling_loot_template` reloaded.");
@@ -657,7 +691,7 @@ public:
 
     static bool HandleReloadLootTemplatesPickpocketingCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`pickpocketing_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`pickpocketing_loot_template`)");
         LoadLootTemplates_Pickpocketing();
         LootTemplates_Pickpocketing.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `pickpocketing_loot_template` reloaded.");
@@ -667,7 +701,7 @@ public:
 
     static bool HandleReloadLootTemplatesProspectingCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`prospecting_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`prospecting_loot_template`)");
         LoadLootTemplates_Prospecting();
         LootTemplates_Prospecting.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `prospecting_loot_template` reloaded.");
@@ -677,7 +711,7 @@ public:
 
     static bool HandleReloadLootTemplatesMailCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`mail_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`mail_loot_template`)");
         LoadLootTemplates_Mail();
         LootTemplates_Mail.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `mail_loot_template` reloaded.");
@@ -687,7 +721,7 @@ public:
 
     static bool HandleReloadLootTemplatesReferenceCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`reference_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`reference_loot_template`)");
         LoadLootTemplates_Reference();
         handler->SendGlobalGMSysMessage("DB table `reference_loot_template` reloaded.");
         sConditionMgr->LoadConditions(true);
@@ -696,7 +730,7 @@ public:
 
     static bool HandleReloadLootTemplatesSkinningCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`skinning_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`skinning_loot_template`)");
         LoadLootTemplates_Skinning();
         LootTemplates_Skinning.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `skinning_loot_template` reloaded.");
@@ -706,7 +740,7 @@ public:
 
     static bool HandleReloadLootTemplatesSpellCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Loot Tables... (`spell_loot_template`)");
+        SF_LOG_INFO("misc", "Re-Loading Loot Tables... (`spell_loot_template`)");
         LoadLootTemplates_Spell();
         LootTemplates_Spell.CheckLootRefs();
         handler->SendGlobalGMSysMessage("DB table `spell_loot_template` reloaded.");
@@ -714,24 +748,24 @@ public:
         return true;
     }
 
-    static bool HandleReloadTrinityStringCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandleReloadSkyFireStringCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading trinity_string Table!");
-        sObjectMgr->LoadTrinityStrings();
-        handler->SendGlobalGMSysMessage("DB table `trinity_string` reloaded.");
+        SF_LOG_INFO("misc", "Re-Loading skyfire_string Table!");
+        sObjectMgr->LoadSkyFireStrings();
+        handler->SendGlobalGMSysMessage("DB table `skyfire_string` reloaded.");
         return true;
     }
 
     static bool HandleReloadWardenactionCommand(ChatHandler* handler, const char* /*args*/)
     {
-        if (!sWorld->getBoolConfig(CONFIG_WARDEN_ENABLED))
+        if (!sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_WARDEN_ENABLED))
         {
             handler->SendSysMessage("Warden system disabled by config - reloading warden_action skipped.");
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        TC_LOG_INFO("misc", "Re-Loading warden_action Table!");
+        SF_LOG_INFO("misc", "Re-Loading warden_action Table!");
         sWardenCheckMgr->LoadWardenOverrides();
         handler->SendGlobalGMSysMessage("DB table `warden_action` reloaded.");
         return true;
@@ -739,7 +773,7 @@ public:
 
     static bool HandleReloadNpcTrainerCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading `npc_trainer` Table!");
+        SF_LOG_INFO("misc", "Re-Loading `npc_trainer` Table!");
         sObjectMgr->LoadTrainerSpell();
         handler->SendGlobalGMSysMessage("DB table `npc_trainer` reloaded.");
         return true;
@@ -747,7 +781,7 @@ public:
 
     static bool HandleReloadNpcVendorCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading `npc_vendor` Table!");
+        SF_LOG_INFO("misc", "Re-Loading `npc_vendor` Table!");
         sObjectMgr->LoadVendors();
         handler->SendGlobalGMSysMessage("DB table `npc_vendor` reloaded.");
         return true;
@@ -755,7 +789,7 @@ public:
 
     static bool HandleReloadPointsOfInterestCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading `points_of_interest` Table!");
+        SF_LOG_INFO("misc", "Re-Loading `points_of_interest` Table!");
         sObjectMgr->LoadPointsOfInterest();
         handler->SendGlobalGMSysMessage("DB table `points_of_interest` reloaded.");
         return true;
@@ -763,7 +797,7 @@ public:
 
     static bool HandleReloadQuestPOICommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Quest POI ..." );
+        SF_LOG_INFO("misc", "Re-Loading Quest POI ..." );
         sObjectMgr->LoadQuestPOI();
         handler->SendGlobalGMSysMessage("DB Table `quest_poi` and `quest_poi_points` reloaded.");
         return true;
@@ -771,7 +805,7 @@ public:
 
     static bool HandleReloadSpellClickSpellsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading `npc_spellclick_spells` Table!");
+        SF_LOG_INFO("misc", "Re-Loading `npc_spellclick_spells` Table!");
         sObjectMgr->LoadNPCSpellClickSpells();
         handler->SendGlobalGMSysMessage("DB table `npc_spellclick_spells` reloaded.");
         return true;
@@ -779,7 +813,7 @@ public:
 
     static bool HandleReloadReservedNameCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Loading ReservedNames... (`reserved_name`)");
+        SF_LOG_INFO("misc", "Loading ReservedNames... (`reserved_name`)");
         sObjectMgr->LoadReservedPlayersNames();
         handler->SendGlobalGMSysMessage("DB table `reserved_name` (player reserved names) reloaded.");
         return true;
@@ -787,7 +821,7 @@ public:
 
     static bool HandleReloadReputationRewardRateCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading `reputation_reward_rate` Table!" );
+        SF_LOG_INFO("misc", "Re-Loading `reputation_reward_rate` Table!" );
         sObjectMgr->LoadReputationRewardRate();
         handler->SendGlobalSysMessage("DB table `reputation_reward_rate` reloaded.");
         return true;
@@ -795,7 +829,7 @@ public:
 
     static bool HandleReloadReputationSpilloverTemplateCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading `reputation_spillover_template` Table!" );
+        SF_LOG_INFO("misc", "Re-Loading `reputation_spillover_template` Table!" );
         sObjectMgr->LoadReputationSpilloverTemplate();
         handler->SendGlobalSysMessage("DB table `reputation_spillover_template` reloaded.");
         return true;
@@ -803,7 +837,7 @@ public:
 
     static bool HandleReloadSkillDiscoveryTemplateCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Skill Discovery Table...");
+        SF_LOG_INFO("misc", "Re-Loading Skill Discovery Table...");
         LoadSkillDiscoveryTable();
         handler->SendGlobalGMSysMessage("DB table `skill_discovery_template` (recipes discovered at crafting) reloaded.");
         return true;
@@ -811,7 +845,7 @@ public:
 
     static bool HandleReloadSkillExtraItemTemplateCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Skill Extra Item Table...");
+        SF_LOG_INFO("misc", "Re-Loading Skill Extra Item Table...");
         LoadSkillExtraItemTable();
         handler->SendGlobalGMSysMessage("DB table `skill_extra_item_template` (extra item creation when crafting) reloaded.");
         return true;
@@ -819,7 +853,7 @@ public:
 
     static bool HandleReloadSkillFishingBaseLevelCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Skill Fishing base level requirements...");
+        SF_LOG_INFO("misc", "Re-Loading Skill Fishing base level requirements...");
         sObjectMgr->LoadFishingBaseSkillLevel();
         handler->SendGlobalGMSysMessage("DB table `skill_fishing_base_level` (fishing base level for zone/subzone) reloaded.");
         return true;
@@ -827,7 +861,7 @@ public:
 
     static bool HandleReloadSpellAreaCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading SpellArea Data...");
+        SF_LOG_INFO("misc", "Re-Loading SpellArea Data...");
         sSpellMgr->LoadSpellAreas();
         handler->SendGlobalGMSysMessage("DB table `spell_area` (spell dependences from area/quest/auras state) reloaded.");
         return true;
@@ -835,7 +869,7 @@ public:
 
     static bool HandleReloadSpellRequiredCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Spell Required Data... ");
+        SF_LOG_INFO("misc", "Re-Loading Spell Required Data... ");
         sSpellMgr->LoadSpellRequired();
         handler->SendGlobalGMSysMessage("DB table `spell_required` reloaded.");
         return true;
@@ -843,7 +877,7 @@ public:
 
     static bool HandleReloadSpellGroupsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Spell Groups...");
+        SF_LOG_INFO("misc", "Re-Loading Spell Groups...");
         sSpellMgr->LoadSpellGroups();
         handler->SendGlobalGMSysMessage("DB table `spell_group` (spell groups) reloaded.");
         return true;
@@ -851,7 +885,7 @@ public:
 
     static bool HandleReloadSpellLearnSpellCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Spell Learn Spells...");
+        SF_LOG_INFO("misc", "Re-Loading Spell Learn Spells...");
         sSpellMgr->LoadSpellLearnSpells();
         handler->SendGlobalGMSysMessage("DB table `spell_learn_spell` reloaded.");
         return true;
@@ -859,7 +893,7 @@ public:
 
     static bool HandleReloadSpellLinkedSpellCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Spell Linked Spells...");
+        SF_LOG_INFO("misc", "Re-Loading Spell Linked Spells...");
         sSpellMgr->LoadSpellLinked();
         handler->SendGlobalGMSysMessage("DB table `spell_linked_spell` reloaded.");
         return true;
@@ -867,7 +901,7 @@ public:
 
     static bool HandleReloadSpellProcEventCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Spell Proc Event conditions...");
+        SF_LOG_INFO("misc", "Re-Loading Spell Proc Event conditions...");
         sSpellMgr->LoadSpellProcEvents();
         handler->SendGlobalGMSysMessage("DB table `spell_proc_event` (spell proc trigger requirements) reloaded.");
         return true;
@@ -875,7 +909,7 @@ public:
 
     static bool HandleReloadSpellProcsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Spell Proc conditions and data...");
+        SF_LOG_INFO("misc", "Re-Loading Spell Proc conditions and data...");
         sSpellMgr->LoadSpellProcs();
         handler->SendGlobalGMSysMessage("DB table `spell_proc` (spell proc conditions and data) reloaded.");
         return true;
@@ -883,7 +917,7 @@ public:
 
     static bool HandleReloadSpellBonusesCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Spell Bonus Data...");
+        SF_LOG_INFO("misc", "Re-Loading Spell Bonus Data...");
         sSpellMgr->LoadSpellBonusess();
         handler->SendGlobalGMSysMessage("DB table `spell_bonus_data` (spell damage/healing coefficients) reloaded.");
         return true;
@@ -891,7 +925,7 @@ public:
 
     static bool HandleReloadSpellTargetPositionCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Spell target coordinates...");
+        SF_LOG_INFO("misc", "Re-Loading Spell target coordinates...");
         sSpellMgr->LoadSpellTargetPositions();
         handler->SendGlobalGMSysMessage("DB table `spell_target_position` (destination coordinates for spell targets) reloaded.");
         return true;
@@ -899,7 +933,7 @@ public:
 
     static bool HandleReloadSpellThreatsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Aggro Spells Definitions...");
+        SF_LOG_INFO("misc", "Re-Loading Aggro Spells Definitions...");
         sSpellMgr->LoadSpellThreats();
         handler->SendGlobalGMSysMessage("DB table `spell_threat` (spell aggro definitions) reloaded.");
         return true;
@@ -907,7 +941,7 @@ public:
 
     static bool HandleReloadSpellGroupStackRulesCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Spell Group Stack Rules...");
+        SF_LOG_INFO("misc", "Re-Loading Spell Group Stack Rules...");
         sSpellMgr->LoadSpellGroupStackRules();
         handler->SendGlobalGMSysMessage("DB table `spell_group_stack_rules` (spell stacking definitions) reloaded.");
         return true;
@@ -915,7 +949,7 @@ public:
 
     static bool HandleReloadSpellPetAurasCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Spell pet auras...");
+        SF_LOG_INFO("misc", "Re-Loading Spell pet auras...");
         sSpellMgr->LoadSpellPetAuras();
         handler->SendGlobalGMSysMessage("DB table `spell_pet_auras` reloaded.");
         return true;
@@ -923,7 +957,7 @@ public:
 
     static bool HandleReloadPageTextsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Page Texts...");
+        SF_LOG_INFO("misc", "Re-Loading Page Texts...");
         sObjectMgr->LoadPageTexts();
         handler->SendGlobalGMSysMessage("DB table `page_texts` reloaded.");
         return true;
@@ -931,7 +965,7 @@ public:
 
     static bool HandleReloadItemEnchantementsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Item Random Enchantments Table...");
+        SF_LOG_INFO("misc", "Re-Loading Item Random Enchantments Table...");
         LoadRandomEnchantmentsTable();
         handler->SendGlobalGMSysMessage("DB table `item_enchantment_template` reloaded.");
         return true;
@@ -947,7 +981,7 @@ public:
         }
 
         if (*args != 'a')
-            TC_LOG_INFO("misc", "Re-Loading Scripts from `event_scripts`...");
+            SF_LOG_INFO("misc", "Re-Loading Scripts from `event_scripts`...");
 
         sObjectMgr->LoadEventScripts();
 
@@ -967,7 +1001,7 @@ public:
         }
 
         if (*args != 'a')
-            TC_LOG_INFO("misc", "Re-Loading Scripts from `waypoint_scripts`...");
+            SF_LOG_INFO("misc", "Re-Loading Scripts from `waypoint_scripts`...");
 
         sObjectMgr->LoadWaypointScripts();
 
@@ -980,7 +1014,7 @@ public:
     static bool HandleReloadWpCommand(ChatHandler* handler, const char* args)
     {
         if (*args != 'a')
-            TC_LOG_INFO("misc", "Re-Loading Waypoints data from 'waypoints_data'");
+            SF_LOG_INFO("misc", "Re-Loading Waypoints data from 'waypoints_data'");
 
         sWaypointMgr->Load();
 
@@ -1000,7 +1034,7 @@ public:
         }
 
         if (*args != 'a')
-            TC_LOG_INFO("misc", "Re-Loading Scripts from `spell_scripts`...");
+            SF_LOG_INFO("misc", "Re-Loading Scripts from `spell_scripts`...");
 
         sObjectMgr->LoadSpellScripts();
 
@@ -1012,7 +1046,7 @@ public:
 
     static bool HandleReloadDbScriptStringCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Script strings from `db_script_string`...");
+        SF_LOG_INFO("misc", "Re-Loading Script strings from `db_script_string`...");
         sObjectMgr->LoadDbScriptStrings();
         handler->SendGlobalGMSysMessage("DB table `db_script_string` reloaded.");
         return true;
@@ -1020,7 +1054,7 @@ public:
 
     static bool HandleReloadGameGraveyardZoneCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Graveyard-zone links...");
+        SF_LOG_INFO("misc", "Re-Loading Graveyard-zone links...");
 
         sObjectMgr->LoadGraveyardZones();
 
@@ -1031,7 +1065,7 @@ public:
 
     static bool HandleReloadGameTeleCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Game Tele coordinates...");
+        SF_LOG_INFO("misc", "Re-Loading Game Tele coordinates...");
 
         sObjectMgr->LoadGameTele();
 
@@ -1042,9 +1076,9 @@ public:
 
     static bool HandleReloadDisablesCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading disables table...");
+        SF_LOG_INFO("misc", "Re-Loading disables table...");
         DisableMgr::LoadDisables();
-        TC_LOG_INFO("misc", "Checking quest disables...");
+        SF_LOG_INFO("misc", "Checking quest disables...");
         DisableMgr::CheckQuestDisables();
         handler->SendGlobalGMSysMessage("DB table `disables` reloaded.");
         return true;
@@ -1052,7 +1086,7 @@ public:
 
     static bool HandleReloadLocalesAchievementRewardCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Locales Achievement Reward Data...");
+        SF_LOG_INFO("misc", "Re-Loading Locales Achievement Reward Data...");
         sAchievementMgr->LoadRewardLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_achievement_reward` reloaded.");
         return true;
@@ -1060,7 +1094,7 @@ public:
 
     static bool HandleReloadLfgRewardsCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading lfg dungeon rewards...");
+        SF_LOG_INFO("misc", "Re-Loading lfg dungeon rewards...");
         sLFGMgr->LoadRewards();
         handler->SendGlobalGMSysMessage("DB table `lfg_dungeon_rewards` reloaded.");
         return true;
@@ -1068,7 +1102,7 @@ public:
 
     static bool HandleReloadLocalesCreatureCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Locales Creature ...");
+        SF_LOG_INFO("misc", "Re-Loading Locales Creature ...");
         sObjectMgr->LoadCreatureLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_creature` reloaded.");
         return true;
@@ -1076,7 +1110,7 @@ public:
 
     static bool HandleReloadLocalesCreatureTextCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Locales Creature Texts...");
+        SF_LOG_INFO("misc", "Re-Loading Locales Creature Texts...");
         sCreatureTextMgr->LoadCreatureTextLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_creature_text` reloaded.");
         return true;
@@ -1084,7 +1118,7 @@ public:
 
     static bool HandleReloadLocalesGameobjectCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Locales Gameobject ... ");
+        SF_LOG_INFO("misc", "Re-Loading Locales Gameobject ... ");
         sObjectMgr->LoadGameObjectLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_gameobject` reloaded.");
         return true;
@@ -1092,7 +1126,7 @@ public:
 
     static bool HandleReloadLocalesGossipMenuOptionCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Locales Gossip Menu Option ... ");
+        SF_LOG_INFO("misc", "Re-Loading Locales Gossip Menu Option ... ");
         sObjectMgr->LoadGossipMenuItemsLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_gossip_menu_option` reloaded.");
         return true;
@@ -1100,7 +1134,7 @@ public:
 
     static bool HandleReloadLocalesItemCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Locales Item ... ");
+        SF_LOG_INFO("misc", "Re-Loading Locales Item ... ");
         sObjectMgr->LoadItemLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_item` reloaded.");
         return true;
@@ -1108,7 +1142,7 @@ public:
 
     static bool HandleReloadLocalesNpcTextCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Locales NPC Text ... ");
+        SF_LOG_INFO("misc", "Re-Loading Locales NPC Text ... ");
         sObjectMgr->LoadNpcTextLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_npc_text` reloaded.");
         return true;
@@ -1116,7 +1150,7 @@ public:
 
     static bool HandleReloadLocalesPageTextCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Locales Page Text ... ");
+        SF_LOG_INFO("misc", "Re-Loading Locales Page Text ... ");
         sObjectMgr->LoadPageTextLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_page_text` reloaded.");
         return true;
@@ -1124,7 +1158,7 @@ public:
 
     static bool HandleReloadLocalesPointsOfInterestCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Locales Points Of Interest ... ");
+        SF_LOG_INFO("misc", "Re-Loading Locales Points Of Interest ... ");
         sObjectMgr->LoadPointOfInterestLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_points_of_interest` reloaded.");
         return true;
@@ -1132,15 +1166,23 @@ public:
 
     static bool HandleReloadLocalesQuestCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Locales Quest ... ");
+        SF_LOG_INFO("misc", "Re-Loading Locales Quest ... ");
         sObjectMgr->LoadQuestLocales();
         handler->SendGlobalGMSysMessage("DB table `locales_quest` reloaded.");
         return true;
     }
 
+    static bool HandleReloadLocalesQuestObjectiveCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        SF_LOG_INFO("misc", "Re-Loading Locales Quest Objective ... ");
+        sObjectMgr->LoadQuestObjectiveLocales();
+        handler->SendGlobalGMSysMessage("DB table `locales_quest_objective` reloaded.");
+        return true;
+    }
+
     static bool HandleReloadMailLevelRewardCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Player level dependent mail rewards...");
+        SF_LOG_INFO("misc", "Re-Loading Player level dependent mail rewards...");
         sObjectMgr->LoadMailLevelRewards();
         handler->SendGlobalGMSysMessage("DB table `mail_level_reward` reloaded.");
         return true;
@@ -1149,16 +1191,24 @@ public:
     static bool HandleReloadAuctionsCommand(ChatHandler* handler, const char* /*args*/)
     {
         ///- Reload dynamic data tables from the database
-        TC_LOG_INFO("misc", "Re-Loading Auctions...");
+        SF_LOG_INFO("misc", "Re-Loading Auctions...");
         sAuctionMgr->LoadAuctionItems();
         sAuctionMgr->LoadAuctions();
         handler->SendGlobalGMSysMessage("Auctions reloaded.");
         return true;
     }
 
+    static bool HandleReloadBlackMarketAuctionsCommand(ChatHandler* handler, const char* /*args*/)
+    {
+        SF_LOG_INFO("misc", "Re-Loading BlackMarket Auctions...");
+        sBlackMarketMgr->LoadBlackMarketAuctions();
+        handler->SendGlobalGMSysMessage("BlackMarket Auctions reloaded.");
+        return true;
+    }
+
     static bool HandleReloadConditions(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Conditions...");
+        SF_LOG_INFO("misc", "Re-Loading Conditions...");
         sConditionMgr->LoadConditions(true);
         handler->SendGlobalGMSysMessage("Conditions reloaded.");
         return true;
@@ -1166,7 +1216,7 @@ public:
 
     static bool HandleReloadCreatureText(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Creature Texts...");
+        SF_LOG_INFO("misc", "Re-Loading Creature Texts...");
         sCreatureTextMgr->LoadCreatureTexts();
         handler->SendGlobalGMSysMessage("Creature Texts reloaded.");
         return true;
@@ -1174,7 +1224,7 @@ public:
 
     static bool HandleReloadSmartScripts(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Re-Loading Smart Scripts...");
+        SF_LOG_INFO("misc", "Re-Loading Smart Scripts...");
         sSmartScriptMgr->LoadSmartAIFromDB();
         handler->SendGlobalGMSysMessage("Smart Scripts reloaded.");
         return true;
@@ -1182,7 +1232,7 @@ public:
 
     static bool HandleReloadVehicleAccessoryCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Reloading vehicle_accessory table...");
+        SF_LOG_INFO("misc", "Reloading vehicle_accessory table...");
         sObjectMgr->LoadVehicleAccessories();
         handler->SendGlobalGMSysMessage("Vehicle accessories reloaded.");
         return true;
@@ -1190,25 +1240,15 @@ public:
 
     static bool HandleReloadVehicleTemplateAccessoryCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Reloading vehicle_template_accessory table...");
+        SF_LOG_INFO("misc", "Reloading vehicle_template_accessory table...");
         sObjectMgr->LoadVehicleTemplateAccessories();
         handler->SendGlobalGMSysMessage("Vehicle template accessories reloaded.");
         return true;
     }
 
-
-    static bool HandleReloadPhaseDefinitionsCommand(ChatHandler* handler, const char* /*args*/)
-    {
-        TC_LOG_INFO("misc", "Reloading phase_definitions table...");
-        sObjectMgr->LoadPhaseDefinitions();
-        sWorld->UpdatePhaseDefinitions();
-        handler->SendGlobalGMSysMessage("Phase Definitions reloaded.");
-        return true;
-    }
-
     static bool HandleReloadRBACCommand(ChatHandler* handler, const char* /*args*/)
     {
-        TC_LOG_INFO("misc", "Reloading RBAC tables...");
+        SF_LOG_INFO("misc", "Reloading RBAC tables...");
         sAccountMgr->LoadRBAC();
         sWorld->ReloadRBAC();
         handler->SendGlobalGMSysMessage("RBAC data reloaded.");

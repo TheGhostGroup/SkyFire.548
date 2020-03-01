@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,22 +35,20 @@ class cast_commandscript : public CommandScript
 public:
     cast_commandscript() : CommandScript("cast_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand castCommandTable[] =
+        static std::vector<ChatCommand> castCommandTable =
         {
-            { "back",   rbac::RBAC_PERM_COMMAND_CAST_BACK,   false, &HandleCastBackCommand,  "", NULL },
-            { "dist",   rbac::RBAC_PERM_COMMAND_CAST_DIST,   false, &HandleCastDistCommand,  "", NULL },
-            { "self",   rbac::RBAC_PERM_COMMAND_CAST_SELF,   false, &HandleCastSelfCommand,  "", NULL },
-            { "target", rbac::RBAC_PERM_COMMAND_CAST_TARGET, false, &HandleCastTargetCommad, "", NULL },
-            { "dest",   rbac::RBAC_PERM_COMMAND_CAST_DEST,   false, &HandleCastDestCommand,  "", NULL },
-            { "",       rbac::RBAC_PERM_COMMAND_CAST,        false, &HandleCastCommand,      "", NULL },
-            { NULL,     0,                             false, NULL,                    "", NULL }
+            { "back",   rbac::RBAC_PERM_COMMAND_CAST_BACK,   false, &HandleCastBackCommand,  "", },
+            { "dist",   rbac::RBAC_PERM_COMMAND_CAST_DIST,   false, &HandleCastDistCommand,  "", },
+            { "self",   rbac::RBAC_PERM_COMMAND_CAST_SELF,   false, &HandleCastSelfCommand,  "", },
+            { "target", rbac::RBAC_PERM_COMMAND_CAST_TARGET, false, &HandleCastTargetCommad, "", },
+            { "dest",   rbac::RBAC_PERM_COMMAND_CAST_DEST,   false, &HandleCastDestCommand,  "", },
+            { "",       rbac::RBAC_PERM_COMMAND_CAST,        false, &HandleCastCommand,      "", },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "cast",   rbac::RBAC_PERM_COMMAND_CAST,        false, NULL,                    "", castCommandTable },
-            { NULL,     0,                             false, NULL,                    "", NULL }
         };
         return commandTable;
     }

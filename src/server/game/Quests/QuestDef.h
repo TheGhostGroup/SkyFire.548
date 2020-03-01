@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_QUEST_H
-#define TRINITYCORE_QUEST_H
+#ifndef SKYFIRESERVER_QUEST_H
+#define SKYFIRESERVER_QUEST_H
 
 #include "Define.h"
 #include "DatabaseEnv.h"
@@ -125,33 +125,39 @@ enum QuestGiverStatus
 
 enum QuestFlags
 {
-    QUEST_FLAGS_NONE                    = 0x00000000,
-    QUEST_FLAGS_STAY_ALIVE              = 0x00000001,   // Not used currently
-    QUEST_FLAGS_PARTY_ACCEPT            = 0x00000002,   // Not used currently. If player in party, all players that can accept this quest will receive confirmation box to accept quest CMSG_QUEST_CONFIRM_ACCEPT/SMSG_QUEST_CONFIRM_ACCEPT
-    QUEST_FLAGS_EXPLORATION             = 0x00000004,   // Not used currently
-    QUEST_FLAGS_SHARABLE                = 0x00000008,   // Can be shared: Player::CanShareQuest()
-    QUEST_FLAGS_HAS_CONDITION           = 0x00000010,   // Not used currently
-    QUEST_FLAGS_HIDE_REWARD_POI         = 0x00000020,   // Not used currently: Unsure of content
-    QUEST_FLAGS_RAID                    = 0x00000040,   // Not used currently
-    QUEST_FLAGS_TBC                     = 0x00000080,   // Not used currently: Available if TBC expansion enabled only
-    QUEST_FLAGS_NO_MONEY_FROM_XP        = 0x00000100,   // Not used currently: Experience is not converted to gold at max level
-    QUEST_FLAGS_HIDDEN_REWARDS          = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
-    QUEST_FLAGS_TRACKING                = 0x00000400,   // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
-    QUEST_FLAGS_DEPRECATE_REPUTATION    = 0x00000800,   // Not used currently
-    QUEST_FLAGS_DAILY                   = 0x00001000,   // Used to know quest is Daily one
-    QUEST_FLAGS_FLAGS_PVP               = 0x00002000,   // Having this quest in log forces PvP flag
-    QUEST_FLAGS_UNAVAILABLE             = 0x00004000,   // Used on quests that are not generically available
-    QUEST_FLAGS_WEEKLY                  = 0x00008000,
-    QUEST_FLAGS_AUTOCOMPLETE            = 0x00010000,   // auto complete
-    QUEST_FLAGS_DISPLAY_ITEM_IN_TRACKER = 0x00020000,   // Displays usable item in quest tracker
-    QUEST_FLAGS_OBJ_TEXT                = 0x00040000,   // use Objective text as Complete text
-    QUEST_FLAGS_AUTO_ACCEPT             = 0x00080000,   // The client recognizes this flag as auto-accept. However, NONE of the current quests (3.3.5a) have this flag. Maybe blizz used to use it, or will use it in the future.
-    QUEST_FLAGS_AUTO_SUBMIT             = 0x00100000,   // Quests with this flag player submit automatically by special button in player gui
-    QUEST_FLAGS_AUTO_TAKE               = 0x00200000,   // Automatically suggestion of accepting quest. Not from npc.
-    //QUEST_FLAGS_UNK2                    = 0x00400000,
-    //QUEST_FLAGS_UNK3                    = 0x00800000,   // Found in quest 14069
-    //QUEST_FLAGS_UNK4                    = 0x01000000,
-    // ... 4.x added flags up to 0x80000000 - all unknown for now
+    QUEST_FLAGS_NONE                      = 0x00000000,
+    QUEST_FLAGS_STAY_ALIVE                = 0x00000001,   // Not used currently
+    QUEST_FLAGS_START_EVENT_MUST_COMPLETE = 0x00000002,   // Not used currently. If player in party, all players that can accept this quest will receive confirmation box to accept quest CMSG_QUEST_CONFIRM_ACCEPT/SMSG_QUEST_CONFIRM_ACCEPT
+    QUEST_FLAGS_COMPLETION_AREA_TRIGGER   = 0x00000004,   // Not used currently
+    QUEST_FLAGS_PUSHABLE                  = 0x00000008,   // Can be shared: Player::CanShareQuest()
+    QUEST_FLAGS_HAS_CONDITION             = 0x00000010,   // Not used currently
+    QUEST_FLAGS_HIDE_REWARD_POI           = 0x00000020,   // Not used currently: Unsure of content
+    QUEST_FLAGS_RAID_GROUP                = 0x00000040,   // Not used currently
+    QUEST_FLAGS_EXPANSION_ONLY            = 0x00000080,   // Not used currently: Available if TBC expansion enabled only
+    QUEST_FLAGS_NO_MONEY_FROM_XP          = 0x00000100,   // Not used currently: Experience is not converted to gold at max level
+    QUEST_FLAGS_HIDE_REWARD               = 0x00000200,   // Items and money rewarded only sent in SMSG_QUESTGIVER_OFFER_REWARD (not in SMSG_QUESTGIVER_QUEST_DETAILS or in client quest log(SMSG_QUEST_QUERY_RESPONSE))
+    QUEST_FLAGS_TRACKING_EVENT            = 0x00000400,   // These quests are automatically rewarded on quest complete and they will never appear in quest log client side.
+    QUEST_FLAGS_DEPRECATE_REPUTATION      = 0x00000800,   // Not used currently
+    QUEST_FLAGS_DAILY                     = 0x00001000,   // Used to know quest is Daily one
+    QUEST_FLAGS_FLAGS_PVP                 = 0x00002000,   // Having this quest in log forces PvP flag
+    QUEST_FLAGS_DEPRECATED                = 0x00004000,   // Used on quests that are not generically available
+    QUEST_FLAGS_WEEKLY                    = 0x00008000,
+    QUEST_FLAGS_AUTOCOMPLETE              = 0x00010000,   // auto complete
+    QUEST_FLAGS_DISPLAY_ITEM_IN_TRACKER   = 0x00020000,   // Displays usable item in quest tracker
+    QUEST_FLAGS_DISABLE_COMPLETION_TEXT   = 0x00040000,   // use Objective text as Complete text
+    QUEST_FLAGS_AUTO_ACCEPT               = 0x00080000,   // The client recognizes this flag as auto-accept. However, NONE of the current quests (3.3.5a) have this flag. Maybe blizz used to use it, or will use it in the future.
+    QUEST_FLAGS_PLAYER_CAST_ACCEPT        = 0x00100000,   // Quests with this flag player submit automatically by special button in player gui
+    QUEST_FLAGS_PLAYER_CAST_COMPLETE      = 0x00200000,   // Automatically suggestion of accepting quest. Not from npc.
+    QUEST_FLAGS_UPDATE_PHASE_SHIFT        = 0x00400000,
+    QUEST_FLAGS_SOR_WHITELIST             = 0x00800000,
+    QUEST_FLAGS_LAUNCH_GOSSIP_COMPLETE    = 0x01000000,
+    QUEST_FLAGS_REMOVE_EXTRA_GET_ITEMS    = 0x02000000,
+    QUEST_FLAGS_HIDE_UNTIL_DISCOVERED     = 0x04000000,
+    QUEST_FLAGS_PORTRAIT_FROM_LOG         = 0x08000000,
+    QUEST_FLAGS_SHOW_ITEM_WHEN_COMPLETE   = 0x10000000,
+    QUEST_FLAGS_LAUNCH_GOSSIP_ACCEPT      = 0x20000000,
+    QUEST_FLAGS_ITEM_GLOW_ON_COMPLETE     = 0x40000000,
+    QUEST_FLAGS_FAIL_ON_LOGOUT            = 0x80000000
 };
 
 enum QuestFlags2
@@ -169,13 +175,16 @@ enum QuestFlags2
     QUEST_FLAGS2_NO_GUILD_XP                          = 0x0200,
     QUEST_FLAGS2_RESET_CACHE_ON_ACCEPT                = 0x0400,
     QUEST_FLAGS2_NO_ABANDON_ON_ANY_OBJECTIVE_COMPLETE = 0x0800,
-    QUEST_FLAGS2_RECAST_ACCEPT_SPELL_ON_LOGIN         = 0x1000
+    QUEST_FLAGS2_RECAST_ACCEPT_SPELL_ON_LOGIN         = 0x1000,
+    QUEST_FLAGS2_UPDATE_ZONE_AURAS                    = 0x2000,
+    QUEST_FLAGS2_NO_CREDIT_FOR_PROXY                  = 0x4000,
+    QUEST_FLAGS2_DISPLAY_AS_DAILY_QUEST               = 0x8000
 };
 
 enum QuestSpecialFlags
 {
     QUEST_SPECIAL_FLAGS_NONE                 = 0x000,
-    // Trinity flags for set SpecialFlags in DB if required but used only at server
+    // Skyfire flags for set SpecialFlags in DB if required but used only at server
     QUEST_SPECIAL_FLAGS_REPEATABLE           = 0x001,   // Set by 1 in SpecialFlags from DB
     QUEST_SPECIAL_FLAGS_EXPLORATION_OR_EVENT = 0x002,   // Set by 2 in SpecialFlags from DB (if required area explore, spell SPELL_EFFECT_QUEST_COMPLETE casting, table `FECT_QUEST_COMPLETE casting, table `*_script` command SCRIPT_COMMAND_QUEST_EXPLORED use, set from script)
     QUEST_SPECIAL_FLAGS_AUTO_ACCEPT          = 0x004,   // Set by 4 in SpecialFlags in DB if the quest is to be auto-accepted.
@@ -344,8 +353,8 @@ class Quest
         bool   IsMonthly() const { return SpecialFlags & QUEST_SPECIAL_FLAGS_MONTHLY; }
         bool   IsSeasonal() const { return (ZoneOrSort == -QUEST_SORT_SEASONAL || ZoneOrSort == -QUEST_SORT_SPECIAL || ZoneOrSort == -QUEST_SORT_LUNAR_FESTIVAL || ZoneOrSort == -QUEST_SORT_MIDSUMMER || ZoneOrSort == -QUEST_SORT_BREWFEST || ZoneOrSort == -QUEST_SORT_LOVE_IS_IN_THE_AIR || ZoneOrSort == -QUEST_SORT_NOBLEGARDEN) && !IsRepeatable(); }
         bool   IsDailyOrWeekly() const { return Flags & (QUEST_FLAGS_DAILY | QUEST_FLAGS_WEEKLY); }
-        bool   IsRaidQuest(Difficulty difficulty) const;
-        bool   IsAllowedInRaid(Difficulty difficulty) const;
+        bool   IsRaidQuest(DifficultyID difficulty) const;
+        bool   IsAllowedInRaid(DifficultyID difficulty) const;
         bool   IsDFQuest() const { return SpecialFlags & QUEST_SPECIAL_FLAGS_DF_QUEST; }
         bool   IsRewChoiceItemValid(uint32 itemId) const;
         uint32 CalculateHonorGain(uint8 level) const;

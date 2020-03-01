@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -71,7 +71,7 @@ public:
 
         void SpellHit(Unit* caster, const SpellInfo* spell) OVERRIDE
         {
-            if (spell->Id == SPELL_PERSUASIVE_STRIKE && caster->GetTypeId() == TYPEID_PLAYER && me->IsAlive() && !speechCounter)
+            if (spell->Id == SPELL_PERSUASIVE_STRIKE && caster->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsAlive() && !speechCounter)
             {
                 if (Player* player = caster->ToPlayer())
                 {
@@ -86,7 +86,7 @@ public:
                         me->SetReactState(REACT_PASSIVE);
                         DoCastAOE(SPELL_THREAT_PULSE, true);
 
-                        sCreatureTextMgr->SendChat(me, SAY_PERSUADE_RAND, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                        sCreatureTextMgr->SendChat(me, SAY_PERSUADE_RAND, 0, ChatMsg::CHAT_MSG_ADDON, Language::LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                         Talk(SAY_CRUSADER);
                     }
                 }
@@ -129,7 +129,7 @@ public:
                             break;
 
                         case 5:
-                            sCreatureTextMgr->SendChat(me, SAY_PERSUADED5, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
+                            sCreatureTextMgr->SendChat(me, SAY_PERSUADED5, 0, ChatMsg::CHAT_MSG_ADDON, Language::LANG_ADDON, TEXT_RANGE_NORMAL, 0, TEAM_OTHER, false, player);
                             speechTimer = 8000;
                             break;
 
@@ -275,7 +275,7 @@ public:
         void SummonAcolyte(uint32 uiAmount)
         {
             for (uint32 i = 0; i < uiAmount; ++i)
-                me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                me->SummonCreature(NPC_CRIMSON_ACOLYTE, 1642.329f, -6045.818f, 127.583f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
         }
 
         void UpdateAI(uint32 uiDiff) OVERRIDE
@@ -305,7 +305,7 @@ public:
                             break;
                         case 3:
                             Talk(SAY_BREAKOUT6);
-                            me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
+                            me->SummonCreature(NPC_HIGH_INQUISITOR_VALROTH, 1642.329f, -6045.818f, 127.583f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 1000);
                             waveTimer = 1000;
                             break;
                         case 4:
@@ -673,7 +673,7 @@ public:
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
         {
-            if (PlayerGUID || who->GetTypeId() != TYPEID_PLAYER || !who->IsWithinDist(me, INTERACTION_DISTANCE))
+            if (PlayerGUID || who->GetTypeId() != TypeID::TYPEID_PLAYER || !who->IsWithinDist(me, INTERACTION_DISTANCE))
                 return;
 
             if (MeetQuestCondition(who->ToPlayer()))
@@ -723,7 +723,7 @@ public:
                                     break;
                                 case 11:
                                     Talk(EMOTE_DIES);
-                                    me->setDeathState(JUST_DIED);
+                                    me->setDeathState(DeathState::JUST_DIED);
                                     me->SetHealth(0);
                                     return;
                             }
@@ -753,7 +753,7 @@ public:
                                     break;
                                 case 11:
                                     Talk(EMOTE_DIES);
-                                    me->setDeathState(JUST_DIED);
+                                    me->setDeathState(DeathState::JUST_DIED);
                                     me->SetHealth(0);
                                     return;
                             }
@@ -783,7 +783,7 @@ public:
                                     break;
                                 case 11:
                                     Talk(EMOTE_DIES);
-                                    me->setDeathState(JUST_DIED);
+                                    me->setDeathState(DeathState::JUST_DIED);
                                     me->SetHealth(0);
                                     return;
                             }
@@ -813,7 +813,7 @@ public:
                                     break;
                                 case 11:
                                     Talk(EMOTE_DIES);
-                                    me->setDeathState(JUST_DIED);
+                                    me->setDeathState(DeathState::JUST_DIED);
                                     me->SetHealth(0);
                                     return;
                             }
@@ -843,7 +843,7 @@ public:
                                     break;
                                 case 11:
                                     Talk(EMOTE_DIES);
-                                    me->setDeathState(JUST_DIED);
+                                    me->setDeathState(DeathState::JUST_DIED);
                                     me->SetHealth(0);
                                     return;
                             }
@@ -873,7 +873,7 @@ public:
                                     break;
                                 case 11:
                                     Talk(EMOTE_DIES);
-                                    me->setDeathState(JUST_DIED);
+                                    me->setDeathState(DeathState::JUST_DIED);
                                     me->SetHealth(0);
                                     return;
                             }
@@ -903,7 +903,7 @@ public:
                                     break;
                                 case 11:
                                     Talk(EMOTE_DIES);
-                                    me->setDeathState(JUST_DIED);
+                                    me->setDeathState(DeathState::JUST_DIED);
                                     me->SetHealth(0);
                                     return;
                             }
@@ -933,7 +933,7 @@ public:
                                     break;
                                 case 11:
                                     Talk(EMOTE_DIES);
-                                    me->setDeathState(JUST_DIED);
+                                    me->setDeathState(DeathState::JUST_DIED);
                                     me->SetHealth(0);
                                     return;
                             }
@@ -963,7 +963,7 @@ public:
                                     break;
                                 case 11:
                                     Talk(EMOTE_DIES);
-                                    me->setDeathState(JUST_DIED);
+                                    me->setDeathState(DeathState::JUST_DIED);
                                     me->SetHealth(0);
                                     return;
                             }
@@ -993,7 +993,7 @@ public:
                                     break;
                                 case 11:
                                     Talk(EMOTE_DIES);
-                                    me->setDeathState(JUST_DIED);
+                                    me->setDeathState(DeathState::JUST_DIED);
                                     me->SetHealth(0);
                                     return;
                             }

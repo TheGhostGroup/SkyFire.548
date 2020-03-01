@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -56,7 +56,7 @@ void Totem::Update(uint32 time)
 void Totem::InitStats(uint32 duration)
 {
     // client requires SMSG_TOTEM_CREATED to be sent before adding to world and before removing old totem
-    if (GetOwner()->GetTypeId() == TYPEID_PLAYER && m_Properties->Slot >= SUMMON_SLOT_TOTEM && m_Properties->Slot < MAX_TOTEM_SLOT)
+    if (GetOwner()->GetTypeId() == TypeID::TYPEID_PLAYER && m_Properties->Slot >= SUMMON_SLOT_TOTEM && m_Properties->Slot < MAX_TOTEM_SLOT)
     {
         ObjectGuid TotemGUID = GetGUID();
         uint32 SpellID = GetUInt32Value(UNIT_FIELD_CREATED_BY_SPELL);

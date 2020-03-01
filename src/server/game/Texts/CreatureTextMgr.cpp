@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,7 +30,7 @@
 class CreatureTextBuilder
 {
     public:
-         CreatureTextBuilder(WorldObject* obj, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
+         CreatureTextBuilder(WorldObject* obj, ChatMsg msgtype, uint8 textGroup, uint32 id, Language language, WorldObject const* target)
             : _source(obj), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target)
         {
         }
@@ -38,21 +38,21 @@ class CreatureTextBuilder
         size_t operator()(WorldPacket* data, LocaleConstant locale) const
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _textGroup, _textId, locale);
-            return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _source, _target, text, 0, "", locale);;
+            return ChatHandler::BuildChatPacket(*data, _msgType, _language, _source, _target, text, 0, "", locale);;
         }
 
         WorldObject* _source;
         ChatMsg _msgType;
         uint8 _textGroup;
         uint32 _textId;
-        uint32 _language;
+        Language _language;
         WorldObject const* _target;
 };
 
 class PlayerTextBuilder
 {
     public:
-        PlayerTextBuilder(WorldObject* obj, WorldObject* speaker, ChatMsg msgtype, uint8 textGroup, uint32 id, uint32 language, WorldObject const* target)
+        PlayerTextBuilder(WorldObject* obj, WorldObject* speaker, ChatMsg msgtype, uint8 textGroup, uint32 id, Language language, WorldObject const* target)
             : _source(obj), _talker(speaker), _msgType(msgtype), _textGroup(textGroup), _textId(id), _language(language), _target(target)
         {
 
@@ -61,7 +61,7 @@ class PlayerTextBuilder
         size_t operator()(WorldPacket* data, LocaleConstant locale) const
         {
             std::string const& text = sCreatureTextMgr->GetLocalizedChatString(_source->GetEntry(), _textGroup, _textId, locale);
-            return ChatHandler::BuildChatPacket(*data, _msgType, Language(_language), _talker, _target, text, 0, "", locale);
+            return ChatHandler::BuildChatPacket(*data, _msgType, _language, _talker, _target, text, 0, "", locale);
         }
 
         WorldObject* _source;
@@ -69,7 +69,7 @@ class PlayerTextBuilder
         ChatMsg _msgType;
         uint8 _textGroup;
         uint32 _textId;
-        uint32 _language;
+        Language _language;
         WorldObject const* _target;
 };
 
@@ -85,7 +85,7 @@ void CreatureTextMgr::LoadCreatureTexts()
 
     if (!result)
     {
-        TC_LOG_INFO("server.loading", ">> Loaded 0 ceature texts. DB table `creature_texts` is empty.");
+        SF_LOG_INFO("server.loading", ">> Loaded 0 ceature texts. DB table `creature_texts` is empty.");
 
         return;
     }
@@ -112,25 +112,25 @@ void CreatureTextMgr::LoadCreatureTexts()
         if (temp.sound)
         {
             if (!sSoundEntriesStore.LookupEntry(temp.sound)){
-                TC_LOG_ERROR("sql.sql", "CreatureTextMgr:  Entry %u, Group %u in table `creature_texts` has Sound %u but sound does not exist.", temp.entry, temp.group, temp.sound);
+                SF_LOG_ERROR("sql.sql", "CreatureTextMgr:  Entry %u, Group %u in table `creature_texts` has Sound %u but sound does not exist.", temp.entry, temp.group, temp.sound);
                 temp.sound = 0;
             }
         }
         if (!GetLanguageDescByID(temp.lang))
         {
-            TC_LOG_ERROR("sql.sql", "CreatureTextMgr:  Entry %u, Group %u in table `creature_texts` using Language %u but Language does not exist.", temp.entry, temp.group, uint32(temp.lang));
-            temp.lang = LANG_UNIVERSAL;
+            SF_LOG_ERROR("sql.sql", "CreatureTextMgr:  Entry %u, Group %u in table `creature_texts` using Language %u but Language does not exist.", temp.entry, temp.group, uint32(temp.lang));
+            temp.lang = Language::LANG_UNIVERSAL;
         }
-        if (temp.type >= MSG_NULL_ACTION)
+        if (temp.type >= ChatMsg::MSG_NULL_ACTION)
         {
-            TC_LOG_ERROR("sql.sql", "CreatureTextMgr:  Entry %u, Group %u in table `creature_texts` has Type %u but this Chat Type does not exist.", temp.entry, temp.group, uint32(temp.type));
-            temp.type = CHAT_MSG_SAY;
+            SF_LOG_ERROR("sql.sql", "CreatureTextMgr:  Entry %u, Group %u in table `creature_texts` has Type %u but this Chat Type does not exist.", temp.entry, temp.group, uint32(temp.type));
+            temp.type = ChatMsg::CHAT_MSG_SAY;
         }
         if (temp.emote)
         {
             if (!sEmotesStore.LookupEntry(temp.emote))
             {
-                TC_LOG_ERROR("sql.sql", "CreatureTextMgr:  Entry %u, Group %u in table `creature_texts` has Emote %u but emote does not exist.", temp.entry, temp.group, uint32(temp.emote));
+                SF_LOG_ERROR("sql.sql", "CreatureTextMgr:  Entry %u, Group %u in table `creature_texts` has Emote %u but emote does not exist.", temp.entry, temp.group, uint32(temp.emote));
                 temp.emote = EMOTE_ONESHOT_NONE;
             }
         }
@@ -144,7 +144,7 @@ void CreatureTextMgr::LoadCreatureTexts()
         ++textCount;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u creature texts for %u creatures in %u ms", textCount, creatureCount, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u creature texts for %u creatures in %u ms", textCount, creatureCount, GetMSTimeDiffToNow(oldMSTime));
 
 }
 
@@ -174,7 +174,7 @@ void CreatureTextMgr::LoadCreatureTextLocales()
         ++textCount;
     } while (result->NextRow());
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u creature localized texts in %u ms", textCount, GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u creature localized texts in %u ms", textCount, GetMSTimeDiffToNow(oldMSTime));
 
 }
 
@@ -186,7 +186,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup,  WorldObject
     CreatureTextMap::const_iterator sList = mTextMap.find(source->GetEntry());
     if (sList == mTextMap.end())
     {
-        TC_LOG_ERROR("sql.sql", "CreatureTextMgr: Could not find Text for Creature(%s) Entry %u in 'creature_text' table. Ignoring.", source->GetName().c_str(), source->GetEntry());
+        SF_LOG_ERROR("sql.sql", "CreatureTextMgr: Could not find Text for Creature(%s) Entry %u in 'creature_text' table. Ignoring.", source->GetName().c_str(), source->GetEntry());
         return 0;
     }
 
@@ -194,7 +194,7 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup,  WorldObject
     CreatureTextHolder::const_iterator itr = textHolder.find(textGroup);
     if (itr == textHolder.end())
     {
-        TC_LOG_ERROR("sql.sql", "CreatureTextMgr: Could not find TextGroup %u for Creature(%s) GuidLow %u Entry %u. Ignoring.", uint32(textGroup), source->GetName().c_str(), source->GetGUIDLow(), source->GetEntry());
+        SF_LOG_ERROR("sql.sql", "CreatureTextMgr: Could not find TextGroup %u for Creature(%s) GuidLow %u Entry %u. Ignoring.", uint32(textGroup), source->GetName().c_str(), source->GetGUIDLow(), source->GetEntry());
         return 0;
     }
 
@@ -255,8 +255,8 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup,  WorldObject
 
     CreatureTextGroup::const_iterator iter = tempGroup.begin() + pos;
 
-    ChatMsg finalType = (msgType == CHAT_MSG_ADDON) ? iter->type : msgType;
-    Language finalLang = (language == LANG_ADDON) ? iter->lang : language;
+    ChatMsg finalType = (msgType == ChatMsg::CHAT_MSG_ADDON) ? iter->type : msgType;
+    Language finalLang = (language == Language::LANG_ADDON) ? iter->lang : language;
     uint32 finalSound = sound ? sound : iter->sound;
 
     if (finalSound)
@@ -287,15 +287,15 @@ uint32 CreatureTextMgr::SendChat(Creature* source, uint8 textGroup,  WorldObject
 
 float CreatureTextMgr::GetRangeForChatType(ChatMsg msgType) const
 {
-    float dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_SAY);
+    float dist = sWorld->GetFloatConfig(WorldFloatConfigs::CONFIG_LISTEN_RANGE_SAY);
     switch (msgType)
     {
-        case CHAT_MSG_MONSTER_YELL:
-            dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_YELL);
+        case ChatMsg::CHAT_MSG_MONSTER_YELL:
+            dist = sWorld->GetFloatConfig(WorldFloatConfigs::CONFIG_LISTEN_RANGE_YELL);
             break;
-        case CHAT_MSG_MONSTER_EMOTE:
-        case CHAT_MSG_RAID_BOSS_EMOTE:
-            dist = sWorld->getFloatConfig(CONFIG_LISTEN_RANGE_TEXTEMOTE);
+        case ChatMsg::CHAT_MSG_MONSTER_EMOTE:
+        case ChatMsg::CHAT_MSG_RAID_BOSS_EMOTE:
+            dist = sWorld->GetFloatConfig(WorldFloatConfigs::CONFIG_LISTEN_RANGE_TEXTEMOTE);
             break;
         default:
             break;
@@ -339,12 +339,12 @@ void CreatureTextMgr::SendNonChatPacket(WorldObject* source, WorldPacket* data, 
 
     switch (msgType)
     {
-        case CHAT_MSG_MONSTER_WHISPER:
-        case CHAT_MSG_RAID_BOSS_WHISPER:
+        case ChatMsg::CHAT_MSG_MONSTER_WHISPER:
+        case ChatMsg::CHAT_MSG_RAID_BOSS_WHISPER:
         {
             if (range == TEXT_RANGE_NORMAL)//ignores team and gmOnly
             {
-                 if (!whisperTarget || whisperTarget->GetTypeId() != TYPEID_PLAYER)
+                 if (!whisperTarget || whisperTarget->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
 
                 whisperTarget->ToPlayer()->GetSession()->SendPacket(data);
@@ -418,7 +418,7 @@ void CreatureTextMgr::SetRepeatId(Creature* source, uint8 textGroup, uint8 id)
     if (std::find(repeats.begin(), repeats.end(), id) == repeats.end())
         repeats.push_back(id);
     else
-        TC_LOG_ERROR("sql.sql", "CreatureTextMgr: TextGroup %u for Creature(%s) GuidLow %u Entry %u, id %u already added", uint32(textGroup), source->GetName().c_str(), source->GetGUIDLow(), source->GetEntry(), uint32(id));
+        SF_LOG_ERROR("sql.sql", "CreatureTextMgr: TextGroup %u for Creature(%s) GuidLow %u Entry %u, id %u already added", uint32(textGroup), source->GetName().c_str(), source->GetGUIDLow(), source->GetEntry(), uint32(id));
 }
 
 CreatureTextRepeatIds CreatureTextMgr::GetRepeatGroup(Creature* source, uint8 textGroup)
@@ -444,7 +444,7 @@ bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup)
     CreatureTextMap::const_iterator sList = mTextMap.find(sourceEntry);
     if (sList == mTextMap.end())
     {
-        TC_LOG_DEBUG("entities.unit", "CreatureTextMgr::TextExist: Could not find Text for Creature (entry %u) in 'creature_text' table.", sourceEntry);
+        SF_LOG_DEBUG("entities.unit", "CreatureTextMgr::TextExist: Could not find Text for Creature (entry %u) in 'creature_text' table.", sourceEntry);
         return false;
     }
 
@@ -452,7 +452,7 @@ bool CreatureTextMgr::TextExist(uint32 sourceEntry, uint8 textGroup)
     CreatureTextHolder::const_iterator itr = textHolder.find(textGroup);
     if (itr == textHolder.end())
     {
-        TC_LOG_DEBUG("entities.unit", "CreatureTextMgr::TextExist: Could not find TextGroup %u for Creature (entry %u).", uint32(textGroup), sourceEntry);
+        SF_LOG_DEBUG("entities.unit", "CreatureTextMgr::TextExist: Could not find TextGroup %u for Creature (entry %u).", uint32(textGroup), sourceEntry);
         return false;
     }
 

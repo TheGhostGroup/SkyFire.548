@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -140,7 +140,7 @@ class boss_saviana_ragefire : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
@@ -213,7 +213,7 @@ class ConflagrationTargetSelector
 
         bool operator()(WorldObject* unit) const
         {
-            return unit->GetTypeId() != TYPEID_PLAYER;
+            return unit->GetTypeId() != TypeID::TYPEID_PLAYER;
         }
 };
 
@@ -231,7 +231,7 @@ class spell_saviana_conflagration_init : public SpellScriptLoader
                 targets.remove_if(ConflagrationTargetSelector());
                 uint8 maxSize = uint8(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 6 : 3);
                 if (targets.size() > maxSize)
-                    Trinity::Containers::RandomResizeList(targets, maxSize);
+                    Skyfire::Containers::RandomResizeList(targets, maxSize);
             }
 
             void HandleDummy(SpellEffIndex effIndex)

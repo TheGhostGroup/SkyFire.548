@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -102,7 +102,7 @@ public:
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
         {
-            if (CanSayHelp && who->GetTypeId() == TYPEID_PLAYER && me->IsFriendlyTo(who) && me->IsWithinDistInMap(who, 25.0f))
+            if (CanSayHelp && who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsFriendlyTo(who) && me->IsWithinDistInMap(who, 25.0f))
             {
                 //Random switch between 4 texts
                 Talk(SAY_HELP, who);
@@ -465,7 +465,7 @@ public:
         {
             Step = 0;
             EventStarted = true;
-            if (Creature* Spark = me->SummonCreature(NPC_SPARK, SparkPos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
+            if (Creature* Spark = me->SummonCreature(NPC_SPARK, SparkPos, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1000))
             {
                 SparkGUID = Spark->GetGUID();
                 Spark->setActive(true);
@@ -531,8 +531,8 @@ public:
         {
             float radius = 50.0f;
             std::list<Player*> players;
-            Trinity::AnyPlayerInObjectRangeCheck checker(me, radius);
-            Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
+            Skyfire::AnyPlayerInObjectRangeCheck checker(me, radius);
+            Skyfire::PlayerListSearcher<Skyfire::AnyPlayerInObjectRangeCheck> searcher(me, players, checker);
             me->VisitNearbyWorldObject(radius, searcher);
 
             for (std::list<Player*>::const_iterator itr = players.begin(); itr != players.end(); ++itr)
@@ -550,13 +550,13 @@ public:
                 for (std::list<GameObject*>::const_iterator itr = FlagList.begin(); itr != FlagList.end(); ++itr)
                 {
                     if (despawn)
-                        (*itr)->SetLootState(GO_JUST_DEACTIVATED);
+                        (*itr)->SetLootState(LootState::GO_JUST_DEACTIVATED);
                     else
                         (*itr)->Respawn();
                 }
             }
             else
-                TC_LOG_ERROR("scripts", "SD2 ERROR: FlagList is empty!");
+                SF_LOG_ERROR("scripts", "SD2 ERROR: FlagList is empty!");
         }
 
         void UpdateAI(uint32 diff) OVERRIDE
@@ -684,8 +684,8 @@ class npc_stillpine_capitive : public CreatureScript
             {
                 if (GameObject* cage = me->FindNearestGameObject(GO_BRISTELIMB_CAGE, 5.0f))
                 {
-                    cage->SetLootState(GO_JUST_DEACTIVATED);
-                    cage->SetGoState(GO_STATE_READY);
+                    cage->SetLootState(LootState::GO_JUST_DEACTIVATED);
+                    cage->SetGoState(GOState::GO_STATE_READY);
                 }
                 _events.Reset();
                 _player = NULL;
@@ -746,7 +746,7 @@ class go_bristlelimb_cage : public GameObjectScript
 
         bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
         {
-            go->SetGoState(GO_STATE_READY);
+            go->SetGoState(GOState::GO_STATE_READY);
             if (player->GetQuestStatus(QUEST_THE_PROPHECY_OF_AKIDA) == QUEST_STATUS_INCOMPLETE)
             {
                 if (Creature* capitive = go->FindNearestCreature(NPC_STILLPINE_CAPITIVE, 5.0f, true))

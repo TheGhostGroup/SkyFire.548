@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -266,7 +266,7 @@ public:
                         }
                         else
                         {
-                            TC_LOG_ERROR("scripts", "Didn't find Shathrowar. Kalecgos event reseted.");
+                            SF_LOG_ERROR("scripts", "Didn't find Shathrowar. Kalecgos event reseted.");
                             EnterEvadeMode();
                             return;
                         }
@@ -306,7 +306,7 @@ public:
                     {
                         Unit* target = (*itr)->getTarget();
                         if (target
-                                && target->GetTypeId() == TYPEID_PLAYER
+                                && target->GetTypeId() == TypeID::TYPEID_PLAYER
                                 && target->GetGUID() != me->GetVictim()->GetGUID()
                                 && target->GetPositionZ() > me->GetPositionZ() - 5
                                 && !target->HasAura(AURA_SPECTRAL_EXHAUSTION))
@@ -374,7 +374,7 @@ public:
             me->SetVisible(false);
             if (isFriendly)
             {
-                me->setDeathState(JUST_DIED);
+                me->setDeathState(DeathState::JUST_DIED);
 
                 Map::PlayerList const& players = me->GetMap()->GetPlayers();
                 if (!players.isEmpty())
@@ -548,7 +548,7 @@ public:
     bool OnGossipHello(Player* player, GameObject* go) OVERRIDE
     {
         Map* map = go->GetMap();
-        if (!map->IsDungeon())
+        if (!map->IsRaid())
             return true;
 
 #if MAX_PLAYERS_IN_SPECTRAL_REALM > 0
@@ -617,7 +617,7 @@ public:
             if (KalecGUID)
             {
                 if (Creature* Kalec = Unit::GetCreature(*me, KalecGUID))
-                    Kalec->setDeathState(JUST_DIED);
+                    Kalec->setDeathState(DeathState::JUST_DIED);
                 KalecGUID = 0;
             }
 
@@ -635,7 +635,7 @@ public:
 
         void EnterCombat(Unit* /*who*/) OVERRIDE
         {
-            if (Creature* Kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
+            if (Creature* Kalec = me->SummonCreature(NPC_KALEC, me->GetPositionX() + 10, me->GetPositionY() + 5, me->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 0))
             {
                 KalecGUID = Kalec->GetGUID();
                 me->CombatStart(Kalec);
@@ -685,7 +685,7 @@ public:
         void TeleportAllPlayersBack()
         {
             Map* map = me->GetMap();
-            if (!map->IsDungeon())
+            if (!map->IsRaid())
                 return;
 
             Map::PlayerList const &PlayerList = map->GetPlayers();

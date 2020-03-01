@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYSERVER_MOVESPLINEINIT_ARGS_H
-#define TRINITYSERVER_MOVESPLINEINIT_ARGS_H
+#ifndef SKYFIRESERVER_MOVESPLINEINIT_ARGS_H
+#define SKYFIRESERVER_MOVESPLINEINIT_ARGS_H
 
 #include "MoveSplineFlag.h"
 #include <G3D/Vector3.h>
@@ -37,9 +37,7 @@ namespace Movement
         uint64  target;
         float   angle;
 
-        FacingInfo(float o) : angle(o) { }
-        FacingInfo(uint64 t) : target(t) { }
-        FacingInfo() { }
+        FacingInfo() : angle(0.0f) { f.x = 0.0f; f.y = 0.0f; f.z = 0.0f; }
     };
 
     struct MoveSplineInitArgs
@@ -71,4 +69,4 @@ namespace Movement
     };
 }
 
-#endif // TRINITYSERVER_MOVESPLINEINIT_ARGS_H
+#endif // SKYFIRESERVER_MOVESPLINEINIT_ARGS_H

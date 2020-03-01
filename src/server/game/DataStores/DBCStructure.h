@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_DBCSTRUCTURE_H
-#define TRINITY_DBCSTRUCTURE_H
+#ifndef SKYFIRE_DBCSTRUCTURE_H
+#define SKYFIRE_DBCSTRUCTURE_H
 
 #include "Common.h"
 #include "DBCEnums.h"
@@ -29,6 +29,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <unordered_map>
 
 // Structures using to access raw DBC data and required packing to portability
 
@@ -87,6 +88,12 @@ struct AchievementCriteriaEntry
             uint32  bgMapID;                                // 3
             uint32  winCount;                               // 4
         } win_bg;
+        // ACHIEVEMENT_CRITERIA_TYPE_FIND_ARTIFACT          = 3
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  count;                                  // 4
+        } find_artifact;
 
         // ACHIEVEMENT_CRITERIA_TYPE_REACH_LEVEL            = 5
         // ACHIEVEMENT_CRITERIA_TYPE_REACH_GUILD_LEVEL      = 125
@@ -130,7 +137,7 @@ struct AchievementCriteriaEntry
             uint32  questCount;                             // 4
         } complete_quests_in_zone;
 
-        // ACHIEVEMENT_CRITERIA_TYPE_CURRENCY = 12
+        // ACHIEVEMENT_CRITERIA_TYPE_CURRENCY               = 12
         struct
         {
             uint32 currency;
@@ -210,7 +217,7 @@ struct AchievementCriteriaEntry
             uint32  castCount;                              // 4
         } cast_spell;
 
-        // ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE
+        // ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE   = 30
         struct
         {
             uint32 objectiveId;                             // 3
@@ -500,12 +507,109 @@ struct AchievementCriteriaEntry
             uint32  killCount;                              // 4
         } honorable_kill;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_114_SUMMON             = 114
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  unk;                                    // 4 unk is 1 true/false?
+        } summons;
+        // ACHIEVEMENT_CRITERIA_TYPE_EARN_ACHIEVEMENT_POINT = 115
+        // ACHIEVEMENT_CRITERIA_TYPE_118_UNK                = 118
+        // ACHIEVEMENT_CRITERIA_TYPE_LFG                    = 119
         struct
         {
             uint32  unused;
             uint32  dungeonsComplete;
         } use_lfg;
+        // ACHIEVEMENT_CRITERIA_TYPE_120                    = 120
+        // ACHIEVEMENT_CRITERIA_TYPE_121                    = 121
+        // ACHIEVEMENT_CRITERIA_TYPE_122                    = 122
+        // ACHIEVEMENT_CRITERIA_TYPE_123                    = 123
+        // ACHIEVEMENT_CRITERIA_TYPE_GUILD_REPAIR_SPEND     = 124
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  goldInCopper;                           // 4
+        } guild_repair_money;
 
+        // ACHIEVEMENT_CRITERIA_TYPE_GUILD_LEVEL            = 125
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  level;                                  // 4
+        } guild_level;
+        // ACHIEVEMENT_CRITERIA_TYPE_GUILD_CRAFTING         = 126
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  count;                                  // 4
+        } guild_craft;
+        // ACHIEVEMENT_CRITERIA_TYPE_GUILD_FISHING         = 127
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  count;                                  // 4
+        } guild_fishing;
+        // ACHIEVEMENT_CRITERIA_TYPE_GUILD_BANK_TAB_BUY    = 128
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  tab;                                    // 4
+        } guild_tab_bought;
+        // ACHIEVEMENT_CRITERIA_TYPE_EARN_GUILD_ACH_POINTS = 129
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  count;                                    // 4
+        } guild_ach_pts;
+        // ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_BG          = 130
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  count;                                    // 4
+        } rated_bg_won;
+        // ACHIEVEMENT_CRITERIA_TYPE_EARN_RATED_BG_RATING  = 132
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  rating;                                 // 4
+        } rated_bg_rating;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_CREATE_GUILD_LOGO     = 133
+        // ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_QUEST_COUNT2 = 134
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  totalQuestCount;                        // 4
+        } complete_quest_count2;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL2  = 135
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  killCount;                              // 4
+        } honorable_kill2;
+
+        // ACHIEVEMENT_CRITERIA_TYPE_EARN_CRITTER_KILLS    = 136
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  killCount;                              // 4
+        } critter_kills;
+        // ACHIEVEMENT_CRITERIA_TYPE_137                   = 137
+        // ACHIEVEMENT_CRITERIA_TYPE_GUILD_CHALLENGES      = 138
+        struct
+        {
+            uint32  type;                                   // 3
+            uint32  count;                                  // 4
+        } guild_challenges;
+        // ACHIEVEMENT_CRITERIA_TYPE_GUILD_CHALLENGES2     = 139
+        struct
+        {
+            uint32  unused;                                 // 3
+            uint32  count;                                  // 4
+        } guild_challenges2;
+        // ACHIEVEMENT_CRITERIA_TYPE_140_150_PLACEHOLDER   = 140-150
         struct
         {
             uint32  field3;                                 // 3 main requirement
@@ -1282,6 +1386,31 @@ struct DestructibleModelDataEntry
     //uint32  Unk8;
 };
 
+struct DifficultyEntry
+{
+    uint32 DiffID;
+    uint32 DownscaleID;
+    uint32 maptype;
+    //uint32
+    //uint32
+    //uint32 SpawnMode;
+    uint32 flags;
+    //
+    //
+    //
+    //
+    //
+
+};
+
+enum diffflag
+{
+    DIFFICULTY_FLAG_CAN_SELECT = 0x04, // Player can select this difficulty in dropdown menu
+    DIFFICULTY_FLAG_HEROIC = 0x05,
+    DIFFICULTY_FLAG_DEFAULT = 0x06,
+    DIFFICULTY_FLAG_CHALLENGE_MODE = 0x0D,
+};
+
 struct DungeonEncounterEntry
 {
     uint32 id;                                              // 0        unique id
@@ -1748,9 +1877,9 @@ struct LFGDungeonEntry
     uint32  recminlevel;                                    // 5
     uint32  recmaxlevel;                                    // 6
     int32   map;                                            // 7
-    uint32  type;                                           // 8
+    uint32  difficulty;                                     // 8
     uint32  flags;                                          // 9
-    uint32  difficulty;                                     // 10
+    uint32  type;                                           // 10
     //uint32  unk2;                                         // 11
     //char*   iconname;                                     // 12
     uint32  expansion;                                      // 13
@@ -1805,6 +1934,13 @@ struct PhaseEntry
     uint32    flag;                                         // 2
 };
 
+struct PhaseGroupEntry
+{
+    uint32 ID;
+    uint32 PhaseId;
+    uint32 GroupId;
+};
+
 struct MailTemplateEntry
 {
     uint32      ID;                                         // 0
@@ -1837,15 +1973,17 @@ struct MapEntry
     // Helpers
     uint32 Expansion() const { return addon; }
 
-    bool IsDungeon() const { return map_type == MAP_INSTANCE || map_type == MAP_RAID; }
-    bool IsNonRaidDungeon() const { return map_type == MAP_INSTANCE; }
-    bool Instanceable() const { return map_type == MAP_INSTANCE || map_type == MAP_RAID || map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA || map_type == MAP_SCENARIO; }
+    bool IsDungeon() const { return map_type == MAP_DUNGEON; }
+    bool IsNonRaidInstance() const { return map_type == MAP_DUNGEON || map_type == MAP_SCENARIO; }
+    bool Instanceable() const { return map_type == MAP_DUNGEON || map_type == MAP_RAID || map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA || map_type == MAP_SCENARIO; }
     bool IsRaid() const { return map_type == MAP_RAID; }
     bool IsBattleground() const { return map_type == MAP_BATTLEGROUND; }
     bool IsBattleArena() const { return map_type == MAP_ARENA; }
     bool IsScenario() const { return map_type == MAP_SCENARIO; }
     bool IsBattlegroundOrArena() const { return map_type == MAP_BATTLEGROUND || map_type == MAP_ARENA; }
     bool IsWorldMap() const { return map_type == MAP_COMMON; }
+
+    bool IsInstance() const { return map_type == MAP_DUNGEON || map_type == MAP_RAID; }
 
     bool GetEntrancePos(int32 &mapid, float &x, float &y) const
     {
@@ -1868,7 +2006,7 @@ struct MapDifficultyEntry
     //uint32      Id;                                       // 0
     uint32      MapId;                                      // 1
     uint32      Difficulty;                                 // 2 (for arenas: arena slot)
-    char*   areaTriggerText;                                // 3        m_message_lang (text showed when transfer to map failed)
+    char*       areaTriggerText;                            // 3        m_message_lang (text showed when transfer to map failed)
     uint32      resetTime;                                  // 4,       m_raidDuration in secs, 0 if no fixed reset time
     uint32      maxPlayers;                                 // 5,       m_maxPlayers some heroic versions have 0 when expected same amount as in normal version
     //char*       difficultyString;                         // 6        m_difficultystring
@@ -1951,6 +2089,14 @@ struct QuestFactionRewEntry
   int32       QuestRewFactionValue[10];
 };
 
+struct QuestPOIPointEntry
+{
+    //uint32 Id;                                            // 0
+    int32 X;                                                // 1
+    int32 Y;                                                // 2
+    uint32 BlobId;                                          // 3
+};
+
 struct RandomPropertiesPointsEntry
 {
     //uint32  Id;                                           // 0 hidden key
@@ -1958,6 +2104,45 @@ struct RandomPropertiesPointsEntry
     uint32    EpicPropertiesPoints[5];                      // 2-6
     uint32    RarePropertiesPoints[5];                      // 7-11
     uint32    UncommonPropertiesPoints[5];                  // 12-16
+};
+
+struct ResearchBranchEntry
+{
+    uint32 Id;                                            // 0
+    //char* BranchName;                                   // 1
+    //uint32 ResearchFieldId;                             // 2 research field (from ResearchField.dbc)
+    //uint32 FragmentCurrencyId;                          // 3
+    //char* Icon;                                         // 4
+    //uint32 KeystoneItemId;                              // 5
+};
+
+//struct ResearchFieldEntry
+//{
+//    uint32 Id;                                            // 0
+//    char* FieldName;                                      // 1
+//    uint32 slot;                                          // 2
+//};
+
+struct ResearchProjectEntry
+{
+    uint32 Id;                                              // 0
+    //char* ProjectName;                                    // 1
+    //char* ProjectDescription;                             // 2
+    uint32 Rarity;                                          // 3 0-common, 1-rare
+    uint32 ResearchBranchId;                                // 4 branch id (from ResearchBranch.dbc)
+    //uint32 SpellId;                                       // 5
+    //uint32 KeystoneCount;                                 // 6
+    //char* ProjectIcon;                                    // 7
+    uint32 RequiredFragmentCount;                           // 8
+};
+
+struct ResearchSiteEntry
+{
+    uint32 Id;                                              // 0
+    uint32 MapId;                                           // 1
+    uint32 QuestPOIBlobId;                                  // 2 blob id (from QuestPOIBlob.dbc)
+    //char* SiteName;                                       // 3
+    //uint32 IconId;                                        // 4
 };
 
 struct ScalingStatDistributionEntry
@@ -2269,7 +2454,7 @@ struct SpellCategoryEntry
 struct SpellDifficultyEntry
 {
     uint32     ID;                                          // 0
-    int32      SpellID[MAX_DIFFICULTY];                     // 1-4 instance modes: 10N, 25N, 10H, 25H or Normal/Heroic if only 1-2 is set, if 3-4 is 0 then Mode-2
+    int32      SpellID[4];                     // 1-4 instance modes: 10N, 25N, 10H, 25H or Normal/Heroic if only 1-2 is set, if 3-4 is 0 then Mode-2
 };
 
 struct SpellFocusObjectEntry
@@ -2358,28 +2543,27 @@ struct SpellLevelsEntry
 struct SpellPowerEntry
 {
     //uint32    Id;                                         // 0        m_ID
-    //uint32  spellId;                                      // 1  - Pandaria
-    //uint32  unk0;                                         // 2  - Pandaria always after spellId
+    //uint32    spellId;                                    // 1  - Pandaria
+    //uint32    RaidDifficulty;                             // 2  - Pandaria RaidDifficultyID
     uint32    powerType;                                    // 3       m_powerType
     uint32    manaCost;                                     // 4       m_manaCost
     uint32    manaCostPerlevel;                             // 5       m_manaCostPerLevel
     uint32    manaPerSecond;                                // 6       m_manaPerSecond
     uint32    manaPerSecondPerLevel;                        // 7       m_manaPerSecondPerLevel
-    //uint32  PowerDisplayId;                               // 8       m_powerDisplayID - id from PowerDisplay.dbc, new in 3.1
+    //uint32    PowerDisplayId;                             // 8       m_powerDisplayID - id from PowerDisplay.dbc, new in 3.1
     float     ManaCostPercentageFloat;                      // 9       4.3.0
-    // float  unk1                                          // 10 - Pandaria
-    // float  unk2                                          // 11 - Pandaria
-    // float  unk3                                          // 12 - Pandaria
+    //float     ChannelCostPercentageFloat;                 // 10 - Pandaria - ChannelCostPercentageFloat
+    //float     ShapeShiftSpellID                           // 11 - Pandaria - ShapeShiftSpellID
+    //float     HealthCostPercentageFloat;                  // 12 - Pandaria - HealthCostPercentageFloat
 };
 
 struct SpellRuneCostEntry
 {
     uint32  ID;                                             // 0
-    uint32  RuneCost[3];                                    // 1-3 (0=blood, 1=frost, 2=unholy)
-    //uint32 unk0                                           // 4 - 4th rune ??
+    uint32  RuneCost[4];                                    // 1-4 (0=blood, 1=frost, 2=unholy, 3=death)
     uint32  runePowerGain;                                  // 5
 
-    bool NoRuneCost() const { return RuneCost[0] == 0 && RuneCost[1] == 0 && RuneCost[2] == 0; }
+    bool NoRuneCost() const { return RuneCost[0] == 0 && RuneCost[1] == 0 && RuneCost[2] == 0 && RuneCost[3] == 0; }
     bool NoRunicPowerGain() const { return runePowerGain == 0; }
 };
 
@@ -2400,7 +2584,7 @@ struct SpellShapeshiftFormEntry
     //uint32 unk3;                                          // 9 unused always 0
     //uint32 unk4;                                          // 10 unused always 0
     uint32 stanceSpell[MAX_SHAPESHIFT_SPELLS];              // 11-18 spells which appear in the bar after shapeshifting
-    //uint32 unk5;                                          // 19
+    uint32 mount_type;                                       // MountType.dbc
     //uint32 unk6;                                          // 20
 };
 
@@ -2455,17 +2639,18 @@ struct SpellItemEnchantmentEntry
     //uint32      charges;                                  // 1        m_charges
     uint32      type[MAX_ITEM_ENCHANTMENT_EFFECTS];         // 2-4      m_effect[MAX_ITEM_ENCHANTMENT_EFFECTS]
     uint32      amount[MAX_ITEM_ENCHANTMENT_EFFECTS];       // 5-7      m_effectPointsMin[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    //uint32      amount2[MAX_ITEM_ENCHANTMENT_EFFECTS]     // 8-10     m_effectPointsMax[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    uint32      spellid[MAX_ITEM_ENCHANTMENT_EFFECTS];      // 11-13    m_effectArg[MAX_ITEM_ENCHANTMENT_EFFECTS]
-    char*       description;                                // 14       m_name_lang
-    uint32      aura_id;                                    // 15       m_itemVisual
-    uint32      slot;                                       // 16       m_flags
-    uint32      GemID;                                      // 17       m_src_itemID
-    uint32      EnchantmentCondition;                       // 18       m_condition_id
-    uint32      requiredSkill;                              // 19       m_requiredSkillID
-    uint32      requiredSkillValue;                         // 20       m_requiredSkillRank
-    uint32      requiredLevel;                              // 21       new in 3.1
-                                                            // 22       new in 3.1
+    uint32      spellid[MAX_ITEM_ENCHANTMENT_EFFECTS];      // 8-10    m_effectArg[MAX_ITEM_ENCHANTMENT_EFFECTS]
+    char*       description;                                // 11       m_name_lang
+    uint32      aura_id;                                    // 12       m_itemVisual
+    uint32      slot;                                       // 13       m_flags
+    uint32      GemID;                                      // 14       m_src_itemID
+    uint32      EnchantmentCondition;                       // 15       m_condition_id
+    uint32      requiredSkill;                              // 16       m_requiredSkillID
+    uint32      requiredSkillValue;                         // 17       m_requiredSkillRank
+    uint32      requiredMinLevel;                           // 18       m_requiredMinLevel
+    uint32      requiredMaxLevel;                           // 19       m_requiredMaxLevel
+    //uint32      unk[MAX_ITEM_ENCHANTMENT_EFFECTS]         // 20-22    unk
+    //float     unk2[MAX_ITEM_ENCHANTMENT_EFFECTS]          // 23-25    unk2
 };
 
 struct SpellItemEnchantmentConditionEntry
@@ -2683,9 +2868,8 @@ struct VehicleSeatEntry
     uint32  m_vehicleAbilityDisplay;                        // 41
     uint32  m_enterUISoundID;                               // 42
     uint32  m_exitUISoundID;                                // 43
-    int32   m_uiSkin;                                       // 44
-    uint32  m_flagsB;                                       // 45
-                                                            // 46-57 added in 3.1, floats mostly
+    uint32  m_flagsB;                                       // 44
+                                                            // 45-56 added in 3.1, floats mostly
 
     bool CanEnterOrExit() const { return m_flags & VEHICLE_SEAT_FLAG_CAN_ENTER_OR_EXIT; }
     bool CanSwitchFromSeat() const { return m_flags & VEHICLE_SEAT_FLAG_CAN_SWITCH; }
@@ -2807,6 +2991,8 @@ struct WorldStateUI
 #pragma pack(pop)
 #endif
 
+typedef std::unordered_map<uint32, std::set<uint32>> PhaseGroupContainer;
+
 struct VectorArray
 {
     std::vector<std::string> stringVectorArray[2];
@@ -2817,9 +3003,12 @@ typedef std::map<uint32, VectorArray> NameGenVectorArraysMap;
 // Structures not used for casting to loaded DBC data and not required then packing
 struct MapDifficulty
 {
-    MapDifficulty() : resetTime(0), maxPlayers(0), hasErrorMessage(false) { }
-    MapDifficulty(uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage) : resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage) { }
-
+    MapDifficulty() : DifficultyID(0), ErrorMessage(""), resetTime(0), maxPlayers(0), hasErrorMessage(false) { }
+    MapDifficulty(uint32 difficultyID, std::string _errorMessage, uint32 _resetTime, uint32 _maxPlayers, bool _hasErrorMessage)
+        : DifficultyID(difficultyID), ErrorMessage(_errorMessage), resetTime(_resetTime), maxPlayers(_maxPlayers), hasErrorMessage(_hasErrorMessage) { }
+    
+    uint32 DifficultyID;
+    std::string ErrorMessage;
     uint32 resetTime;
     uint32 maxPlayers;
     bool hasErrorMessage;

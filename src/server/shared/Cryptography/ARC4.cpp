@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,34 +20,34 @@
 #include "ARC4.h"
 #include <openssl/sha.h>
 
-ARC4::ARC4(uint8 len) : m_ctx()
+ARC4::ARC4(uint32 len) : m_ctx(EVP_CIPHER_CTX_new())
 {
-    EVP_CIPHER_CTX_init(&m_ctx);
-    EVP_EncryptInit_ex(&m_ctx, EVP_rc4(), NULL, NULL, NULL);
-    EVP_CIPHER_CTX_set_key_length(&m_ctx, len);
+    EVP_CIPHER_CTX_init(m_ctx);
+    EVP_EncryptInit_ex(m_ctx, EVP_rc4(), NULL, NULL, NULL);
+    EVP_CIPHER_CTX_set_key_length(m_ctx, len);
 }
 
-ARC4::ARC4(uint8 *seed, uint8 len) : m_ctx()
+ARC4::ARC4(uint8 *seed, uint32 len) : m_ctx(EVP_CIPHER_CTX_new())
 {
-    EVP_CIPHER_CTX_init(&m_ctx);
-    EVP_EncryptInit_ex(&m_ctx, EVP_rc4(), NULL, NULL, NULL);
-    EVP_CIPHER_CTX_set_key_length(&m_ctx, len);
-    EVP_EncryptInit_ex(&m_ctx, NULL, NULL, seed, NULL);
+    EVP_CIPHER_CTX_init(m_ctx);
+    EVP_EncryptInit_ex(m_ctx, EVP_rc4(), NULL, NULL, NULL);
+    EVP_CIPHER_CTX_set_key_length(m_ctx, len);
+    EVP_EncryptInit_ex(m_ctx, NULL, NULL, seed, NULL);
 }
 
 ARC4::~ARC4()
 {
-    EVP_CIPHER_CTX_cleanup(&m_ctx);
+    EVP_CIPHER_CTX_cleanup(m_ctx);
 }
 
 void ARC4::Init(uint8 *seed)
 {
-    EVP_EncryptInit_ex(&m_ctx, NULL, NULL, seed, NULL);
+    EVP_EncryptInit_ex(m_ctx, NULL, NULL, seed, NULL);
 }
 
 void ARC4::UpdateData(int len, uint8 *data)
 {
     int outlen = 0;
-    EVP_EncryptUpdate(&m_ctx, data, &outlen, data, len);
-    EVP_EncryptFinal_ex(&m_ctx, data, &outlen);
+    EVP_EncryptUpdate(m_ctx, data, &outlen, data, len);
+    EVP_EncryptFinal_ex(m_ctx, data, &outlen);
 }

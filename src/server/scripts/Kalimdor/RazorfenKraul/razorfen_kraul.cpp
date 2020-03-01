@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -83,7 +83,7 @@ public:
                     Talk(SAY_POINT, player);
                     break;
                 case 4:
-                    me->SummonCreature(ENTRY_BOAR, 2137.66f, 1843.98f, 48.08f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(ENTRY_BOAR, 2137.66f, 1843.98f, 48.08f, 1.54f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
                 case 8:
                     Talk(SAY_BLUELEAF, player);
@@ -95,7 +95,7 @@ public:
                     Talk(SAY_BAD, player);
                     break;
                 case 14:
-                    me->SummonCreature(ENTRY_BOAR, 2078.91f, 1704.54f, 56.77f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(ENTRY_BOAR, 2078.91f, 1704.54f, 56.77f, 1.54f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
                 case 25:
                     Talk(SAY_THINK, player);
@@ -107,7 +107,7 @@ public:
                     Talk(SAY_FINALY, player);
                     break;
                 case 43:
-                    me->SummonCreature(ENTRY_BOAR, 1956.43f, 1596.97f, 81.75f, 1.54f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                    me->SummonCreature(ENTRY_BOAR, 1956.43f, 1596.97f, 81.75f, 1.54f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
                     break;
                 case 45:
                     Talk(SAY_WIN, player);
@@ -149,7 +149,7 @@ enum SnufflenoseGopher
     POINT_TUBBER                 = 0
 };
 
-struct DistanceOrder : public std::binary_function<GameObject, GameObject, bool>
+struct DistanceOrder //: public std::binary_function<GameObject, GameObject, bool>
 {
     DistanceOrder(Creature* me) : me(me) { }
 
@@ -258,7 +258,7 @@ class spell_snufflenose_command : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleAfterCast()

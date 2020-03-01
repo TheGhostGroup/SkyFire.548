@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,10 +28,10 @@
 void CharacterDatabaseCleaner::CleanDatabase()
 {
     // config to disable
-    if (!sWorld->getBoolConfig(CONFIG_CLEAN_CHARACTER_DB))
+    if (!sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_CLEAN_CHARACTER_DB))
         return;
 
-    TC_LOG_INFO("misc", "Cleaning character database...");
+    SF_LOG_INFO("misc", "Cleaning character database...");
 
     uint32 oldMSTime = getMSTime();
 
@@ -60,12 +60,12 @@ void CharacterDatabaseCleaner::CleanDatabase()
 
     // NOTE: In order to have persistentFlags be set in worldstates for the next cleanup,
     // you need to define them at least once in worldstates.
-    flags &= sWorld->getIntConfig(CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS);
+    flags &= sWorld->getIntConfig(WorldIntConfigs::CONFIG_PERSISTENT_CHARACTER_CLEAN_FLAGS);
     CharacterDatabase.DirectPExecute("UPDATE worldstates SET value = %u WHERE entry = %d", flags, WS_CLEANING_FLAGS);
 
     sWorld->SetCleaningFlags(flags);
 
-    TC_LOG_INFO("server.loading", ">> Cleaned character database in %u ms", GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Cleaned character database in %u ms", GetMSTimeDiffToNow(oldMSTime));
 }
 
 void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table, bool (*check)(uint32))
@@ -73,7 +73,7 @@ void CharacterDatabaseCleaner::CheckUnique(const char* column, const char* table
     QueryResult result = CharacterDatabase.PQuery("SELECT DISTINCT %s FROM %s", column, table);
     if (!result)
     {
-        TC_LOG_INFO("misc", "Table %s is empty.", table);
+        SF_LOG_INFO("misc", "Table %s is empty.", table);
         return;
     }
 

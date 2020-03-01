@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,8 +24,8 @@ std::string LogMessage::getTimeStr(time_t time)
 {
     tm aTm;
     ACE_OS::localtime_r(&time, &aTm);
-    char buf[20];
-    snprintf(buf, 20, "%04d-%02d-%02d_%02d:%02d:%02d", aTm.tm_year+1900, aTm.tm_mon+1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
+    char buf[72];
+    snprintf(buf, sizeof(buf), "%04d-%02d-%02d_%02d:%02d:%02d", aTm.tm_year+1900, aTm.tm_mon+1, aTm.tm_mday, aTm.tm_hour, aTm.tm_min, aTm.tm_sec);
     return std::string(buf);
 }
 
@@ -71,7 +71,7 @@ void Appender::setLogLevel(LogLevel _level)
 
 void Appender::write(LogMessage& message)
 {
-    if (!level || level > message.level)
+    if (level == LogLevel::LOG_LEVEL_DISABLED || level > message.level)
         return;
 
     message.prefix.clear();
@@ -108,17 +108,17 @@ const char* Appender::getLogLevelString(LogLevel level)
 {
     switch (level)
     {
-        case LOG_LEVEL_FATAL:
+        case LogLevel::LOG_LEVEL_FATAL:
             return "FATAL";
-        case LOG_LEVEL_ERROR:
+        case LogLevel::LOG_LEVEL_ERROR:
             return "ERROR";
-        case LOG_LEVEL_WARN:
+        case LogLevel::LOG_LEVEL_WARN:
             return "WARN";
-        case LOG_LEVEL_INFO:
+        case LogLevel::LOG_LEVEL_INFO:
             return "INFO";
-        case LOG_LEVEL_DEBUG:
+        case LogLevel::LOG_LEVEL_DEBUG:
             return "DEBUG";
-        case LOG_LEVEL_TRACE:
+        case LogLevel::LOG_LEVEL_TRACE:
             return "TRACE";
         default:
             return "DISABLED";

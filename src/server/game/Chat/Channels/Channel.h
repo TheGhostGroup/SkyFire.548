@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,10 +23,8 @@
 #include <list>
 #include <map>
 #include <string>
-
-#include "Common.h"
-
 #include "Opcodes.h"
+#include "SharedDefines.h"
 #include "WorldPacket.h"
 
 class Player;
@@ -123,6 +121,7 @@ class Channel
 {
     struct PlayerInfo
     {
+        PlayerInfo() : player(0), flags(0) { }
         uint64 player;
         uint8 flags;
 
@@ -179,12 +178,12 @@ class Channel
         void UnsetMute(Player const* player, std::string const& newname) { SetMode(player, newname, false, false); }
         void List(Player const* player);
         void Announce(Player const* player);
-        void Say(uint64 guid, std::string const& what, uint32 lang);
+        void Say(uint64 guid, std::string const& what, Language lang);
         void Invite(Player const* player, std::string const& newp);
         void Voice(uint64 guid1, uint64 guid2);
         void DeVoice(uint64 guid1, uint64 guid2);
-        void JoinNotify(uint64 guid);                                           // invisible notify
-        void LeaveNotify(uint64 guid);                                          // invisible notify
+        void JoinNotify(ObjectGuid UserGUID, uint32 ChannelID, uint8 ChannelFlags, uint8 UserFlags, const std::string ChannelName); // invisible notify                                          // invisible notify
+        void LeaveNotify(ObjectGuid UserGUID, uint32 ChannelID, uint8 ChannelFlags, const std::string ChannelName);                 // invisible notify  
         void SetOwnership(bool ownership) { _ownership = ownership; };
         static void CleanOldChannelsInDB();
 

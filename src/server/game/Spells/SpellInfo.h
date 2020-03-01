@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -249,19 +249,21 @@ public:
     Mechanics Mechanic;
     SpellImplicitTargetInfo TargetA;
     SpellImplicitTargetInfo TargetB;
-    SpellRadiusEntry const* RadiusEntry;
-    SpellRadiusEntry const* MaxRadiusEntry;
+    SpellRadiusEntry const* RadiusEntry = { };
+    SpellRadiusEntry const* MaxRadiusEntry = { };
     uint32    ChainTarget;
     uint32    ItemType;
     uint32    TriggerSpell;
     flag128    SpellClassMask;
-    std::list<Condition*>* ImplicitTargetConditions;
+    std::list<Condition*>* ImplicitTargetConditions = { };
     // SpellScalingEntry
     float     ScalingMultiplier;
     float     DeltaScalingMultiplier;
     float     ComboScalingMultiplier;
 
-    SpellEffectInfo() { }
+    SpellEffectInfo() : ApplyAuraName(0), ApplyAuraTickCount(0), BasePoints(0), BonusMultiplier(0), ChainTarget(0), ComboScalingMultiplier(0.0f),
+        DamageMultiplier(0.0f), DeltaScalingMultiplier(0.0f), DieSides(0), Effect(0), ItemType(0), Mechanic(MECHANIC_NONE), MiscValue(0), MiscValueB(0),
+        PointsPerComboPoint(0.0f), RealPointsPerLevel(0.0f), ScalingMultiplier(0.0f), TriggerSpell(0), ValueMultiplier(0.0f), _effIndex(0), _spellInfo(NULL) { }
     SpellEffectInfo(SpellEntry const* spellEntry, SpellInfo const* spellInfo, uint8 effIndex, SpellEffectEntry const* effect);
 
     bool IsEffect() const;
@@ -393,6 +395,7 @@ public:
     uint32 SpellShapeshiftId;
     uint32 SpellTargetRestrictionsId;
     uint32 SpellTotemsId;
+    uint32 ResearchProject;
     // SpellScalingEntry
     int32  CastTimeMin;
     int32  CastTimeMax;
@@ -403,6 +406,12 @@ public:
     SpellEffectInfo Effects[MAX_SPELL_EFFECTS];
     uint32 ExplicitTargetMask;
     SpellChainNode const* ChainEntry;
+
+    // SpecializationSpellsEntry
+    std::list<uint32> SpecializationIdList;
+    std::list<uint32> OverrideSpellList;
+
+    uint32 talentId;
 
     // struct access functions
     SpellTargetRestrictionsEntry const* GetSpellTargetRestrictions() const;

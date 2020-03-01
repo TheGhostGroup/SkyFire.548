@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -497,7 +497,7 @@ class boss_twilight_halion : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_KILL);
 
                 // Victims should not be in the Twilight Realm
@@ -935,7 +935,7 @@ class npc_orb_carrier : public CreatureScript
                     Unit* northOrb = vehicle->GetPassenger(SEAT_NORTH);
                     if (southOrb && northOrb)
                     {
-                        if (northOrb->GetTypeId() == TYPEID_UNIT)
+                        if (northOrb->GetTypeId() == TypeID::TYPEID_UNIT)
                             northOrb->ToCreature()->AI()->Talk(EMOTE_WARN_LASER);
                         TriggerCutter(northOrb, southOrb);
                     }
@@ -1021,7 +1021,7 @@ class npc_meteor_strike_initial : public CreatureScript
                         angle[i] = Position::NormalizeOrientation(angle[i]);
                         me->SetOrientation(angle[i]);
                         me->GetNearPosition(newPos, 10.0f, 0.0f); // Exact distance
-                        if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TEMPSUMMON_TIMED_DESPAWN, 30000))
+                        if (Creature* meteor = me->SummonCreature(NPC_METEOR_STRIKE_NORTH + i, newPos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 30000))
                             _meteorList.push_back(meteor);
                     }
                 }
@@ -1085,7 +1085,7 @@ class npc_meteor_strike : public CreatureScript
                     Position pos;
                     me->GetNearPosition(pos, _range, 0.0f);
 
-                    if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                    if (Creature* flame = me->SummonCreature(NPC_METEOR_STRIKE_FLAME, pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 25000))
                     {
                         if (Creature* controller = ObjectAccessor::GetCreature(*me, _instance->GetData64(DATA_HALION_CONTROLLER)))
                             controller->AI()->JustSummoned(flame);

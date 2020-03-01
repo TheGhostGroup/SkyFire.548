@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -171,7 +171,7 @@ class boss_taldaram : public CreatureScript
                             float angle, x, y;
 
                             //DoCast(me, SPELL_FLAME_SPHERE_SUMMON_1);
-                            if (Creature* sphere = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
+                            if (Creature* sphere = DoSpawnCreature(CREATURE_FLAME_SPHERE, 0, 0, 5, 0, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
                             {
                                 angle = sphere->GetAngle(sphereTarget);
                                 x = sphere->GetPositionX() + DATA_SPHERE_DISTANCE * std::cos(angle);
@@ -182,7 +182,7 @@ class boss_taldaram : public CreatureScript
                             if (IsHeroic())
                             {
                                 //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_1);
-                                if (Creature* sphere = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
+                                if (Creature* sphere = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_1, 0, 0, 5, 0, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
                                 {
                                     angle = sphere->GetAngle(sphereTarget) + DATA_SPHERE_ANGLE_OFFSET;
                                     x = sphere->GetPositionX() + DATA_SPHERE_DISTANCE/2 * std::cos(angle);
@@ -191,7 +191,7 @@ class boss_taldaram : public CreatureScript
                                 }
 
                                 //DoCast(me, H_SPELL_FLAME_SPHERE_SUMMON_2);
-                                if (Creature* sphere = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
+                                if (Creature* sphere = DoSpawnCreature(H_CREATURE_FLAME_SPHERE_2, 0, 0, 5, 0, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10 * IN_MILLISECONDS))
                                 {
                                     angle = sphere->GetAngle(sphereTarget) - DATA_SPHERE_ANGLE_OFFSET;
                                     x = sphere->GetPositionX() + DATA_SPHERE_DISTANCE/2 * std::cos(angle);
@@ -255,7 +255,7 @@ class boss_taldaram : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() != TYPEID_PLAYER)
+                if (victim->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
 
                 Unit* embraceTarget = GetEmbraceTarget();
@@ -374,7 +374,7 @@ class prince_taldaram_sphere : public GameObjectScript
             {
                 // maybe these are hacks :(
                 go->SetFlag(GAMEOBJECT_FIELD_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                go->SetGoState(GO_STATE_ACTIVE);
+                go->SetGoState(GOState::GO_STATE_ACTIVE);
 
                 switch (go->GetEntry())
                 {

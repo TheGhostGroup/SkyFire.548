@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -147,10 +147,10 @@ public:
             {
                 // Summon Focus Fire & Emote
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                if (target && target->GetTypeId() == TYPEID_PLAYER && target->IsAlive())
+                if (target && target->GetTypeId() == TypeID::TYPEID_PLAYER && target->IsAlive())
                 {
                     FocusedTargetGUID = target->GetGUID();
-                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 5500);
+                    me->SummonCreature(NPC_FOCUS_FIRE, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 5500);
                     Talk(EMOTE_FOCUSED, target);
                 }
                 FocusFire_Timer = 15000+(rand()%5000);

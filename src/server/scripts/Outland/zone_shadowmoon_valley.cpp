@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -108,7 +108,7 @@ public:
             if (bCanEat || bIsEating)
                 return;
 
-            if (pCaster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_PLACE_CARCASS && !me->HasAura(SPELL_JUST_EATEN))
+            if (pCaster->GetTypeId() == TypeID::TYPEID_PLAYER && spell->Id == SPELL_PLACE_CARCASS && !me->HasAura(SPELL_JUST_EATEN))
             {
                 uiPlayerGUID = pCaster->GetGUID();
                 bCanEat = true;
@@ -246,7 +246,7 @@ public:
             if (!caster)
                 return;
 
-            if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == SPELL_HIT_FORCE_OF_NELTHARAKU && !Tapped)
+            if (caster->GetTypeId() == TypeID::TYPEID_PLAYER && spell->Id == SPELL_HIT_FORCE_OF_NELTHARAKU && !Tapped)
             {
                 Tapped = true;
                 PlayerGUID = caster->GetGUID();
@@ -369,7 +369,7 @@ public:
             if (!caster)
                 return;
 
-            if (caster->GetTypeId() == TYPEID_PLAYER && spell->Id == 40468 && !Tapped)
+            if (caster->GetTypeId() == TypeID::TYPEID_PLAYER && spell->Id == 40468 && !Tapped)
             {
                 PlayerGUID = caster->GetGUID();
 
@@ -662,7 +662,7 @@ class npc_karynaku : public CreatureScript
                 player->ActivateTaxiPathTo(TAXI_PATH_ID);
 
             if (quest->GetQuestId() == QUEST_ZUHULED_THE_WACK)
-                creature->SummonCreature(NPC_ZUHULED_THE_WACKED, -4204.94f, 316.397f, 122.508f, 1.309f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
+                creature->SummonCreature(NPC_ZUHULED_THE_WACKED, -4204.94f, 316.397f, 122.508f, 1.309f, TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 300000);
 
             return true;
         }
@@ -754,7 +754,7 @@ public:
         {
             me->SetUInt32Value(UNIT_FIELD_NPC_FLAGS, 0);
             me->SetUInt32Value(UNIT_FIELD_ANIM_TIER, 0);
-            Unit* Illidan = me->SummonCreature(C_ILLIDAN, -5107.83f, 602.584f, 85.2393f, 4.92598f, TEMPSUMMON_CORPSE_DESPAWN, 0);
+            Unit* Illidan = me->SummonCreature(C_ILLIDAN, -5107.83f, 602.584f, 85.2393f, 4.92598f, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0);
             if (Illidan)
             {
                 IllidanGUID = Illidan->GetGUID();
@@ -900,7 +900,7 @@ public:
                     if (Illi)
                     {
                         Illi->SetVisible(false);
-                        Illi->setDeathState(JUST_DIED);
+                        Illi->setDeathState(DeathState::JUST_DIED);
                     }
                     return 1000;
                     break;
@@ -1116,7 +1116,7 @@ public:
         void DoSpawnAssassin()
         {
             //unknown where they actually appear
-            DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
+            DoSummon(NPC_COILSKAR_ASSASSIN, me, 15.0f, 5000, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT);
         }
 
         void EnterCombat(Unit* who) OVERRIDE
@@ -1126,7 +1126,7 @@ public:
                 return;
 
             //only aggro text if not player
-            if (who->GetTypeId() != TYPEID_PLAYER)
+            if (who->GetTypeId() != TypeID::TYPEID_PLAYER)
             {
                 //appears to be random
                 if (urand(0, 1))
@@ -1384,12 +1384,12 @@ public:
         {
             switch (killer->GetTypeId())
             {
-                case TYPEID_UNIT:
+                case TypeID::TYPEID_UNIT:
                     if (Unit* owner = killer->GetOwner())
                         if (Player* player = owner->ToPlayer())
                             player->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
                     break;
-                case TYPEID_PLAYER:
+                case TypeID::TYPEID_PLAYER:
                     if (Player* player = killer->ToPlayer())
                         player->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, me);
                     break;
@@ -1623,7 +1623,7 @@ public:
                 {
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                     {
-                        if (target->GetTypeId() == TYPEID_PLAYER)
+                        if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
                         {
                             DoCast(target, SpawnCast[1].SpellId); //Focused Bursts
                             SpellTimer1 = SpawnCast[1].Timer2 + (rand()%5 * 1000);
@@ -1678,7 +1678,7 @@ void npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI::SummonNextWave()
         float Y = SpawnLocation[locIndex + i].y;
         float Z = SpawnLocation[locIndex + i].z;
         float O = SpawnLocation[locIndex + i].o;
-        Spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
+        Spawn = me->SummonCreature(WavesInfo[WaveCount].CreatureId, X, Y, Z, O, TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 60000);
         ++LiveCount;
 
         if (Spawn)
@@ -1861,7 +1861,7 @@ public:
             Unit* totemOspirits = NULL;
 
             if (entry != 0)
-                Summoned = DoSpawnCreature(entry, 0, 0, 1, 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5000);
+                Summoned = DoSpawnCreature(entry, 0, 0, 1, 0, TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 5000);
 
             // FIND TOTEM, PROCESS QUEST
             if (Summoned)
@@ -1899,7 +1899,7 @@ class spell_unlocking_zuluheds_chains : public SpellScriptLoader
 
             void HandleAfterHit()
             {
-                if (GetCaster()->GetTypeId() == TYPEID_PLAYER)
+                if (GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER)
                     if (Creature* karynaku = GetCaster()->FindNearestCreature(NPC_KARYNAKU, 15.0f))
                         GetCaster()->ToPlayer()->KilledMonsterCredit(NPC_KARYNAKU, karynaku->GetGUID());
             }

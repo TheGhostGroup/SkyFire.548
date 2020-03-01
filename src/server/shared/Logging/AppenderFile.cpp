@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -20,8 +20,12 @@
 #include "AppenderFile.h"
 #include "Common.h"
 
+#if PLATFORM == PLATFORM_WINDOWS
+# include <Windows.h>
+#endif
+
 AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, const char* _filename, const char* _logDir, const char* _mode, AppenderFlags _flags, uint64 fileSize):
-    Appender(id, name, APPENDER_FILE, level, _flags),
+    Appender(id, name, AppenderType::APPENDER_FILE, level, _flags),
     logfile(NULL),
     filename(_filename),
     logDir(_logDir),
@@ -30,7 +34,7 @@ AppenderFile::AppenderFile(uint8 id, std::string const& name, LogLevel level, co
     fileSize(0)
 {
     dynamicName = std::string::npos != filename.find("%s");
-    backup = _flags & APPENDER_FLAGS_MAKE_FILE_BACKUP;
+    backup = (_flags & APPENDER_FLAGS_MAKE_FILE_BACKUP) != 0;
 
     logfile = !dynamicName ? OpenFile(_filename, _mode, mode == "w" && backup) : NULL;
 }
@@ -46,8 +50,8 @@ void AppenderFile::_write(LogMessage const& message)
 
     if (dynamicName)
     {
-        char namebuf[TRINITY_PATH_MAX];
-        snprintf(namebuf, TRINITY_PATH_MAX, filename.c_str(), message.param1.c_str());
+        char namebuf[SKYFIRE_PATH_MAX];
+        snprintf(namebuf, SKYFIRE_PATH_MAX, filename.c_str(), message.param1.c_str());
         logfile = OpenFile(namebuf, mode, backup || exceedMaxSize);
     }
     else if (exceedMaxSize)

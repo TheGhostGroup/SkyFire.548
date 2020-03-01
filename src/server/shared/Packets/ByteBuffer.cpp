@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,6 +35,7 @@ ByteBufferPositionException::ByteBufferPositionException(bool add, size_t pos,
        << ")\n\n" << trace.c_str();
 
     message().assign(ss.str());
+    printf("\nError Message => [%s]\n\n", message().c_str());
 }
 
 ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
@@ -53,7 +54,7 @@ ByteBufferSourceException::ByteBufferSourceException(size_t pos, size_t size,
 
 void ByteBuffer::print_storage() const
 {
-    if (!sLog->ShouldLog("network", LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network", LogLevel::LOG_LEVEL_TRACE)) // optimize disabled trace output
         return;
 
     std::ostringstream o;
@@ -62,29 +63,29 @@ void ByteBuffer::print_storage() const
         o << read<uint8>(i) << " - ";
     o << " ";
 
-    TC_LOG_TRACE("network", "%s", o.str().c_str());
+    SF_LOG_TRACE("network", "%s", o.str().c_str());
 }
 
 void ByteBuffer::textlike() const
 {
-    if (!sLog->ShouldLog("network", LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network", LogLevel::LOG_LEVEL_TRACE)) // optimize disabled trace output
         return;
 
     std::ostringstream o;
     o << "STORAGE_SIZE: " << size();
     for (uint32 i = 0; i < size(); ++i)
     {
-        char buf[1];
-        snprintf(buf, 1, "%c", read<uint8>(i));
+        char buf[2];
+        snprintf(buf, sizeof(buf), "%c", read<uint8>(i));
         o << buf;
     }
     o << " ";
-    TC_LOG_TRACE("network", "%s", o.str().c_str());
+    SF_LOG_TRACE("network", "%s", o.str().c_str());
 }
 
 void ByteBuffer::hexlike() const
 {
-    if (!sLog->ShouldLog("network", LOG_LEVEL_TRACE)) // optimize disabled trace output
+    if (!sLog->ShouldLog("network", LogLevel::LOG_LEVEL_TRACE)) // optimize disabled trace output
         return;
 
     uint32 j = 1, k = 1;
@@ -94,8 +95,8 @@ void ByteBuffer::hexlike() const
 
     for (uint32 i = 0; i < size(); ++i)
     {
-        char buf[3];
-        snprintf(buf, 1, "%2X ", read<uint8>(i));
+        char buf[4];
+        snprintf(buf, sizeof(buf), "%2X ", read<uint8>(i));
         if ((i == (j * 8)) && ((i != (k * 16))))
         {
             o << "| ";
@@ -111,5 +112,5 @@ void ByteBuffer::hexlike() const
         o << buf;
     }
     o << " ";
-    TC_LOG_TRACE("network", "%s", o.str().c_str());
+    SF_LOG_TRACE("network", "%s", o.str().c_str());
 }

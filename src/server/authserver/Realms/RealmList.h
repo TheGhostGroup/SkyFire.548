@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -41,6 +41,8 @@ enum RealmFlags
 // Storage object for a realm
 struct Realm
 {
+    Realm() : icon(0), flag(REALM_FLAG_NONE), timezone(0), m_ID(0),
+              allowedSecurityLevel(AccountTypes::SEC_PLAYER), populationLevel(0.0f), gamebuild(0) {}
     ACE_INET_Addr ExternalAddress;
     ACE_INET_Addr LocalAddress;
     ACE_INET_Addr LocalSubnetMask;

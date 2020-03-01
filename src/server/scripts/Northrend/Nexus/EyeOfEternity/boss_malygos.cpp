@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -402,7 +402,7 @@ public:
             {
                 _summonDeaths = value;
 
-                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                if (GetDifficulty() ==DIFFICULTY_10MAN_NORMAL)
                 {
                     if (_summonDeaths == MAX_SUMMONS_PHASE_TWO_10MAN)
                     {
@@ -410,7 +410,7 @@ public:
                         DoAction(ACTION_HANDLE_P_THREE_INTRO);
                     }
                 }
-                else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                else if (GetDifficulty() == DIFFICULTY_25MAN_NORMAL)
                 {
                     if (_summonDeaths == MAX_SUMMONS_PHASE_TWO_25MAN)
                     {
@@ -637,7 +637,7 @@ public:
 
         void KilledUnit(Unit* victim) OVERRIDE
         {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
+            if (victim->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return;
 
             if (!_killSpamFilter)
@@ -673,7 +673,7 @@ public:
                 Talk(SAY_BUFF_SPARK);
             }
             else if (spell->Id == SPELL_MALYGOS_BERSERK)
-                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+                sCreatureTextMgr->SendChat(me, EMOTE_HIT_BERSERKER_TIMER, 0, ChatMsg::CHAT_MSG_ADDON, Language::LANG_ADDON, TEXT_RANGE_MAP);
         }
 
         void MoveInLineOfSight(Unit* who) OVERRIDE
@@ -860,7 +860,7 @@ public:
 
                         if (_arcaneReinforcements)
                         {
-                            for (uint8 rangeDisks = 0; rangeDisks < (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 4 : 5); rangeDisks++)
+                            for (uint8 rangeDisks = 0; rangeDisks < (GetDifficulty() == DIFFICULTY_10MAN_NORMAL ? 4 : 5); rangeDisks++)
                             {
                                 Creature* casterDiskSummon = me->SummonCreature(NPC_HOVER_DISK_CASTER, RangeHoverDisksSpawnPositions[rangeDisks]);
 
@@ -876,7 +876,7 @@ public:
 
                             _arcaneReinforcements = false;
 
-                            if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                            if (GetDifficulty() == DIFFICULTY_25MAN_NORMAL)
                                 events.ScheduleEvent(EVENT_DELAYED_REINFORCEMENTS, 1*IN_MILLISECONDS, 0, PHASE_TWO);
                         }
                         break;
@@ -956,7 +956,7 @@ public:
                         SetPhase(PHASE_THREE, true);
                         break;
                     case EVENT_SURGE_OF_POWER_P_THREE:
-                        if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                        if (GetDifficulty() == DIFFICULTY_10MAN_NORMAL)
                         {
                             if (Unit* tempSurgeTarget = SelectTarget(SELECT_TARGET_RANDOM, 0, 0.0f, false, SPELL_RIDE_RED_DRAGON_BUDDY))
                             {
@@ -964,7 +964,7 @@ public:
                                 {
                                     if (Unit* passenger = drakeVehicle->GetPassenger(0))
                                     {
-                                        if (passenger->GetTypeId() == TYPEID_PLAYER)
+                                        if (passenger->GetTypeId() == TypeID::TYPEID_PLAYER)
                                         {
                                             Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger);
                                             DoCast(tempSurgeTarget, SPELL_SURGE_OF_POWER_PHASE_3_10, true);
@@ -973,7 +973,7 @@ public:
                                 }
                             }
                         }
-                        else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                        else if (GetDifficulty() == DIFFICULTY_25MAN_NORMAL)
                         {
                             memset(_surgeTargetGUID, 0, sizeof(_surgeTargetGUID));
                             DoCastAOE(SPELL_SURGE_OF_POWER_WARNING_SELECTOR_25, true);
@@ -1005,15 +1005,15 @@ public:
             Talk(SAY_DEATH);
             if (Creature* alexstraszaGiftBoxBunny = me->GetMap()->GetCreature(instance->GetData64(DATA_GIFT_BOX_BUNNY_GUID)))
             {
-                if (GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                if (GetDifficulty() == DIFFICULTY_10MAN_NORMAL)
                     alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_10, HeartOfMagicSpawnPos.GetPositionX(), HeartOfMagicSpawnPos.GetPositionY(),
                         HeartOfMagicSpawnPos.GetPositionZ(), HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f, 0.0f, 1.0f, 0);
-                else if (GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                else if (GetDifficulty() == DIFFICULTY_25MAN_NORMAL)
                     alexstraszaGiftBoxBunny->SummonGameObject(GO_HEART_OF_MAGIC_25, HeartOfMagicSpawnPos.GetPositionX(), HeartOfMagicSpawnPos.GetPositionY(),
                         HeartOfMagicSpawnPos.GetPositionZ(), HeartOfMagicSpawnPos.GetOrientation(), 0.0f, 0.0f, 0.0f, 1.0f, 0);
             }
 
-            me->SummonCreature(NPC_ALEXSTRASZA, AlexstraszaSpawnPos, TEMPSUMMON_MANUAL_DESPAWN);
+            me->SummonCreature(NPC_ALEXSTRASZA, AlexstraszaSpawnPos, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN);
             me->DespawnOrUnsummon(5*IN_MILLISECONDS);
         }
 
@@ -1145,7 +1145,7 @@ public:
         {
             _instance = creature->GetInstanceScript();
             // Talk range was not enough for this encounter
-            sCreatureTextMgr->SendChat(me, EMOTE_POWER_SPARK_SUMMONED, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_MAP);
+            sCreatureTextMgr->SendChat(me, EMOTE_POWER_SPARK_SUMMONED, 0, ChatMsg::CHAT_MSG_ADDON, Language::LANG_ADDON, TEXT_RANGE_MAP);
             MoveToMalygos();
         }
 
@@ -1223,17 +1223,17 @@ public:
         {
             if (apply)
             {
-                if (unit->GetTypeId() == TYPEID_UNIT)
+                if (unit->GetTypeId() == TypeID::TYPEID_UNIT)
                 {
                     unit->CastSpell(unit, SPELL_TELEPORT_VISUAL_ONLY);
                     unit->ToCreature()->SetInCombatWithZone();
                 }
-                else if (unit->GetTypeId() == TYPEID_PLAYER)
+                else if (unit->GetTypeId() == TypeID::TYPEID_PLAYER)
                     me->SetDisableGravity(true);
             }
             else if (!apply)
             {
-                if (unit->GetTypeId() != TYPEID_PLAYER)
+                if (unit->GetTypeId() != TypeID::TYPEID_PLAYER)
                 {
 
                     me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
@@ -1241,7 +1241,7 @@ public:
                     me->SetDisableGravity(false);
                     me->SetCanFly(false);
                 }
-                else if (unit->GetTypeId() == TYPEID_PLAYER)
+                else if (unit->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
                     me->SetDisableGravity(false);
                     me->SetCanFly(false);
@@ -1263,7 +1263,7 @@ public:
         void DoAction(int32 /*action*/) OVERRIDE
         {
             if (Vehicle* vehicleTemp = me->GetVehicleKit())
-                if (vehicleTemp->GetPassenger(0) && vehicleTemp->GetPassenger(0)->GetTypeId() == TYPEID_PLAYER)
+                if (vehicleTemp->GetPassenger(0) && vehicleTemp->GetPassenger(0)->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
                     vehicleTemp->RemoveAllPassengers();
                     me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -1328,7 +1328,7 @@ public:
         {
             if (apply)
             {
-                if (unit->GetTypeId() == TYPEID_UNIT)
+                if (unit->GetTypeId() == TypeID::TYPEID_UNIT)
                     unit->CastSpell(unit, SPELL_TELEPORT_VISUAL_ONLY);
             }
             else if (!apply)
@@ -1684,7 +1684,7 @@ class spell_malygos_portal_beam : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             bool Validate(SpellInfo const* /*spell*/) OVERRIDE
@@ -1731,7 +1731,7 @@ class spell_malygos_random_portal : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1766,7 +1766,7 @@ class IsCreatureVehicleCheck
         bool operator()(WorldObject* obj)
         {
             if (Unit* unit = obj->ToUnit())
-                if (unit->GetTypeId() == TYPEID_UNIT && unit->GetVehicleKit())
+                if (unit->GetTypeId() == TypeID::TYPEID_UNIT && unit->GetVehicleKit())
                     return _isVehicle;
 
             return !_isVehicle;
@@ -1787,7 +1787,7 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             bool Validate(SpellInfo const* /*spell*/) OVERRIDE
@@ -1808,10 +1808,10 @@ class spell_malygos_arcane_storm : public SpellScriptLoader
                 {
                     // Resize list only to objects that are vehicles.
                     IsCreatureVehicleCheck check(true);
-                    Trinity::Containers::RandomResizeList(targets, check, (malygos->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 4 : 10));
+                    Skyfire::Containers::RandomResizeList(targets, check, (malygos->GetMap()->GetDifficulty() == DIFFICULTY_10MAN_NORMAL ? 4 : 10));
                 }
                 else
-                    Trinity::Containers::RandomResizeList(targets, (malygos->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL ? 4 : 10));
+                    Skyfire::Containers::RandomResizeList(targets, (malygos->GetMap()->GetDifficulty() == DIFFICULTY_10MAN_NORMAL ? 4 : 10));
             }
 
             void HandleVisual(SpellEffIndex /*effIndex*/)
@@ -1847,7 +1847,7 @@ public:
 
         bool Load() OVERRIDE
         {
-            return GetCaster()->GetTypeId() == TYPEID_UNIT;
+            return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
         }
 
         void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1884,7 +1884,7 @@ class spell_malygos_vortex_visual : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             bool Validate(SpellInfo const* /*spell*/) OVERRIDE
@@ -1963,7 +1963,7 @@ class spell_arcane_overload : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void ResizeEffectRadiusTargetChecker(std::list<WorldObject*>& targets)
@@ -1996,7 +1996,7 @@ class spell_nexus_lord_align_disk_aggro : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2047,7 +2047,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT && GetCaster()->GetInstanceScript() != NULL;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT && GetCaster()->GetInstanceScript() != NULL;
             }
 
             void FilterMeleeHoverDiskPassangers(std::list<WorldObject*>& targets)
@@ -2064,7 +2064,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
                 // and if 3rd picks X again 4th will pick smth else (by not limiting the cast to certain caster).
                 if (targets.size() > 1)
                     if (malygos && malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID))
-                        targets.remove_if(Trinity::ObjectGUIDCheck(malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID)));
+                        targets.remove_if(Skyfire::ObjectGUIDCheck(malygos->AI()->GetGUID(DATA_LAST_TARGET_BARRAGE_GUID)));
 
                 // Remove players not on Hover Disk from second list
                 std::list<WorldObject*> playersWithoutDisk;
@@ -2080,7 +2080,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
                 // Finally here we remove all targets that have been damaged by Arcane Barrage
                 // and have 2 seconds long aura still lasting. Used to give healers some time.
                 if (!targets.empty())
-                    targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_ARCANE_BARRAGE_DAMAGE));
+                    targets.remove_if(Skyfire::UnitAuraCheck(true, SPELL_ARCANE_BARRAGE_DAMAGE));
 
                 // Now we resize the list to max output targets which can be only 1
                 // to take it's guid and send/store it to DATA_LAST_TARGET_BARRAGE_GUID.
@@ -2089,7 +2089,7 @@ class spell_scion_of_eternity_arcane_barrage : public SpellScriptLoader
                 if (!targets.empty())
                 {
                     if (targets.size() > 1)
-                        Trinity::Containers::RandomResizeList(targets, 1);
+                        Skyfire::Containers::RandomResizeList(targets, 1);
 
                     if (WorldObject* filteredTarget = targets.front())
                         if (malygos)
@@ -2131,7 +2131,7 @@ class spell_malygos_destroy_platform_channel : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             bool Validate(SpellInfo const* /*spell*/) OVERRIDE
@@ -2173,7 +2173,7 @@ class spell_alexstrasza_bunny_destroy_platform_boom_visual : public SpellScriptL
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             bool Validate(SpellInfo const* /*spell*/) OVERRIDE
@@ -2213,7 +2213,7 @@ class spell_alexstrasza_bunny_destroy_platform_event : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void HandleSendEvent(SpellEffIndex /*effIndex*/)
@@ -2253,7 +2253,7 @@ class spell_wyrmrest_skytalon_summon_red_dragon_buddy : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void ChangeSummonPos(SpellEffIndex /*effIndex*/)
@@ -2289,7 +2289,7 @@ class spell_wyrmrest_skytalon_ride_red_dragon_buddy_trigger : public SpellScript
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -2321,7 +2321,7 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             bool Validate(SpellInfo const* /*spell*/) OVERRIDE
@@ -2345,7 +2345,7 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
                 std::list<WorldObject*> selectedTargets = targets;
 
                 uint8 guidDataSlot = DATA_FIRST_SURGE_TARGET_GUID; // SetGuid in Malygos AI is reserved for 14th, 15th and 16th Id for the three targets
-                Trinity::Containers::RandomResizeList(selectedTargets, 3);
+                Skyfire::Containers::RandomResizeList(selectedTargets, 3);
                 for (std::list<WorldObject*>::const_iterator itr = selectedTargets.begin(); itr != selectedTargets.end(); ++itr)
                 {
                     Creature* target = (*itr)->ToCreature();
@@ -2353,7 +2353,7 @@ class spell_malygos_surge_of_power_warning_selector_25 : public SpellScriptLoade
 
                     if (Vehicle* vehicle = target->GetVehicleKit())
                         if (Unit* passenger = vehicle->GetPassenger(0))
-                            if (passenger->GetTypeId() == TYPEID_PLAYER)
+                            if (passenger->GetTypeId() == TypeID::TYPEID_PLAYER)
                                 caster->AI()->Talk(EMOTE_SURGE_OF_POWER_WARNING_P3, passenger);
                 }
             }
@@ -2387,7 +2387,7 @@ class spell_malygos_surge_of_power_25 : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void FilterTargets(std::list<WorldObject*>& targets)
@@ -2438,7 +2438,7 @@ class spell_alexstrasza_gift_beam : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             bool Validate(SpellInfo const* /*spell*/) OVERRIDE
@@ -2485,16 +2485,16 @@ class spell_alexstrasza_gift_beam_visual : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void OnApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Creature* target = GetTarget()->ToCreature())
                 {
-                    if (target->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                    if (target->GetMap()->GetDifficulty() == DIFFICULTY_10MAN_NORMAL)
                         _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_10, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
-                    else if (target->GetMap()->GetDifficulty() == RAID_DIFFICULTY_25MAN_NORMAL)
+                    else if (target->GetMap()->GetDifficulty() == DIFFICULTY_25MAN_NORMAL)
                         _alexstraszaGift = target->SummonGameObject(GO_ALEXSTRASZA_S_GIFT_25, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), 0.0f, 0.0f, 0.0f, 0.0f, 0);
                 }
             }

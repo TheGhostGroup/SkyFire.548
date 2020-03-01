@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -147,7 +147,7 @@ void MoveSpline::init_spline(const MoveSplineInitArgs& args)
     /// @todo what to do in such cases? problem is in input data (all points are at same coords)
     if (spline.length() < minimal_duration)
     {
-        TC_LOG_ERROR("misc", "MoveSpline::init_spline: zero length spline, wrong input data?");
+        SF_LOG_ERROR("misc", "MoveSpline::init_spline: zero length spline, wrong input data?");
         spline.set_length(spline.last(), spline.isCyclic() ? 1000 : 1);
     }
     point_Idx = spline.first();
@@ -201,7 +201,7 @@ bool MoveSplineInitArgs::Validate(Unit* unit) const
 #define CHECK(exp) \
     if (!(exp))\
     {\
-        TC_LOG_ERROR("misc", "MoveSplineInitArgs::Validate: expression '%s' failed for GUID: %u Entry: %u", #exp, unit->GetTypeId() == TYPEID_PLAYER ? unit->GetGUIDLow() : unit->ToCreature()->GetDBTableGUIDLow(), unit->GetEntry());\
+        SF_LOG_ERROR("misc", "MoveSplineInitArgs::Validate: expression '%s' failed for GUID: %u Entry: %u", #exp, unit->GetTypeId() == TypeID::TYPEID_PLAYER ? unit->GetGUIDLow() : unit->ToCreature()->GetDBTableGUIDLow(), unit->GetEntry());\
         return false;\
     }
     CHECK(path.size() > 1);
@@ -226,9 +226,9 @@ bool MoveSplineInitArgs::_checkPathBounds() const
         for (uint32 i = 1; i < path.size()-1; ++i)
         {
             offset = path[i] - middle;
-            if (fabs(offset.x) >= MAX_OFFSET || fabs(offset.y) >= MAX_OFFSET || fabs(offset.z) >= MAX_OFFSET)
+            if (fabs(offset.x) >= float(MAX_OFFSET) || fabs(offset.y) >= float(MAX_OFFSET) || fabs(offset.z) >= float(MAX_OFFSET))
             {
-                TC_LOG_ERROR("misc", "MoveSplineInitArgs::_checkPathBounds check failed");
+                SF_LOG_ERROR("misc", "MoveSplineInitArgs::_checkPathBounds check failed");
                 return false;
             }
         }

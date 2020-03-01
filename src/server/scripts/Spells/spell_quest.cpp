@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -148,7 +148,7 @@ class spell_q5206_test_fetid_skull : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
@@ -200,7 +200,7 @@ class spell_q6124_6129_apply_salve : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -324,7 +324,7 @@ class spell_q11396_11399_scourging_crystal_controller : public SpellScriptLoader
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetExplTargetUnit())
-                    if (target->GetTypeId() == TYPEID_UNIT && target->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
+                    if (target->GetTypeId() == TypeID::TYPEID_UNIT && target->HasAura(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3))
                         // Make sure nobody else is channeling the same target
                         if (!target->HasAura(SPELL_SCOURGING_CRYSTAL_CONTROLLER))
                             GetCaster()->CastSpell(target, SPELL_SCOURGING_CRYSTAL_CONTROLLER, true, GetCastItem());
@@ -362,7 +362,7 @@ class spell_q11396_11399_scourging_crystal_controller_dummy : public SpellScript
             void HandleDummy(SpellEffIndex /*effIndex*/)
             {
                 if (Unit* target = GetHitUnit())
-                    if (target->GetTypeId() == TYPEID_UNIT)
+                    if (target->GetTypeId() == TypeID::TYPEID_UNIT)
                         target->RemoveAurasDueToSpell(SPELL_FORCE_SHIELD_ARCANE_PURPLE_X3);
             }
 
@@ -475,7 +475,7 @@ class spell_q11730_ultrasonic_screwdriver : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER && GetCastItem();
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER && GetCastItem();
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
@@ -739,7 +739,7 @@ class spell_q12937_relief_for_the_fallen : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             bool Validate(SpellInfo const* /*spellEntry*/) OVERRIDE
@@ -877,7 +877,7 @@ class spell_q12659_ahunaes_knife : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -921,7 +921,7 @@ class spell_q9874_liquid_fire : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -966,7 +966,7 @@ class spell_q12805_lifeblood_dummy : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1093,7 +1093,7 @@ class spell_q9452_cast_net: public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -1181,7 +1181,7 @@ class spell_q12277_wintergarde_mine_explosion : public SpellScriptLoader
                 {
                     if (Unit* caster = GetCaster())
                     {
-                        if (caster->GetTypeId() == TYPEID_UNIT)
+                        if (caster->GetTypeId() == TypeID::TYPEID_UNIT)
                         {
                             if (Unit* owner = caster->GetOwner())
                             {
@@ -1511,8 +1511,8 @@ class spell_q11010_q11102_q11023_choose_loc : public SpellScriptLoader
                 Unit* caster = GetCaster();
                 // Check for player that is in 65 y range
                 std::list<Player*> playerList;
-                Trinity::AnyPlayerInObjectRangeCheck checker(caster, 65.0f);
-                Trinity::PlayerListSearcher<Trinity::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);
+                Skyfire::AnyPlayerInObjectRangeCheck checker(caster, 65.0f);
+                Skyfire::PlayerListSearcher<Skyfire::AnyPlayerInObjectRangeCheck> searcher(caster, playerList, checker);
                 caster->VisitNearbyWorldObject(65.0f, searcher);
                     for (std::list<Player*>::const_iterator itr = playerList.begin(); itr != playerList.end(); ++itr)
                     // Check if found player target is on fly mount or using flying form
@@ -1813,7 +1813,7 @@ class spell_q13011_bear_flank_master : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -1918,7 +1918,7 @@ class spell_q12690_burst_at_the_seams : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void HandleKnockBack(SpellEffIndex /*effIndex*/)
@@ -2242,6 +2242,7 @@ class spell_q12919_gymers_throw : public SpellScriptLoader
             return new spell_q12919_gymers_throw_SpellScript();
         }
 };
+
 enum FearNoEvil
 {
     SPELL_RENEWED_LIFE = 93097,
@@ -2285,6 +2286,33 @@ public:
     SpellScript* GetSpellScript() const OVERRIDE
     {
         return new spell_q28813_get_our_boys_back_dummy_SpellScript();
+    }
+};
+
+class spell_q28813_set_health_random : public SpellScriptLoader
+{
+public:
+    spell_q28813_set_health_random() : SpellScriptLoader("spell_q28813_set_health_random") { }
+
+    class spell_q28813_set_health_random_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_q28813_set_health_random_SpellScript);
+
+        void HandleDummyEffect()
+        {
+            Unit* caster = GetCaster();
+            caster->SetHealth(caster->CountPctFromMaxHealth(urand(3, 5)*10));
+        }
+
+        void Register() override
+        {
+            OnCast += SpellCastFn(spell_q28813_set_health_random_SpellScript::HandleDummyEffect);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_q28813_set_health_random_SpellScript();
     }
 };
 
@@ -2343,4 +2371,5 @@ void AddSC_quest_spell_scripts()
     new spell_q12919_gymers_grab();
     new spell_q12919_gymers_throw();
     new spell_q28813_get_our_boys_back_dummy();
+    new spell_q28813_set_health_random();
 }

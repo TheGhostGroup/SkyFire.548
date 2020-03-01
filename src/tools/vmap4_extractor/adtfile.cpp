@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -80,7 +80,7 @@ char* GetExtension(char* FileName)
 
 extern HANDLE WorldMpq;
 
-ADTFile::ADTFile(char* filename) : ADT(WorldMpq, filename, false)
+ADTFile::ADTFile(char* filename) : ADT(WorldMpq, filename, false), nWMO(0), nMDX(0)
 {
     Adtfilename.append(filename);
 }
@@ -139,8 +139,6 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 char* buf = new char[size];
                 ADT.read(buf, size);
                 char* p = buf;
-                int t = 0;
-                ModelInstanceNames = new std::string[size];
                 while (p < buf + size)
                 {
                     std::string path(p);
@@ -149,7 +147,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                     FixNameCase(s, strlen(s));
                     FixNameSpaces(s, strlen(s));
 
-                    ModelInstanceNames[t++] = s;
+                    ModelInstanceNames.push_back(s);
 
                     ExtractSingleModel(path);
 
@@ -165,15 +163,13 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                 char* buf = new char[size];
                 ADT.read(buf, size);
                 char* p = buf;
-                int q = 0;
-                WmoInstanceNames = new std::string[size];
                 while (p < buf + size)
                 {
                     char* s = GetPlainName(p);
                     FixNameCase(s, strlen(s));
                     FixNameSpaces(s, strlen(s));
 
-                    WmoInstanceNames[q++] = s;
+                    WmoInstanceNames.push_back(s);
 
                     p += strlen(p) + 1;
                 }
@@ -192,8 +188,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                     ADT.read(&id, 4);
                     ModelInstance inst(ADT, ModelInstanceNames[id].c_str(), map_num, tileX, tileY, dirfile);
                 }
-                delete[] ModelInstanceNames;
-                ModelInstanceNames = NULL;
+                ModelInstanceNames.clear();
             }
         }
         else if (!strcmp(fourcc,"MODF"))
@@ -207,9 +202,7 @@ bool ADTFile::init(uint32 map_num, uint32 tileX, uint32 tileY)
                     ADT.read(&id, 4);
                     WMOInstance inst(ADT, WmoInstanceNames[id].c_str(), map_num, tileX, tileY, dirfile);
                 }
-
-                delete[] WmoInstanceNames;
-                WmoInstanceNames = NULL;
+                WmoInstanceNames.clear();
             }
         }
 

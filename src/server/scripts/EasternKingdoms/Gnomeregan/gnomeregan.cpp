@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -343,16 +343,16 @@ public:
             switch (uiCase)
             {
                 case 1:
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[4], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[5], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[6], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[7], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[8], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[9], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[4], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[5], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[6], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[7], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[8], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[9], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 2:
                     if (GameObject* go = me->SummonGameObject(183410, -533.140f, -105.322f, -156.016f, 0, 0, 0, 0, 0, 1000))
@@ -363,10 +363,10 @@ public:
                     Summon(3);
                     break;
                 case 3:
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[0], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[1], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[2], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[3], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     Talk(SAY_BLASTMASTER_7);
                     break;
                 case 4:
@@ -377,11 +377,11 @@ public:
                     }
                     break;
                 case 5:
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[10], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[11], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[12], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[13], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
-                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[14], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[10], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[11], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[12], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[13], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CAVERNDEEP_AMBUSHER, SpawnPosition[14], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 6:
                     if (GameObject* go = me->SummonGameObject(183410, -507.820f, -103.333f, -151.353f, 0, 0, 0, 0, 0, 1000))
@@ -399,9 +399,9 @@ public:
                     }
                     break;
                 case 8:
-                    if (Creature* grubbis = me->SummonCreature(NPC_GRUBBIS, SpawnPosition[15], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000))
+                    if (Creature* grubbis = me->SummonCreature(NPC_GRUBBIS, SpawnPosition[15], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000))
                         grubbis->AI()->Talk(SAY_GRUBBIS);
-                    me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
+                    me->SummonCreature(NPC_CHOMPER, SpawnPosition[16], TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 1800000);
                     break;
                 case 9:
                     me->SummonGameObject(GO_RED_ROCKET, SpawnPosition[17].GetPositionX(), SpawnPosition[17].GetPositionY(), SpawnPosition[17].GetPositionZ(), SpawnPosition[17].GetOrientation(), 0, 0, 0, 0, 7200);

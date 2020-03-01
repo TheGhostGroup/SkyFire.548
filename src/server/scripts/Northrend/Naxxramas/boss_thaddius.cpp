@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -467,7 +467,7 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void HandleTargets(std::list<WorldObject*>& targets)
@@ -504,7 +504,7 @@ class spell_thaddius_pos_neg_charge : public SpellScriptLoader
                     SetHitDamage(0);
                 else
                 {
-                    if (target->GetTypeId() == TYPEID_PLAYER && caster->IsAIEnabled)
+                    if (target->GetTypeId() == TypeID::TYPEID_PLAYER && caster->IsAIEnabled)
                         caster->ToCreature()->AI()->SetData(DATA_POLARITY_SWITCH, 1);
                 }
             }

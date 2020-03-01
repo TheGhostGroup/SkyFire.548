@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -155,7 +155,7 @@ class boss_mandokir : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
                     Talk(SAY_PLAYER_KILL);
                     DoCast(SPELL_LEVEL_UP);
@@ -186,9 +186,9 @@ class boss_mandokir : public CreatureScript
                     {
                         std::list<Creature*> creatures;
                         GetCreatureListWithEntryInGrid(creatures, me, NPC_CHAINED_SPIRIT, 200.0f);
-                        creatures.remove_if(Trinity::AnyDeadUnitCheck());
-                        creatures.remove_if(Trinity::UnitAuraCheck(true, SPELL_OHGAN_ORDERS_TRIGGER));
-                        Trinity::Containers::RandomResizeList(creatures, 1);
+                        creatures.remove_if(Skyfire::AnyDeadUnitCheck());
+                        creatures.remove_if(Skyfire::UnitAuraCheck(true, SPELL_OHGAN_ORDERS_TRIGGER));
+                        Skyfire::Containers::RandomResizeList(creatures, 1);
                         if (creatures.empty())
                             return;
 
@@ -444,7 +444,7 @@ class spell_mandokir_decapitate : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }
@@ -540,7 +540,7 @@ class spell_mandokir_spirit_vengeance_cancel : public SpellScriptLoader
         }
 };
 
-class DevastatingSlamTargetSelector : public std::unary_function<Unit *, bool>
+class DevastatingSlamTargetSelector : public SF_UNARY_FUNCTION<Unit *, bool>
 {
     public:
         DevastatingSlamTargetSelector(Creature* me, const Unit* victim) : _me(me), _victim(victim) {}
@@ -550,7 +550,7 @@ class DevastatingSlamTargetSelector : public std::unary_function<Unit *, bool>
             if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
                 return true;
 
-            if (target->GetTypeId() != TYPEID_PLAYER)
+            if (target->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return true;
 
             return false;
@@ -575,7 +575,7 @@ class spell_mandokir_devastating_slam : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }
@@ -632,7 +632,7 @@ class spell_mandokir_ohgan_orders : public SpellScriptLoader
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }

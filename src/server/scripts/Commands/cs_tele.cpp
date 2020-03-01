@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,21 +37,19 @@ class tele_commandscript : public CommandScript
 public:
     tele_commandscript() : CommandScript("tele_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand teleCommandTable[] =
+        static std::vector<ChatCommand> teleCommandTable =
         {
-            { "add",   rbac::RBAC_PERM_COMMAND_TELE_ADD,   false, &HandleTeleAddCommand,   "", NULL },
-            { "del",   rbac::RBAC_PERM_COMMAND_TELE_DEL,    true, &HandleTeleDelCommand,   "", NULL },
-            { "name",  rbac::RBAC_PERM_COMMAND_TELE_NAME,   true, &HandleTeleNameCommand,  "", NULL },
-            { "group", rbac::RBAC_PERM_COMMAND_TELE_GROUP, false, &HandleTeleGroupCommand, "", NULL },
-            { "",      rbac::RBAC_PERM_COMMAND_TELE,       false, &HandleTeleCommand,      "", NULL },
-            { NULL,    0,                            false, NULL,                    "", NULL }
+            { "add",   rbac::RBAC_PERM_COMMAND_TELE_ADD,   false, &HandleTeleAddCommand,   "", },
+            { "del",   rbac::RBAC_PERM_COMMAND_TELE_DEL,    true, &HandleTeleDelCommand,   "", },
+            { "name",  rbac::RBAC_PERM_COMMAND_TELE_NAME,   true, &HandleTeleNameCommand,  "", },
+            { "group", rbac::RBAC_PERM_COMMAND_TELE_GROUP, false, &HandleTeleGroupCommand, "", },
+            { "",      rbac::RBAC_PERM_COMMAND_TELE,       false, &HandleTeleCommand,      "", },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
-            { "tele", rbac::RBAC_PERM_COMMAND_TELE, false, NULL, "", teleCommandTable },
-            { NULL,   0,                      false, NULL, "", NULL }
+            { "tele",  rbac::RBAC_PERM_COMMAND_TELE,      false, NULL, "", teleCommandTable },
         };
         return commandTable;
     }
@@ -204,7 +202,7 @@ public:
 
             std::string nameLink = handler->playerLink(target_name);
 
-            handler->PSendSysMessage(LANG_TELEPORTING_TO, nameLink.c_str(), handler->GetTrinityString(LANG_OFFLINE), tele->name.c_str());
+            handler->PSendSysMessage(LANG_TELEPORTING_TO, nameLink.c_str(), handler->GetSkyFireString(LANG_OFFLINE), tele->name.c_str());
             Player::SavePositionInDB(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation,
                 sMapMgr->GetZoneId(tele->mapId, tele->position_x, tele->position_y, tele->position_z), target_guid);
         }

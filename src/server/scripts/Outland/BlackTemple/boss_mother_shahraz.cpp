@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -167,7 +167,7 @@ public:
             for (uint8 i = 0; i < 3; ++i)
             {
                 Unit* unit = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                if (unit && unit->IsAlive() && (unit->GetTypeId() == TYPEID_PLAYER))
+                if (unit && unit->IsAlive() && (unit->GetTypeId() == TypeID::TYPEID_PLAYER))
                 {
                     TargetGUID[i] = unit->GetGUID();
                     unit->CastSpell(unit, SPELL_TELEPORT_VISUAL, true);

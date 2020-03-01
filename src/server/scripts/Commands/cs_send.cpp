@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,21 +29,19 @@ class send_commandscript : public CommandScript
 public:
     send_commandscript() : CommandScript("send_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand sendCommandTable[] =
+        static std::vector<ChatCommand> sendCommandTable =
         {
-            { "items",   rbac::RBAC_PERM_COMMAND_SEND_ITEMS,   true, &HandleSendItemsCommand,   "", NULL },
-            { "mail",    rbac::RBAC_PERM_COMMAND_SEND_MAIL,    true, &HandleSendMailCommand,    "", NULL },
-            { "message", rbac::RBAC_PERM_COMMAND_SEND_MESSAGE, true, &HandleSendMessageCommand, "", NULL },
-            { "money",   rbac::RBAC_PERM_COMMAND_SEND_MONEY,   true, &HandleSendMoneyCommand,   "", NULL },
-            { NULL,      0,                             false, NULL,                      "", NULL }
+            { "items",   rbac::RBAC_PERM_COMMAND_SEND_ITEMS,   true, &HandleSendItemsCommand,   "", },
+            { "mail",    rbac::RBAC_PERM_COMMAND_SEND_MAIL,    true, &HandleSendMailCommand,    "", },
+            { "message", rbac::RBAC_PERM_COMMAND_SEND_MESSAGE, true, &HandleSendMessageCommand, "", },
+            { "money",   rbac::RBAC_PERM_COMMAND_SEND_MONEY,   true, &HandleSendMoneyCommand,   "", },
         };
 
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "send", rbac::RBAC_PERM_COMMAND_SEND, false, NULL, "", sendCommandTable },
-            { NULL,   0,                      false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -274,8 +272,8 @@ public:
 
         /// - Send the message
         // Use SendAreaTriggerMessage for fastest delivery.
-        player->GetSession()->SendAreaTriggerMessage("%s", msgStr);
-        player->GetSession()->SendAreaTriggerMessage("|cffff0000[Message from administrator]:|r");
+        player->GetSession()->SendNotification("%s", msgStr);
+        player->GetSession()->SendNotification("|cffff0000[Message from administrator]:|r");
 
         // Confirmation message
         std::string nameLink = handler->GetNameLink(player);

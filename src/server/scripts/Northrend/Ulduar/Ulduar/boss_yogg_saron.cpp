@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -437,7 +437,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
 
             {
                 // TODO: MoveInLineOfSight doesn't work for such a big distance
-                if (who->GetTypeId() == TYPEID_PLAYER && me->GetDistance2d(who) < 99.0f && !me->IsInCombat())
+                if (who->GetTypeId() == TypeID::TYPEID_PLAYER && me->GetDistance2d(who) < 99.0f && !me->IsInCombat())
                     me->SetInCombatWithZone();
             }
 
@@ -477,7 +477,7 @@ class boss_voice_of_yogg_saron : public CreatureScript
                 bool clockwise = false;
                 std::list<TempSummon*> clouds;
                 me->SummonCreatureGroup(CREATURE_GROUP_CLOUDS, &clouds);
-                clouds.sort(Trinity::ObjectDistanceOrderPred(me, true));
+                clouds.sort(Skyfire::ObjectDistanceOrderPred(me, true));
                 for (std::list<TempSummon*>::const_iterator itr = clouds.begin(); itr != clouds.end(); ++itr)
                 {
                     (*itr)->AI()->DoAction(int32(clockwise));
@@ -731,7 +731,7 @@ class boss_sara : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER && !me->IsInEvadeMode())
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER && !me->IsInEvadeMode())
                     Talk(SAY_SARA_KILL);
             }
 
@@ -846,7 +846,7 @@ class boss_sara : public CreatureScript
                             pos.m_positionX = YoggSaronSpawnPos.GetPositionX() + radius * cosf(angle);
                             pos.m_positionY = YoggSaronSpawnPos.GetPositionY() + radius * sinf(angle);
                             pos.m_positionZ = me->GetMap()->GetHeight(me->GetPhaseMask(), pos.GetPositionX(), pos.GetPositionY(), YoggSaronSpawnPos.GetPositionZ() + 5.0f);
-                            me->SummonCreature(NPC_DEATH_RAY, pos, TEMPSUMMON_TIMED_DESPAWN, 20000);
+                            me->SummonCreature(NPC_DEATH_RAY, pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 20000);
                         }
                         break;
                     case NPC_DEATH_RAY:
@@ -964,7 +964,7 @@ class boss_yogg_saron : public CreatureScript
                             break;
                         case EVENT_LUNATIC_GAZE:
                             DoCast(me, SPELL_LUNATIC_GAZE);
-                            sCreatureTextMgr->SendSound(me, SOUND_LUNATIC_GAZE, CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
+                            sCreatureTextMgr->SendSound(me, SOUND_LUNATIC_GAZE, ChatMsg::CHAT_MSG_MONSTER_YELL, 0, TEXT_RANGE_NORMAL, TEAM_OTHER, false);
                             _events.ScheduleEvent(EVENT_LUNATIC_GAZE, 12000, 0, PHASE_THREE);
                             break;
                         case EVENT_DEAFENING_ROAR:
@@ -1074,7 +1074,7 @@ class boss_brain_of_yogg_saron : public CreatureScript
                         uint8 illusion = _instance->GetData(DATA_ILLUSION);
                         if (++_tentaclesKilled >= (illusion == ICECROWN_ILLUSION ? 9 : 8))
                         {
-                            sCreatureTextMgr->SendChat(me, EMOTE_BRAIN_ILLUSION_SHATTERED, 0, CHAT_MSG_ADDON, LANG_ADDON, TEXT_RANGE_AREA);
+                            sCreatureTextMgr->SendChat(me, EMOTE_BRAIN_ILLUSION_SHATTERED, 0, ChatMsg::CHAT_MSG_ADDON, Language::LANG_ADDON, TEXT_RANGE_AREA);
                             _summons.DespawnAll();
                             DoCastAOE(SPELL_SHATTERED_ILLUSION, true);
                             _instance->HandleGameObject(_instance->GetData64(GO_BRAIN_ROOM_DOOR_1 + illusion), true);
@@ -2002,7 +2002,7 @@ class spell_yogg_saron_psychosis : public SpellScriptLoader      // 63795, 65301
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(HighSanityTargetSelector());
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
+                targets.remove_if(Skyfire::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
             }
 
             void Register() OVERRIDE
@@ -2034,7 +2034,7 @@ class spell_yogg_saron_malady_of_the_mind : public SpellScriptLoader    // 63830
             void FilterTargets(std::list<WorldObject*>& targets)
             {
                 targets.remove_if(HighSanityTargetSelector());
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
+                targets.remove_if(Skyfire::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
             }
 
             void Register() OVERRIDE
@@ -2104,7 +2104,7 @@ class spell_yogg_saron_brain_link : public SpellScriptLoader    // 63802
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
+                targets.remove_if(Skyfire::UnitAuraCheck(true, SPELL_ILLUSION_ROOM));
 
                 if (targets.size() != 2)
                 {
@@ -3018,7 +3018,7 @@ class spell_yogg_saron_keeper_aura : public SpellScriptLoader     // 62650, 6267
 
             bool CanApply(Unit* target)
             {
-                if (target->GetTypeId() != TYPEID_PLAYER && target != GetCaster())
+                if (target->GetTypeId() != TypeID::TYPEID_PLAYER && target != GetCaster())
                     return false;
                 return true;
             }
@@ -3144,7 +3144,7 @@ class spell_yogg_saron_hodirs_protective_gaze : public SpellScriptLoader     // 
 
             bool CanApply(Unit* target)
             {
-                if (target->GetTypeId() != TYPEID_PLAYER && target != GetCaster())
+                if (target->GetTypeId() != TypeID::TYPEID_PLAYER && target != GetCaster())
                     return false;
                 return true;
             }

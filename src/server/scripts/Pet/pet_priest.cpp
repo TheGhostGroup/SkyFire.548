@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -29,8 +29,6 @@
 
 enum PriestSpells
 {
-    SPELL_PRIEST_GLYPH_OF_SHADOWFIEND       = 58228,
-    SPELL_PRIEST_GLYPH_OF_SHADOWFIEND_MANA  = 58227,
     SPELL_PRIEST_LIGHTWELL_CHARGES          = 59907
 };
 
@@ -63,32 +61,7 @@ class npc_pet_pri_lightwell : public CreatureScript
         }
 };
 
-class npc_pet_pri_shadowfiend : public CreatureScript
-{
-    public:
-        npc_pet_pri_shadowfiend() : CreatureScript("npc_pet_pri_shadowfiend") { }
-
-        struct npc_pet_pri_shadowfiendAI : public PetAI
-        {
-            npc_pet_pri_shadowfiendAI(Creature* creature) : PetAI(creature) { }
-
-            void JustDied(Unit* /*killer*/) OVERRIDE
-            {
-                if (me->IsSummon())
-                    if (Unit* owner = me->ToTempSummon()->GetSummoner())
-                        if (owner->HasAura(SPELL_PRIEST_GLYPH_OF_SHADOWFIEND))
-                            owner->CastSpell(owner, SPELL_PRIEST_GLYPH_OF_SHADOWFIEND_MANA, true);
-            }
-        };
-
-        CreatureAI* GetAI(Creature* creature) const OVERRIDE
-        {
-            return new npc_pet_pri_shadowfiendAI(creature);
-        }
-};
-
 void AddSC_priest_pet_scripts()
 {
     new npc_pet_pri_lightwell();
-    new npc_pet_pri_shadowfiend();
 }

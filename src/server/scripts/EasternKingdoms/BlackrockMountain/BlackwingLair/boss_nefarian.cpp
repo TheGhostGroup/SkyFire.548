@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -268,9 +268,9 @@ public:
                                 me->SetFacingToObject(player);
                                 Talk(SAY_SUCCESS);
                                 if (GameObject* portcullis1 = me->FindNearestGameObject(GO_PORTCULLIS_ACTIVE, 65.0f))
-                                    portcullis1->SetGoState(GO_STATE_ACTIVE);
+                                    portcullis1->SetGoState(GOState::GO_STATE_ACTIVE);
                                 if (GameObject* portcullis2 = me->FindNearestGameObject(GO_PORTCULLIS_TOBOSSROOMS, 80.0f))
-                                    portcullis2->SetGoState(GO_STATE_ACTIVE);
+                                    portcullis2->SetGoState(GOState::GO_STATE_ACTIVE);
                             }
                             events.ScheduleEvent(EVENT_SUCCESS_2, 4000);
                             break;

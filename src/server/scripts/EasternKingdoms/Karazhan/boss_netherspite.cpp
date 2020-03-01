@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -149,7 +149,7 @@ public:
             pos[BLUE_PORTAL] = (r > 1 ? 1 : 2); // Blue Portal not on the left side (0)
 
             for (int i=0; i<3; ++i)
-                if (Creature* portal = me->SummonCreature(PortalID[i], PortalCoord[pos[i]][0], PortalCoord[pos[i]][1], PortalCoord[pos[i]][2], 0, TEMPSUMMON_TIMED_DESPAWN, 60000))
+                if (Creature* portal = me->SummonCreature(PortalID[i], PortalCoord[pos[i]][0], PortalCoord[pos[i]][1], PortalCoord[pos[i]][2], 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60000))
                 {
                     PortalGUID[i] = portal->GetGUID();
                     portal->AddAura(PortalVisual[i], portal);
@@ -197,7 +197,7 @@ public:
                         }
                     }
                     // buff the target
-                    if (target->GetTypeId() == TYPEID_PLAYER)
+                    if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
                         target->AddAura(PlayerBuff[j], target);
                     else
                         target->AddAura(NetherBuff[j], target);
@@ -214,14 +214,14 @@ public:
                             BeamerGUID[j] = 0;
                         }
                         // create new one and start beaming on the target
-                        if (Creature* beamer = portal->SummonCreature(PortalID[j], portal->GetPositionX(), portal->GetPositionY(), portal->GetPositionZ(), portal->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 60000))
+                        if (Creature* beamer = portal->SummonCreature(PortalID[j], portal->GetPositionX(), portal->GetPositionY(), portal->GetPositionZ(), portal->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 60000))
                         {
                             beamer->CastSpell(target, PortalBeam[j], false);
                             BeamerGUID[j] = beamer->GetGUID();
                         }
                     }
                     // aggro target if Red Beam
-                    if (j == RED_PORTAL && me->GetVictim() != target && target->GetTypeId() == TYPEID_PLAYER)
+                    if (j == RED_PORTAL && me->GetVictim() != target && target->GetTypeId() == TypeID::TYPEID_PLAYER)
                         me->getThreatManager().addThreat(target, 100000.0f+DoGetThreat(me->GetVictim()));
                 }
         }
@@ -256,7 +256,7 @@ public:
         void HandleDoors(bool open) // Massive Door switcher
         {
             if (GameObject* Door = GameObject::GetGameObject(*me, instance ? instance->GetData64(DATA_GO_MASSIVE_DOOR) : 0))
-                Door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
+                Door->SetGoState(open ? GOState::GO_STATE_ACTIVE : GOState::GO_STATE_READY);
         }
 
         void EnterCombat(Unit* /*who*/) OVERRIDE

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,6 +68,7 @@ SmartAI::SmartAI(Creature* c) : CreatureAI(c)
     mFollowAngle = 0;
     mFollowCredit = 0;
     mFollowArrivedEntry = 0;
+    mFollowArrivedTimer = 0;
     mFollowCreditType = 0;
     mInvincibilityHpLevel = 0;
 }
@@ -109,7 +110,7 @@ WayPoint* SmartAI::GetNextWayPoint()
         mLastWP = (*itr).second;
         if (mLastWP->id != mCurrentWPID)
         {
-            TC_LOG_ERROR("misc", "SmartAI::GetNextWayPoint: Got not expected waypoint id %u, expected %u", mLastWP->id, mCurrentWPID);
+            SF_LOG_ERROR("misc", "SmartAI::GetNextWayPoint: Got not expected waypoint id %u, expected %u", mLastWP->id, mCurrentWPID);
         }
         return (*itr).second;
     }
@@ -120,7 +121,7 @@ void SmartAI::StartPath(bool run, uint32 path, bool repeat, Unit* /*invoker*/)
 {
     if (me->IsInCombat())// no wp movement in combat
     {
-        TC_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement while in combat, ignoring.", me->GetEntry());
+        SF_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry %u wanted to start waypoint movement while in combat, ignoring.", me->GetEntry());
         return;
     }
     if (HasEscortState(SMART_ESCORT_ESCORTING))
@@ -164,7 +165,7 @@ void SmartAI::PausePath(uint32 delay, bool forced)
         return;
     if (HasEscortState(SMART_ESCORT_PAUSED))
     {
-        TC_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry %u wanted to pause waypoint movement while already paused, ignoring.", me->GetEntry());
+        SF_LOG_ERROR("misc", "SmartAI::StartPath: Creature entry %u wanted to pause waypoint movement while already paused, ignoring.", me->GetEntry());
         return;
     }
     mForcedPaused = forced;
@@ -389,7 +390,7 @@ bool SmartAI::IsEscortInvokerInRange()
         if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
         {
             Player* player = (*targets->begin())->ToPlayer();
-            if (me->GetDistance(player) <= SMART_ESCORT_MAX_PLAYER_DIST)
+            if (me->GetDistance(player) <= float(SMART_ESCORT_MAX_PLAYER_DIST))
                         return true;
 
             if (Group* group = player->GetGroup())
@@ -398,7 +399,7 @@ bool SmartAI::IsEscortInvokerInRange()
                 {
                     Player* groupGuy = groupRef->GetSource();
 
-                    if (me->GetDistance(groupGuy) <= SMART_ESCORT_MAX_PLAYER_DIST)
+                    if (me->GetDistance(groupGuy) <= float(SMART_ESCORT_MAX_PLAYER_DIST))
                         return true;
                 }
             }
@@ -408,7 +409,7 @@ bool SmartAI::IsEscortInvokerInRange()
             {
                 if (GetScript()->IsPlayer((*iter)))
                 {
-                    if (me->GetDistance((*iter)->ToPlayer()) <= SMART_ESCORT_MAX_PLAYER_DIST)
+                    if (me->GetDistance((*iter)->ToPlayer()) <= float(SMART_ESCORT_MAX_PLAYER_DIST))
                         return true;
                 }
             }
@@ -859,7 +860,7 @@ void SmartGameObjectAI::Reset()
 // Called when a player opens a gossip dialog with the gameobject.
 bool SmartGameObjectAI::GossipHello(Player* player)
 {
-    TC_LOG_DEBUG("scripts.ai", "SmartGameObjectAI::GossipHello");
+    SF_LOG_DEBUG("scripts.ai", "SmartGameObjectAI::GossipHello");
     GetScript()->ProcessEventsFor(SMART_EVENT_GOSSIP_HELLO, player, 0, 0, false, NULL, go);
     return false;
 }
@@ -938,7 +939,7 @@ class SmartTrigger : public AreaTriggerScript
             if (!player->IsAlive())
                 return false;
 
-            TC_LOG_DEBUG("scripts.ai", "AreaTrigger %u is using SmartTrigger script", trigger->id);
+            SF_LOG_DEBUG("scripts.ai", "AreaTrigger %u is using SmartTrigger script", trigger->id);
             SmartScript script;
             script.OnInitialize(NULL, trigger);
             script.ProcessEventsFor(SMART_EVENT_AREATRIGGER_ONTRIGGER, player, trigger->id);

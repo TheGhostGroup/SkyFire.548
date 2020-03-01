@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -252,7 +252,7 @@ class instance_naxxramas : public InstanceMapScript
 
             void OnUnitDeath(Unit* unit) OVERRIDE
             {
-                if (unit->GetTypeId() == TYPEID_PLAYER && IsEncounterInProgress())
+                if (unit->GetTypeId() == TypeID::TYPEID_PLAYER && IsEncounterInProgress())
                 {
                     playerDied = 1;
                     SaveToDB();
@@ -402,11 +402,11 @@ class instance_naxxramas : public InstanceMapScript
                 switch (criteria_id)
                 {
                     case 7600:  // Criteria for achievement 2176: And They Would All Go Down Together 15sec of each other 10-man
-                        if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_10MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
+                        if (DifficultyID(instance->GetSpawnMode()) == DIFFICULTY_10MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
                             return true;
                         return false;
                     case 7601:  // Criteria for achievement 2177: And They Would All Go Down Together 15sec of each other 25-man
-                        if (Difficulty(instance->GetSpawnMode()) == RAID_DIFFICULTY_25MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
+                        if (DifficultyID(instance->GetSpawnMode()) == DIFFICULTY_25MAN_NORMAL && (maxHorsemenDiedTime - minHorsemenDiedTime) < 15)
                             return true;
                         return false;
                     // Difficulty checks are done on DB.

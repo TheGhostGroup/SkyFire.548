@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,25 +35,22 @@ class titles_commandscript : public CommandScript
 public:
     titles_commandscript() : CommandScript("titles_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand titlesSetCommandTable[] =
+        static std::vector<ChatCommand> titlesSetCommandTable =
         {
-            { "mask", rbac::RBAC_PERM_COMMAND_TITLES_SET_MASK, false, &HandleTitlesSetMaskCommand, "", NULL },
-            { NULL,   0,                                 false, NULL,                        "", NULL }
+            { "mask", rbac::RBAC_PERM_COMMAND_TITLES_SET_MASK, false, &HandleTitlesSetMaskCommand, "", },
         };
-        static ChatCommand titlesCommandTable[] =
+        static std::vector<ChatCommand> titlesCommandTable =
         {
-            { "add",     rbac::RBAC_PERM_COMMAND_TITLES_ADD,     false, &HandleTitlesAddCommand,     "", NULL },
-            { "current", rbac::RBAC_PERM_COMMAND_TITLES_CURRENT, false, &HandleTitlesCurrentCommand, "", NULL },
-            { "remove",  rbac::RBAC_PERM_COMMAND_TITLES_REMOVE,  false, &HandleTitlesRemoveCommand,  "", NULL },
+            { "add",     rbac::RBAC_PERM_COMMAND_TITLES_ADD,     false, &HandleTitlesAddCommand,     "", },
+            { "current", rbac::RBAC_PERM_COMMAND_TITLES_CURRENT, false, &HandleTitlesCurrentCommand, "", },
+            { "remove",  rbac::RBAC_PERM_COMMAND_TITLES_REMOVE,  false, &HandleTitlesRemoveCommand,  "", },
             { "set",     rbac::RBAC_PERM_COMMAND_TITLES_SET,     false, NULL,       "", titlesSetCommandTable },
-            { NULL,      0,                                false, NULL,                        "", NULL }
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "titles", rbac::RBAC_PERM_COMMAND_TITLES, false, NULL, "", titlesCommandTable },
-            { NULL,     0,                        false, NULL, "", NULL }
         };
         return commandTable;
     }

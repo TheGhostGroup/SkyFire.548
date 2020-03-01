@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -206,7 +206,7 @@ class FrostBeaconSelector
 
         bool operator()(Unit* target) const
         {
-            return target->GetTypeId() == TYPEID_PLAYER &&
+            return target->GetTypeId() == TypeID::TYPEID_PLAYER &&
                 target != _source->GetVictim() &&
                 !target->HasAura(SPELL_ICE_TOMB_UNTARGETABLE);
         }
@@ -284,7 +284,7 @@ class boss_sindragosa : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
@@ -297,7 +297,7 @@ class boss_sindragosa : public CreatureScript
 
                     _summoned = true;
                     if (TempSummon* summon = me->ToTempSummon())
-                        summon->SetTempSummonType(TEMPSUMMON_DEAD_DESPAWN);
+                        summon->SetTempSummonType(TempSummonType::TEMPSUMMON_DEAD_DESPAWN);
 
                     if (me->isDead())
                         return;
@@ -1120,7 +1120,7 @@ class spell_sindragosa_unchained_magic : public SpellScriptLoader
                 unitList.remove_if(UnchainedMagicTargetSelector());
                 uint32 maxSize = uint32(GetCaster()->GetMap()->GetSpawnMode() & 1 ? 6 : 2);
                 if (unitList.size() > maxSize)
-                    Trinity::Containers::RandomResizeList(unitList, maxSize);
+                    Skyfire::Containers::RandomResizeList(unitList, maxSize);
             }
 
             void Register() OVERRIDE
@@ -1151,7 +1151,7 @@ class spell_sindragosa_frost_breath : public SpellScriptLoader
                     return;
 
                 // Check difficulty and quest status
-                if (!(target->GetRaidDifficulty() & RAID_DIFFICULTY_MASK_25MAN) || target->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_INCOMPLETE)
+                if (!target->GetMap()->Is25ManRaid() || target->GetQuestStatus(QUEST_FROST_INFUSION) != QUEST_STATUS_INCOMPLETE)
                     return;
 
                 // Check if player has Shadow's Edge equipped and not ready for infusion
@@ -1408,7 +1408,7 @@ class spell_rimefang_icy_blast : public SpellScriptLoader
             {
                 PreventHitDefaultEffect(effIndex);
                 if (Position const* pos = GetExplTargetDest())
-                    if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TEMPSUMMON_TIMED_DESPAWN, 40000))
+                    if (TempSummon* summon = GetCaster()->SummonCreature(NPC_ICY_BLAST, *pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 40000))
                         summon->CastSpell(summon, SPELL_ICY_BLAST_AREA, true);
             }
 
@@ -1458,11 +1458,11 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
 
             void FilterTargets(std::list<WorldObject*>& targets)
             {
-                targets.remove_if(Trinity::ObjectTypeIdCheck(TYPEID_PLAYER, false));
+                targets.remove_if(Skyfire::ObjectTypeIdCheck(TypeID::TYPEID_PLAYER, false));
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }
@@ -1479,7 +1479,7 @@ class spell_frostwarden_handler_order_whelp : public SpellScriptLoader
                 if (unitList.empty())
                     return;
 
-                Trinity::Containers::SelectRandomContainerElement(unitList)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
+                Skyfire::Containers::SelectRandomContainerElement(unitList)->CastSpell(GetHitUnit(), uint32(GetEffectValue()), true);
             }
 
             void Register() OVERRIDE

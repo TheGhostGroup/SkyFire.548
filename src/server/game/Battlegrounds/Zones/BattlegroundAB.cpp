@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -87,13 +87,13 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                     if (teamIndex == 0)
                     {
                         // FIXME: team and node names not localized
-                        SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AB_ALLY, _GetNodeNameId(node));
+                        SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, ChatMsg::CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AB_ALLY, _GetNodeNameId(node));
                         PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_ALLIANCE);
                     }
                     else
                     {
                         // FIXME: team and node names not localized
-                        SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AB_HORDE, _GetNodeNameId(node));
+                        SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, ChatMsg::CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AB_HORDE, _GetNodeNameId(node));
                         PlaySoundToAll(BG_AB_SOUND_NODE_CAPTURED_HORDE);
                     }
                 }
@@ -135,9 +135,9 @@ void BattlegroundAB::PostUpdateImpl(uint32 diff)
                 if (!m_IsInformedNearVictory && m_TeamScores[team] > BG_AB_WARNING_NEAR_VICTORY_SCORE)
                 {
                     if (team == TEAM_ALLIANCE)
-                        SendMessageToAll(LANG_BG_AB_A_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                        SendMessageToAll(LANG_BG_AB_A_NEAR_VICTORY, ChatMsg::CHAT_MSG_BG_SYSTEM_NEUTRAL);
                     else
-                        SendMessageToAll(LANG_BG_AB_H_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                        SendMessageToAll(LANG_BG_AB_H_NEAR_VICTORY, ChatMsg::CHAT_MSG_BG_SYSTEM_NEUTRAL);
                     PlaySoundToAll(BG_AB_SOUND_NEAR_VICTORY);
                     m_IsInformedNearVictory = true;
                 }
@@ -225,13 +225,13 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger)
     {
         case 3948:                                          // Arathi Basin Alliance Exit.
             if (player->GetTeam() != ALLIANCE)
-                player->GetSession()->SendAreaTriggerMessage("Only The Alliance can use that portal");
+                player->GetSession()->SendNotification("Only The Alliance can use that portal");
             else
                 player->LeaveBattleground();
             break;
         case 3949:                                          // Arathi Basin Horde Exit.
             if (player->GetTeam() != HORDE)
-                player->GetSession()->SendAreaTriggerMessage("Only The Horde can use that portal");
+                player->GetSession()->SendNotification("Only The Horde can use that portal");
             else
                 player->LeaveBattleground();
             break;
@@ -250,8 +250,6 @@ void BattlegroundAB::HandleAreaTrigger(Player* player, uint32 trigger)
     }
 }
 
-/*  type: 0-neutral, 1-contested, 3-occupied
-    teamIndex: 0-ally, 1-horde                        */
 void BattlegroundAB::_CreateBanner(uint8 node, uint8 type, uint8 teamIndex, bool delay)
 {
     // Just put it into the queue
@@ -362,7 +360,7 @@ void BattlegroundAB::_SendNodeUpdate(uint8 node)
 void BattlegroundAB::_NodeOccupied(uint8 node, Team team)
 {
     if (!AddSpiritGuide(node, BG_AB_SpiritGuidePos[node][0], BG_AB_SpiritGuidePos[node][1], BG_AB_SpiritGuidePos[node][2], BG_AB_SpiritGuidePos[node][3], team))
-        TC_LOG_ERROR("bg.battleground", "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
+        SF_LOG_ERROR("bg.battleground", "Failed to spawn spirit guide! point: %u, team: %u, ", node, team);
 
     if (node >= BG_AB_DYNAMIC_NODES_COUNT)//only dynamic nodes, no start points
         return;
@@ -450,9 +448,9 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
 
         // FIXME: team and node names not localized
         if (teamIndex == 0)
-            SendMessage2ToAll(LANG_BG_AB_NODE_CLAIMED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), LANG_BG_AB_ALLY);
+            SendMessage2ToAll(LANG_BG_AB_NODE_CLAIMED, ChatMsg::CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node), LANG_BG_AB_ALLY);
         else
-            SendMessage2ToAll(LANG_BG_AB_NODE_CLAIMED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), LANG_BG_AB_HORDE);
+            SendMessage2ToAll(LANG_BG_AB_NODE_CLAIMED, ChatMsg::CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node), LANG_BG_AB_HORDE);
 
         sound = BG_AB_SOUND_NODE_CLAIMED;
     }
@@ -474,9 +472,9 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
 
             // FIXME: node names not localized
             if (teamIndex == TEAM_ALLIANCE)
-                SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
+                SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, ChatMsg::CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
             else
-                SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
+                SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, ChatMsg::CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
         }
         // If contested, change back to occupied
         else
@@ -494,9 +492,9 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
 
             // FIXME: node names not localized
             if (teamIndex == TEAM_ALLIANCE)
-                SendMessage2ToAll(LANG_BG_AB_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
+                SendMessage2ToAll(LANG_BG_AB_NODE_DEFENDED, ChatMsg::CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
             else
-                SendMessage2ToAll(LANG_BG_AB_NODE_DEFENDED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
+                SendMessage2ToAll(LANG_BG_AB_NODE_DEFENDED, ChatMsg::CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
         }
         sound = (teamIndex == TEAM_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
     }
@@ -516,9 +514,9 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
 
         // FIXME: node names not localized
         if (teamIndex == TEAM_ALLIANCE)
-            SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
+            SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, ChatMsg::CHAT_MSG_BG_SYSTEM_ALLIANCE, source, _GetNodeNameId(node));
         else
-            SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
+            SendMessage2ToAll(LANG_BG_AB_NODE_ASSAULTED, ChatMsg::CHAT_MSG_BG_SYSTEM_HORDE, source, _GetNodeNameId(node));
 
         sound = (teamIndex == TEAM_ALLIANCE) ? BG_AB_SOUND_NODE_ASSAULTED_ALLIANCE : BG_AB_SOUND_NODE_ASSAULTED_HORDE;
     }
@@ -528,9 +526,9 @@ void BattlegroundAB::EventPlayerClickedOnFlag(Player* source, GameObject* /*targ
     {
         // FIXME: team and node names not localized
         if (teamIndex == TEAM_ALLIANCE)
-            SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AB_ALLY, _GetNodeNameId(node));
+            SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, ChatMsg::CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, LANG_BG_AB_ALLY, _GetNodeNameId(node));
         else
-            SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AB_HORDE, _GetNodeNameId(node));
+            SendMessage2ToAll(LANG_BG_AB_NODE_TAKEN, ChatMsg::CHAT_MSG_BG_SYSTEM_HORDE, NULL, LANG_BG_AB_HORDE, _GetNodeNameId(node));
     }
     PlaySoundToAll(sound);
 }
@@ -568,7 +566,7 @@ bool BattlegroundAB::SetupBattleground()
             || !AddObject(BG_AB_OBJECT_AURA_CONTESTED + 8*i, BG_AB_OBJECTID_AURA_C, BG_AB_NodePositions[i][0], BG_AB_NodePositions[i][1], BG_AB_NodePositions[i][2], BG_AB_NodePositions[i][3], 0, 0, std::sin(BG_AB_NodePositions[i][3]/2), std::cos(BG_AB_NodePositions[i][3]/2), RESPAWN_ONE_DAY)
 )
         {
-            TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn some object Battleground not created!");
+            SF_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn some object Battleground not created!");
             return false;
         }
     }
@@ -576,7 +574,7 @@ bool BattlegroundAB::SetupBattleground()
         || !AddObject(BG_AB_OBJECT_GATE_H, BG_AB_OBJECTID_GATE_H, BG_AB_DoorPositions[1][0], BG_AB_DoorPositions[1][1], BG_AB_DoorPositions[1][2], BG_AB_DoorPositions[1][3], BG_AB_DoorPositions[1][4], BG_AB_DoorPositions[1][5], BG_AB_DoorPositions[1][6], BG_AB_DoorPositions[1][7], RESPAWN_IMMEDIATELY)
 )
     {
-        TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn door object Battleground not created!");
+        SF_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn door object Battleground not created!");
         return false;
     }
     //buffs
@@ -586,7 +584,7 @@ bool BattlegroundAB::SetupBattleground()
             || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 1, Buff_Entries[1], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, std::sin(BG_AB_BuffPositions[i][3]/2), std::cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
             || !AddObject(BG_AB_OBJECT_SPEEDBUFF_STABLES + 3 * i + 2, Buff_Entries[2], BG_AB_BuffPositions[i][0], BG_AB_BuffPositions[i][1], BG_AB_BuffPositions[i][2], BG_AB_BuffPositions[i][3], 0, 0, std::sin(BG_AB_BuffPositions[i][3]/2), std::cos(BG_AB_BuffPositions[i][3]/2), RESPAWN_ONE_DAY)
 )
-            TC_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn buff object!");
+            SF_LOG_ERROR("sql.sql", "BatteGroundAB: Failed to spawn buff object!");
     }
 
     return true;

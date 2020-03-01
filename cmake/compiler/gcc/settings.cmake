@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2014 Project SkyFire <http://www.projectskyfire.org/>
-# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2011-2019 Project SkyFire <http://www.projectskyfire.org/
+# Copyright (C) 2008-2019 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -11,6 +11,31 @@
 
 # Set build-directive (used in core to tell which buildtype we used)
 add_definitions(-D_BUILD_DIRECTIVE='"${CMAKE_BUILD_TYPE}"')
+
+# Check C++17 compiler support
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++17" COMPILER_SUPPORTS_CXX17)
+if(COMPILER_SUPPORTS_CXX17)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+else()
+  message(FATAL_ERROR "Error, SkyFire requires a compiler that supports C++17!")
+endif()
+
+if(WITH_CXX_17_STD)
+  if(NOT WITH_CXX_DRAFT_STD)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+    message(STATUS "GCC: C++17 Standard Enabled.")
+  else()
+    message(FATAL_ERROR "GCC: Only 1 CXX Standard can be used!")
+  endif()
+endif()
+if(WITH_CXX_DRAFT_STD)
+  if(NOT WITH_CXX_17_STD)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++2a")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++2a")
+    message(STATUS "GCC: C++ Draft Standard Enabled.")
+  endif()
+endif()
 
 if(PLATFORM EQUAL 32)
   # Required on 32-bit systems to enable SSE2 (standard on x64)

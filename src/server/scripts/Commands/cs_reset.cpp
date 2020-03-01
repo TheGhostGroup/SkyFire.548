@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -37,23 +37,21 @@ class reset_commandscript : public CommandScript
 public:
     reset_commandscript() : CommandScript("reset_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand resetCommandTable[] =
+        static std::vector<ChatCommand> resetCommandTable =
         {
-            { "achievements", rbac::RBAC_PERM_COMMAND_RESET_ACHIEVEMENTS, true, &HandleResetAchievementsCommand, "", NULL },
-            { "honor",        rbac::RBAC_PERM_COMMAND_RESET_HONOR,        true, &HandleResetHonorCommand,        "", NULL },
-            { "level",        rbac::RBAC_PERM_COMMAND_RESET_LEVEL,        true, &HandleResetLevelCommand,        "", NULL },
-            { "spells",       rbac::RBAC_PERM_COMMAND_RESET_SPELLS,       true, &HandleResetSpellsCommand,       "", NULL },
-            { "stats",        rbac::RBAC_PERM_COMMAND_RESET_STATS,        true, &HandleResetStatsCommand,        "", NULL },
-            { "talents",      rbac::RBAC_PERM_COMMAND_RESET_TALENTS,      true, &HandleResetTalentsCommand,      "", NULL },
-            { "all",          rbac::RBAC_PERM_COMMAND_RESET_ALL,          true, &HandleResetAllCommand,          "", NULL },
-            { NULL,           0,                                   false, NULL,                            "", NULL }
+            { "achievements", rbac::RBAC_PERM_COMMAND_RESET_ACHIEVEMENTS, true, &HandleResetAchievementsCommand, "", },
+            { "honor",        rbac::RBAC_PERM_COMMAND_RESET_HONOR,        true, &HandleResetHonorCommand,        "", },
+            { "level",        rbac::RBAC_PERM_COMMAND_RESET_LEVEL,        true, &HandleResetLevelCommand,        "", },
+            { "spells",       rbac::RBAC_PERM_COMMAND_RESET_SPELLS,       true, &HandleResetSpellsCommand,       "", },
+            { "stats",        rbac::RBAC_PERM_COMMAND_RESET_STATS,        true, &HandleResetStatsCommand,        "", },
+            { "talents",      rbac::RBAC_PERM_COMMAND_RESET_TALENTS,      true, &HandleResetTalentsCommand,      "", },
+            { "all",          rbac::RBAC_PERM_COMMAND_RESET_ALL,          true, &HandleResetAllCommand,          "", },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "reset", rbac::RBAC_PERM_COMMAND_RESET, true, NULL, "", resetCommandTable },
-            { NULL,    0,                      false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -91,7 +89,7 @@ public:
         ChrClassesEntry const* classEntry = sChrClassesStore.LookupEntry(player->getClass());
         if (!classEntry)
         {
-            TC_LOG_ERROR("misc", "Class %u not found in DBC (Wrong DBC files?)", player->getClass());
+            SF_LOG_ERROR("misc", "Class %u not found in DBC (Wrong DBC files?)", player->getClass());
             return false;
         }
 
@@ -135,8 +133,8 @@ public:
 
         // set starting level
         uint32 startLevel = target->getClass() != CLASS_DEATH_KNIGHT
-            ? sWorld->getIntConfig(CONFIG_START_PLAYER_LEVEL)
-            : sWorld->getIntConfig(CONFIG_START_HEROIC_PLAYER_LEVEL);
+            ? sWorld->getIntConfig(WorldIntConfigs::CONFIG_START_PLAYER_LEVEL)
+            : sWorld->getIntConfig(WorldIntConfigs::CONFIG_START_HEROIC_PLAYER_LEVEL);
 
         target->_ApplyAllLevelScaleItemMods(false);
         target->SetLevel(startLevel);
@@ -217,7 +215,7 @@ public:
             if (!*args && creature && creature->IsPet())
             {
                 Unit* owner = creature->GetOwner();
-                if (owner && owner->GetTypeId() == TYPEID_PLAYER && creature->ToPet()->IsPermanentPetFor(owner->ToPlayer()))
+                if (owner && owner->GetTypeId() == TypeID::TYPEID_PLAYER && creature->ToPet()->IsPermanentPetFor(owner->ToPlayer()))
                 {
                     creature->ToPet()->resetTalents();
 
@@ -295,7 +293,7 @@ public:
         stmt->setUInt16(0, uint16(atLogin));
         CharacterDatabase.Execute(stmt);
 
-        TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
+        SF_SHARED_GUARD readGuard(*HashMapHolder<Player>::GetLock());
         HashMapHolder<Player>::MapType const& plist = sObjectAccessor->GetPlayers();
         for (HashMapHolder<Player>::MapType::const_iterator itr = plist.begin(); itr != plist.end(); ++itr)
             itr->second->SetAtLoginFlag(atLogin);

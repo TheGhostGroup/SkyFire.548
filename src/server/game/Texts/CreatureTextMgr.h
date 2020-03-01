@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_CREATURE_TEXT_MGR_H
-#define TRINITY_CREATURE_TEXT_MGR_H
+#ifndef SKYFIRE_CREATURE_TEXT_MGR_H
+#define SKYFIRE_CREATURE_TEXT_MGR_H
 
 #include "Creature.h"
 #include "GridNotifiers.h"
@@ -96,7 +96,7 @@ class CreatureTextMgr
         void SendEmote(Unit* source, uint32 emote);
 
         //if sent, returns the 'duration' of the text else 0 if error
-        uint32 SendChat(Creature* source, uint8 textGroup, WorldObject const* whisperTarget = NULL, ChatMsg msgType = CHAT_MSG_ADDON, Language language = LANG_ADDON, CreatureTextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = NULL);
+        uint32 SendChat(Creature* source, uint8 textGroup, WorldObject const* whisperTarget = NULL, ChatMsg msgType = ChatMsg::CHAT_MSG_ADDON, Language language = Language::LANG_ADDON, CreatureTextRange range = TEXT_RANGE_NORMAL, uint32 sound = 0, Team team = TEAM_OTHER, bool gmOnly = false, Player* srcPlr = NULL);
         bool TextExist(uint32 sourceEntry, uint8 textGroup);
         std::string GetLocalizedChatString(uint32 entry, uint8 textGroup, uint32 id, LocaleConstant locale) const;
 
@@ -146,7 +146,7 @@ class CreatureTextLocalizer
             {
                 messageTemplate = new WorldPacket();
                 whisperGUIDpos = _builder(messageTemplate, loc_idx);
-                 ASSERT(messageTemplate->GetOpcode() != MSG_NULL_ACTION);
+                //ASSERT(messageTemplate->GetOpcode() != MSG_NULL_ACTION); // ???
                 _packetCache[loc_idx] = new std::pair<WorldPacket*, size_t>(messageTemplate, whisperGUIDpos);
             }
             else
@@ -158,8 +158,8 @@ class CreatureTextLocalizer
             WorldPacket data(*messageTemplate);
             switch (_msgType)
             {
-                case CHAT_MSG_MONSTER_WHISPER:
-                case CHAT_MSG_RAID_BOSS_WHISPER:
+                case ChatMsg::CHAT_MSG_MONSTER_WHISPER:
+                case ChatMsg::CHAT_MSG_RAID_BOSS_WHISPER:
                     data.put<uint64>(whisperGUIDpos, player->GetGUID());
                     break;
                 default:
@@ -185,12 +185,12 @@ void CreatureTextMgr::SendChatPacket(WorldObject* source, Builder const& builder
 
     switch (msgType)
     {
-        case CHAT_MSG_MONSTER_WHISPER:
-        case CHAT_MSG_RAID_BOSS_WHISPER:
+        case ChatMsg::CHAT_MSG_MONSTER_WHISPER:
+        case ChatMsg::CHAT_MSG_RAID_BOSS_WHISPER:
         {
             if (range == TEXT_RANGE_NORMAL) //ignores team and gmOnly
             {
-                if (!whisperTarget || whisperTarget->GetTypeId() != TYPEID_PLAYER)
+                if (!whisperTarget || whisperTarget->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
 
                 localizer(const_cast<Player*>(whisperTarget->ToPlayer()));
@@ -245,7 +245,7 @@ void CreatureTextMgr::SendChatPacket(WorldObject* source, Builder const& builder
     }
 
     float dist = GetRangeForChatType(msgType);
-    Trinity::PlayerDistWorker<CreatureTextLocalizer<Builder> > worker(source, dist, localizer);
+    Skyfire::PlayerDistWorker<CreatureTextLocalizer<Builder> > worker(source, dist, localizer);
     source->VisitNearbyWorldObject(dist, worker);
 }
 

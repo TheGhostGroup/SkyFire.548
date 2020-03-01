@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -115,7 +115,7 @@ namespace MMAP
             void getHeightTriangle(int square, Spot triangle, int* indices, bool liquid = false);
 
             /// Determines if the specific position's triangles should be rendered
-            bool isHole(int square, const uint16 holes[16][16]);
+            bool isHole(int square, uint8 const holes[16][16][8]);
 
             /// Get the liquid vector coordinate for a specific position
             void getLiquidCoord(int index, int index2, float xOffset, float yOffset, float* coord, float* v);

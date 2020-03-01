@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -35,20 +35,18 @@ class event_commandscript : public CommandScript
 public:
     event_commandscript() : CommandScript("event_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand eventCommandTable[] =
+        static std::vector<ChatCommand> eventCommandTable =
         {
-            { "activelist", rbac::RBAC_PERM_COMMAND_EVENT_ACTIVELIST, true, &HandleEventActiveListCommand, "", NULL },
-            { "start",      rbac::RBAC_PERM_COMMAND_EVENT_START,      true, &HandleEventStartCommand,      "", NULL },
-            { "stop",       rbac::RBAC_PERM_COMMAND_EVENT_STOP,       true, &HandleEventStopCommand,       "", NULL },
-            { "",           rbac::RBAC_PERM_COMMAND_EVENT,            true, &HandleEventInfoCommand,       "", NULL },
-            { NULL,         0,                                 false, NULL,                          "", NULL }
+            { "activelist", rbac::RBAC_PERM_COMMAND_EVENT_ACTIVELIST, true, &HandleEventActiveListCommand, "", },
+            { "start",      rbac::RBAC_PERM_COMMAND_EVENT_START,      true, &HandleEventStartCommand,      "", },
+            { "stop",       rbac::RBAC_PERM_COMMAND_EVENT_STOP,       true, &HandleEventStopCommand,       "", },
+            { "",           rbac::RBAC_PERM_COMMAND_EVENT,            true, &HandleEventInfoCommand,       "", },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "event", rbac::RBAC_PERM_COMMAND_EVENT, false, NULL, "", eventCommandTable },
-            { NULL,    0,                       false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -60,7 +58,7 @@ public:
         GameEventMgr::GameEventDataMap const& events = sGameEventMgr->GetEventMap();
         GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
 
-        char const* active = handler->GetTrinityString(LANG_ACTIVE);
+        char const* active = handler->GetSkyFireString(LANG_ACTIVE);
 
         for (GameEventMgr::ActiveEvents::const_iterator itr = activeEvents.begin(); itr != activeEvents.end(); ++itr)
         {
@@ -113,7 +111,7 @@ public:
 
         GameEventMgr::ActiveEvents const& activeEvents = sGameEventMgr->GetActiveEventList();
         bool active = activeEvents.find(eventId) != activeEvents.end();
-        char const* activeStr = active ? handler->GetTrinityString(LANG_ACTIVE) : "";
+        char const* activeStr = active ? handler->GetSkyFireString(LANG_ACTIVE) : "";
 
         std::string startTimeStr = TimeToTimestampStr(eventData.start);
         std::string endTimeStr = TimeToTimestampStr(eventData.end);

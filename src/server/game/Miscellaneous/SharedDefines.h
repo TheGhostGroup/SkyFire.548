@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_SHAREDDEFINES_H
-#define TRINITY_SHAREDDEFINES_H
+#ifndef SKYFIRE_SHAREDDEFINES_H
+#define SKYFIRE_SHAREDDEFINES_H
 
 #include "DetourNavMesh.h"
 #include "Define.h"
@@ -75,16 +75,6 @@ enum LootModes
     LOOT_MODE_HARD_MODE_2              = 0x4,
     LOOT_MODE_HARD_MODE_3              = 0x8,
     LOOT_MODE_HARD_MODE_4              = 0x10
-};
-
-enum Expansions
-{
-    EXPANSION_CLASSIC = 0,
-    EXPANSION_THE_BURNING_CRUSADE = 1,
-    EXPANSION_WRATH_OF_THE_LICH_KING = 2,
-    EXPANSION_CATACLYSM = 3,
-    EXPANSION_MISTS_OF_PANDARIA = 4,
-    MAX_EXPANSIONS = 5
 };
 
 enum Gender
@@ -245,6 +235,23 @@ enum Powers
 };
 
 #define MAX_POWERS_PER_CLASS            5
+
+enum BattlePayDistribution
+{
+    // character boost
+    CHARACTER_BOOST                     = 2,
+    CHARACTER_BOOST_ALLOW               = 1,
+    CHARACTER_BOOST_CHOOSED             = 2,
+    CHARACTER_BOOST_ITEMS               = 3,
+    CHARACTER_BOOST_APPLIED             = 4,
+    CHARACTER_BOOST_TEXT_ID             = 88,
+    CHARACTER_BOOST_SPEC_MASK           = 0xFFF,
+    CHARACTER_BOOST_FACTION_ALLIANCE    = 0x1000000
+
+};
+
+#define CHARACTER_BOOST_BONUS_TEXT      "Boost your character to level 90!"
+#define CHARACTER_BOOST_BONUS_TEXT2     "Level 90 Character Boost"
 
 enum SpellSchools
 {
@@ -827,8 +834,9 @@ enum CharacterSlot
     SLOT_EMPTY                         = 19
 };
 
-enum Language
+enum class Language
 {
+    LANG_ADDON             = -1,  // used by addons, in 2.4.0 not exist, replaced by messagetype?
     LANG_UNIVERSAL         = 0,
     LANG_ORCISH            = 1,
     LANG_DARNASSIAN        = 2,
@@ -853,7 +861,6 @@ enum Language
     LANG_PANDAREN_ALLIANCE = 43,
     LANG_PANDAREN_HORDE    = 44,
     LANG_RIKKITUN          = 168,
-    LANG_ADDON             = 0xFFFFFFFF                        // used by addons, in 2.4.0 not exist, replaced by messagetype?
 };
 
 #define LANGUAGES_COUNT   24
@@ -869,6 +876,7 @@ enum Team
 {
     HORDE               = 67,
     ALLIANCE            = 469,
+    PANDAREN_NEUTRAL    = 1249,                             // Pandaren is neutral on start
     //TEAM_STEAMWHEEDLE_CARTEL = 169,                       // not used in code
     //TEAM_ALLIANCE_FORCES     = 891,
     //TEAM_HORDE_FORCES        = 892,
@@ -1459,8 +1467,9 @@ enum InvisibilityType
     INVISIBILITY_UNK9        =  9,
     INVISIBILITY_UNK10       = 10,
     INVISIBILITY_UNK11       = 11,
-
-    TOTAL_INVISIBILITY_TYPES = 12
+    //...
+    INVISIBILITY_UNK37       = 37,
+    TOTAL_INVISIBILITY_TYPES = 38
 };
 
 enum ServerSideVisibilityType
@@ -1720,6 +1729,22 @@ enum Targets
     TARGET_UNK_125                     = 125,
     TARGET_UNK_126                     = 126,
     TARGET_UNK_127                     = 127,
+    //TARGET_UNK_128                     = 128, // Placeholder
+    TARGET_UNK_129                     = 129,
+    TARGET_UNK_130                     = 130,
+    TARGET_UNK_131                     = 131,
+    TARGET_UNK_132                     = 132,
+    //TARGET_UNK_133                     = 133, // Placeholder
+    //TARGET_UNK_134                     = 134, // Placeholder
+    //TARGET_UNK_135                     = 135, // Placeholder
+    TARGET_UNK_136                     = 136,
+    //TARGET_UNK_137                     = 137, // Placeholder
+    TARGET_UNK_138                     = 138,
+    TARGET_UNK_139                     = 139,
+    TARGET_UNK_140                     = 140,
+    TARGET_UNK_141                     = 141,
+    TARGET_UNK_142                     = 142,
+    TARGET_UNK_143                     = 143,
     TOTAL_SPELL_TARGETS
 };
 
@@ -3197,7 +3222,7 @@ enum CreatureEliteType
 };
 
 // values based at Holidays.dbc
-enum HolidayIds
+enum class HolidayIds
 {
     HOLIDAY_NONE                     = 0,
 
@@ -3233,7 +3258,11 @@ enum HolidayIds
     HOLIDAY_RATED_BG_25_VS_25        = 443,
     HOLIDAY_ANNIVERSARY_7_YEARS      = 467,
     HOLIDAY_DARKMOON_FAIRE_TEROKKAR  = 479,
-    HOLIDAY_ANNIVERSARY_8_YEARS      = 484
+    HOLIDAY_ANNIVERSARY_8_YEARS      = 484,
+    //
+    HOLIDAY_CALL_TO_ARMS_SM          = 488,
+    HOLIDAY_CALL_TO_ARMS_TK          = 489,
+    HOLIDAY_CALL_TO_ARMS_DG          = 515
 };
 
 // values based at QuestInfo.dbc
@@ -3337,21 +3366,12 @@ enum SkillType
 {
     SKILL_NONE                     = 0,
 
-    SKILL_FROST                    = 6,
-    SKILL_FIRE                     = 8,
-    SKILL_ARMS                     = 26,
-    SKILL_COMBAT                   = 38,
-    SKILL_SUBTLETY                 = 39,
     SKILL_SWORDS                   = 43,
     SKILL_AXES                     = 44,
     SKILL_BOWS                     = 45,
     SKILL_GUNS                     = 46,
-    SKILL_BEAST_MASTERY            = 50,
-    SKILL_SURVIVAL                 = 51,
     SKILL_MACES                    = 54,
     SKILL_2H_SWORDS                = 55,
-    SKILL_HOLY                     = 56,
-    SKILL_SHADOW                   = 78,
     SKILL_DEFENSE                  = 95,
     SKILL_LANG_COMMON              = 98,
     SKILL_RACIAL_DWARVEN           = 101,
@@ -3364,14 +3384,13 @@ enum SkillType
     SKILL_ORC_RACIAL               = 125,
     SKILL_RACIAL_NIGHT_ELF         = 126,
     SKILL_FIRST_AID                = 129,
-    SKILL_FERAL_COMBAT             = 134,
     SKILL_STAVES                   = 136,
     SKILL_LANG_THALASSIAN          = 137,
     SKILL_LANG_DRACONIC            = 138,
     SKILL_LANG_DEMON_TONGUE        = 139,
     SKILL_LANG_TITAN               = 140,
     SKILL_LANG_OLD_TONGUE          = 141,
-    SKILL_SURVIVAL2                = 142,
+    SKILL_SURVIVAL                 = 142,
     SKILL_RIDING_HORSE             = 148,
     SKILL_RIDING_WOLF              = 149,
     SKILL_RIDING_TIGER             = 150,
@@ -3379,16 +3398,13 @@ enum SkillType
     SKILL_SWIMING                  = 155,
     SKILL_2H_MACES                 = 160,
     SKILL_UNARMED                  = 162,
-    SKILL_MARKSMANSHIP             = 163,
     SKILL_BLACKSMITHING            = 164,
     SKILL_LEATHERWORKING           = 165,
     SKILL_ALCHEMY                  = 171,
     SKILL_2H_AXES                  = 172,
     SKILL_DAGGERS                  = 173,
-    SKILL_THROWN                   = 176,
     SKILL_HERBALISM                = 182,
     SKILL_GENERIC_DND              = 183,
-    SKILL_RETRIBUTION              = 184,
     SKILL_COOKING                  = 185,
     SKILL_MINING                   = 186,
     SKILL_PET_IMP                  = 188,
@@ -3404,34 +3420,24 @@ enum SkillType
     SKILL_PET_CAT                  = 209,
     SKILL_PET_BEAR                 = 210,
     SKILL_PET_BOAR                 = 211,
-    SKILL_PET_CROCILISK            = 212,
+    SKILL_PET_CROCOLISK            = 212,
     SKILL_PET_CARRION_BIRD         = 213,
     SKILL_PET_CRAB                 = 214,
     SKILL_PET_GORILLA              = 215,
     SKILL_PET_RAPTOR               = 217,
     SKILL_PET_TALLSTRIDER          = 218,
-    SKILL_RACIAL_UNDED             = 220,
+    SKILL_RACIAL_UNDEAD            = 220,
     SKILL_CROSSBOWS                = 226,
     SKILL_WANDS                    = 228,
     SKILL_POLEARMS                 = 229,
     SKILL_PET_SCORPID              = 236,
-    SKILL_ARCANE                   = 237,
     SKILL_PET_TURTLE               = 251,
-    SKILL_ASSASSINATION            = 253,
-    SKILL_FURY                     = 256,
-    SKILL_PROTECTION               = 257,
-    SKILL_PROTECTION2              = 267,
-    SKILL_PET_TALENTS              = 270,
+    SKILL_PET_GENERIC_HUNTER       = 270,
     SKILL_PLATE_MAIL               = 293,
     SKILL_LANG_GNOMISH             = 313,
     SKILL_LANG_TROLL               = 315,
     SKILL_ENCHANTING               = 333,
-    SKILL_DEMONOLOGY               = 354,
-    SKILL_AFFLICTION               = 355,
     SKILL_FISHING                  = 356,
-    SKILL_ENHANCEMENT              = 373,
-    SKILL_RESTORATION              = 374,
-    SKILL_ELEMENTAL_COMBAT         = 375,
     SKILL_SKINNING                 = 393,
     SKILL_MAIL                     = 413,
     SKILL_LEATHER                  = 414,
@@ -3441,12 +3447,6 @@ enum SkillType
     SKILL_RIDING_RAPTOR            = 533,
     SKILL_RIDING_MECHANOSTRIDER    = 553,
     SKILL_RIDING_UNDEAD_HORSE      = 554,
-    SKILL_RESTORATION2             = 573,
-    SKILL_BALANCE                  = 574,
-    SKILL_DESTRUCTION              = 593,
-    SKILL_HOLY2                    = 594,
-    SKILL_DISCIPLINE               = 613,
-    SKILL_LOCKPICKING              = 633,
     SKILL_PET_BAT                  = 653,
     SKILL_PET_HYENA                = 654,
     SKILL_PET_BIRD_OF_PREY         = 655,
@@ -3470,12 +3470,8 @@ enum SkillType
     SKILL_PET_RAVAGER              = 767,
     SKILL_PET_SERPENT              = 768,
     SKILL_INTERNAL                 = 769,
-    SKILL_DK_BLOOD                 = 770,
-    SKILL_DK_FROST                 = 771,
-    SKILL_DK_UNHOLY                = 772,
     SKILL_INSCRIPTION              = 773,
     SKILL_PET_MOTH                 = 775,
-    SKILL_RUNEFORGING              = 776,
     SKILL_MOUNTS                   = 777,
     SKILL_COMPANIONS               = 778,
     SKILL_PET_EXOTIC_CHIMAERA      = 780,
@@ -3494,35 +3490,61 @@ enum SkillType
     SKILL_ARCHAEOLOGY              = 794,
     SKILL_GENERAL_HUNTER           = 795,
     SKILL_GENERAL_DEATH_KNIGHT     = 796,
-    SKILL_GENERAL_ROGUE            = 797,
     SKILL_GENERAL_DRUID            = 798,
-    SKILL_GENERAL_MAGE             = 799,
     SKILL_GENERAL_PALADIN          = 800,
-    SKILL_GENERAL_SHAMAN           = 801,
-    SKILL_GENERAL_WARLOCK          = 802,
-    SKILL_GENERAL_WARRIOR          = 803,
     SKILL_GENERAL_PRIEST           = 804,
     SKILL_PET_WATER_ELEMENTAL      = 805,
     SKILL_PET_FOX                  = 808,
     SKILL_ALL_GLYPHS               = 810,
     SKILL_PET_DOG                  = 811,
-    SKILL_PET_MONKEY               = 815,
+    SKILL_ATTR_MONKEY              = 815,
     SKILL_PET_SHALE_SPIDER         = 817,
     SKILL_PET_BEETLE               = 818,
-    SKILL_ALL_GUILD_PERKS          = 821,
+    SKILL_ATTR_ALL_GUILD_PERKS     = 821,
     SKILL_PET_HYDRA                = 824,
+    SKILL_GENERAL_MONK             = 829,
+    SKILL_GENERAL_WARRIOR          = 840,
+    SKILL_GENERAL_WARLOCK          = 849,
+    SKILL_ATTR_PANDAREN_RACIAL     = 899,
+    SKILL_GENERAL_MAGE             = 904,
     SKILL_LANG_PANDAREN_NEUTRAL    = 905,
     SKILL_LANG_PANDAREN_ALLIANCE   = 906,
-    SKILL_LANG_PANDAREN_HORDE      = 907
+    SKILL_LANG_PANDAREN_HORDE      = 907,
+    SKILL_GENERAL_ROGUE            = 921,
+    SKILL_GENERAL_SHAMAN           = 924,
+    SKILL_GENERAL_FEL_IMP          = 927,
+    SKILL_ATTR_VOIDLORD            = 928,
+    SKILL_ATTR_SHIVARRA            = 929,
+    SKILL_ATTR_OBSERVER            = 930,
+    SKILL_ATTR_WRATHGUARD          = 931,
+    SKILL_ALL_SPECIALIZATIONS      = 934,
+    SKILL_RUNEFORGING              = 960,
+    SKILL_PET_PRIMAL_FIRE_ELEMENT  = 962,
+    SKILL_PET_PRIMAL_EARTH_ELEMENT = 963,
+    SKILL_COOKING_GRILL            = 975,
+    SKILL_COOKING_WOK              = 976,
+    SKILL_COOKING_POT              = 977,
+    SKILL_COOKING_STEAM            = 978,
+    SKILL_COOKING_OVEN             = 979,
+    SKILL_COOKING_BREW             = 980,
+    SKILL_APPRENT_COOKING          = 981,
+    SKILL_JOURNEYMAN_COOKBOOK      = 982,
+    SKILL_PET_PORCUPINE            = 983,
+    SKILL_PET_CRANE                = 984,
+    SKILL_PET_WATER_STRIDER        = 985,
+    SKILL_PET_QUILEN               = 986,
+    SKILL_PET_GOAT                 = 987,
+    SKILL_PET_BASILISK             = 988,
+    SKILL_NO_PLAYERS               = 999,
+    SKILL_PET_DIREHORN             = 1305
 };
 
-#define MAX_SKILL_TYPE               908
+#define MAX_SKILL_TYPE               1306
 
 inline SkillType SkillByLockType(LockType locktype)
 {
     switch (locktype)
     {
-        case LOCKTYPE_PICKLOCK:    return SKILL_LOCKPICKING;
         case LOCKTYPE_HERBALISM:   return SKILL_HERBALISM;
         case LOCKTYPE_MINING:      return SKILL_MINING;
         case LOCKTYPE_FISHING:     return SKILL_FISHING;
@@ -3568,40 +3590,40 @@ enum SkillCategory
 
 enum TotemCategory
 {
-    TC_SKINNING_SKIFE_OLD          = 1,
-    TC_EARTH_TOTEM                 = 2,
-    TC_AIR_TOTEM                   = 3,
-    TC_FIRE_TOTEM                  = 4,
-    TC_WATER_TOTEM                 = 5,
-    TC_COPPER_ROD                  = 6,
-    TC_SILVER_ROD                  = 7,
-    TC_GOLDEN_ROD                  = 8,
-    TC_TRUESILVER_ROD              = 9,
-    TC_ARCANITE_ROD                = 10,
-    TC_MINING_PICK_OLD             = 11,
-    TC_PHILOSOPHERS_STONE          = 12,
-    TC_BLACKSMITH_HAMMER_OLD       = 13,
-    TC_ARCLIGHT_SPANNER            = 14,
-    TC_GYROMATIC_MA                = 15,
-    TC_MASTER_TOTEM                = 21,
-    TC_FEL_IRON_ROD                = 41,
-    TC_ADAMANTITE_ROD              = 62,
-    TC_ETERNIUM_ROD                = 63,
-    TC_HOLLOW_QUILL                = 81,
-    TC_RUNED_AZURITE_ROD           = 101,
-    TC_VIRTUOSO_INKING_SET         = 121,
-    TC_DRUMS                       = 141,
-    TC_GNOMISH_ARMY_KNIFE          = 161,
-    TC_BLACKSMITH_HAMMER           = 162,
-    TC_MINING_PICK                 = 165,
-    TC_SKINNING_KNIFE              = 166,
-    TC_HAMMER_PICK                 = 167,
-    TC_BLADED_PICKAXE              = 168,
-    TC_FLINT_AND_TINDER            = 169,
-    TC_RUNED_COBALT_ROD            = 189,
-    TC_RUNED_TITANIUM_ROD          = 190,
-    TC_RUNED_ELEMENTIUM_ROD        = 209,
-    TC_HIGH_POWERED_BOLT_GUN       = 210,
+    SF_SKINNING_SKIFE_OLD          = 1,
+    SF_EARTH_TOTEM                 = 2,
+    SF_AIR_TOTEM                   = 3,
+    SF_FIRE_TOTEM                  = 4,
+    SF_WATER_TOTEM                 = 5,
+    SF_COPPER_ROD                  = 6,
+    SF_SILVER_ROD                  = 7,
+    SF_GOLDEN_ROD                  = 8,
+    SF_TRUESILVER_ROD              = 9,
+    SF_ARCANITE_ROD                = 10,
+    SF_MINING_PICK_OLD             = 11,
+    SF_PHILOSOPHERS_STONE          = 12,
+    SF_BLACKSMITH_HAMMER_OLD       = 13,
+    SF_ARCLIGHT_SPANNER            = 14,
+    SF_GYROMATIC_MA                = 15,
+    SF_MASTER_TOTEM                = 21,
+    SF_FEL_IRON_ROD                = 41,
+    SF_ADAMANTITE_ROD              = 62,
+    SF_ETERNIUM_ROD                = 63,
+    SF_HOLLOW_QUILL                = 81,
+    SF_RUNED_AZURITE_ROD           = 101,
+    SF_VIRTUOSO_INKING_SET         = 121,
+    SF_DRUMS                       = 141,
+    SF_GNOMISH_ARMY_KNIFE          = 161,
+    SF_BLACKSMITH_HAMMER           = 162,
+    SF_MINING_PICK                 = 165,
+    SF_SKINNING_KNIFE              = 166,
+    SF_HAMMER_PICK                 = 167,
+    SF_BLADED_PICKAXE              = 168,
+    SF_FLINT_AND_TINDER            = 169,
+    SF_RUNED_COBALT_ROD            = 189,
+    SF_RUNED_TITANIUM_ROD          = 190,
+    SF_RUNED_ELEMENTIUM_ROD        = 209,
+    SF_HIGH_POWERED_BOLT_GUN       = 210,
 };
 
 enum UnitDynFlags
@@ -3635,65 +3657,79 @@ enum WeatherType
 
 #define MAX_WEATHER_TYPE 4
 
-enum ChatMsg
+enum class ChatMsg
 {
-    CHAT_MSG_ADDON                  = 0xFFFFFFFF, // -1
-    CHAT_MSG_SYSTEM                 = 0x00,
-    CHAT_MSG_SAY                    = 0x01,
-    CHAT_MSG_PARTY                  = 0x02,
-    CHAT_MSG_RAID                   = 0x03,
-    CHAT_MSG_GUILD                  = 0x04,
-    CHAT_MSG_OFFICER                = 0x05,
-    CHAT_MSG_YELL                   = 0x06,
-    CHAT_MSG_WHISPER                = 0x07,
-    CHAT_MSG_WHISPER_FOREIGN        = 0x08,
-    CHAT_MSG_WHISPER_INFORM         = 0x09,
-    CHAT_MSG_EMOTE                  = 0x0A,
-    CHAT_MSG_TEXT_EMOTE             = 0x0B,
-    CHAT_MSG_MONSTER_SAY            = 0x0C,
-    CHAT_MSG_MONSTER_PARTY          = 0x0D,
-    CHAT_MSG_MONSTER_YELL           = 0x0E,
-    CHAT_MSG_MONSTER_WHISPER        = 0x0F,
-    CHAT_MSG_MONSTER_EMOTE          = 0x10,
-    CHAT_MSG_CHANNEL                = 0x11,
-    CHAT_MSG_CHANNEL_JOIN           = 0x12,
-    CHAT_MSG_CHANNEL_LEAVE          = 0x13,
-    CHAT_MSG_CHANNEL_LIST           = 0x14,
-    CHAT_MSG_CHANNEL_NOTICE         = 0x15,
-    CHAT_MSG_CHANNEL_NOTICE_USER    = 0x16,
-    // CHAT_MSG_TARGETICONS
-    CHAT_MSG_AFK                    = 0x17,
-    CHAT_MSG_DND                    = 0x18,
-    CHAT_MSG_IGNORED                = 0x19,
-    CHAT_MSG_SKILL                  = 0x1A,
-    CHAT_MSG_LOOT                   = 0x1B,
-    CHAT_MSG_MONEY                  = 0x1C,
-    CHAT_MSG_OPENING                = 0x1D,
-    CHAT_MSG_TRADESKILLS            = 0x1E,
-    CHAT_MSG_PET_INFO               = 0x1F,
-    CHAT_MSG_COMBAT_MISC_INFO       = 0x20,
-    CHAT_MSG_COMBAT_XP_GAIN         = 0x21,
-    CHAT_MSG_COMBAT_HONOR_GAIN      = 0x22,
-    CHAT_MSG_COMBAT_FACTION_CHANGE  = 0x23,
-    CHAT_MSG_BG_SYSTEM_NEUTRAL      = 0x24,
-    CHAT_MSG_BG_SYSTEM_ALLIANCE     = 0x25,
-    CHAT_MSG_BG_SYSTEM_HORDE        = 0x26,
-    CHAT_MSG_RAID_LEADER            = 0x27,
-    CHAT_MSG_RAID_WARNING           = 0x28,
-    CHAT_MSG_RAID_BOSS_EMOTE        = 0x29,
-    CHAT_MSG_RAID_BOSS_WHISPER      = 0x2A,
-    CHAT_MSG_FILTERED               = 0x2B,
-    CHAT_MSG_BATTLEGROUND           = 0x2C,
-    CHAT_MSG_BATTLEGROUND_LEADER    = 0x2D,
-    CHAT_MSG_RESTRICTED             = 0x2E,
-    CHAT_MSG_BATTLENET              = 0x2F,
-    CHAT_MSG_ACHIEVEMENT            = 0x30,
-    CHAT_MSG_GUILD_ACHIEVEMENT      = 0x31,
-    CHAT_MSG_ARENA_POINTS           = 0x32,
-    CHAT_MSG_PARTY_LEADER           = 0x33
+    CHAT_MSG_ADDON                            = -1, // -1
+    CHAT_MSG_SYSTEM                           = 0x00,
+    CHAT_MSG_SAY                              = 0x01,
+    CHAT_MSG_PARTY                            = 0x02,
+    CHAT_MSG_RAID                             = 0x03,
+    CHAT_MSG_GUILD                            = 0x04,
+    CHAT_MSG_OFFICER                          = 0x05,
+    CHAT_MSG_YELL                             = 0x06,
+    CHAT_MSG_WHISPER                          = 0x07,
+    CHAT_MSG_WHISPER_FOREIGN                  = 0x08,
+    CHAT_MSG_WHISPER_INFORM                   = 0x09,
+    CHAT_MSG_EMOTE                            = 0x0A,
+    CHAT_MSG_TEXT_EMOTE                       = 0x0B,
+    CHAT_MSG_MONSTER_SAY                      = 0x0C,
+    CHAT_MSG_MONSTER_PARTY                    = 0x0D,
+    CHAT_MSG_MONSTER_YELL                     = 0x0E,
+    CHAT_MSG_MONSTER_WHISPER                  = 0x0F,
+    CHAT_MSG_MONSTER_EMOTE                    = 0x10,
+    CHAT_MSG_CHANNEL                          = 0x11,
+    CHAT_MSG_CHANNEL_JOIN                     = 0x12,
+    CHAT_MSG_CHANNEL_LEAVE                    = 0x13,
+    CHAT_MSG_CHANNEL_LIST                     = 0x14,
+    CHAT_MSG_CHANNEL_NOTICE                   = 0x15,
+    CHAT_MSG_CHANNEL_NOTICE_USER              = 0x16,
+    CHAT_MSG_AFK                              = 0x17,
+    CHAT_MSG_DND                              = 0x18,
+    CHAT_MSG_IGNORED                          = 0x19,
+    CHAT_MSG_SKILL                            = 0x1A,
+    CHAT_MSG_LOOT                             = 0x1B,
+    CHAT_MSG_MONEY                            = 0x1C,
+    CHAT_MSG_OPENING                          = 0x1D,
+    CHAT_MSG_TRADESKILLS                      = 0x1E,
+    CHAT_MSG_PET_INFO                         = 0x1F,
+    CHAT_MSG_COMBAT_MISC_INFO                 = 0x20,
+    CHAT_MSG_COMBAT_XP_GAIN                   = 0x21,
+    CHAT_MSG_COMBAT_HONOR_GAIN                = 0x22,
+    CHAT_MSG_COMBAT_FACTION_CHANGE            = 0x23,
+    CHAT_MSG_BG_SYSTEM_NEUTRAL                = 0x24,
+    CHAT_MSG_BG_SYSTEM_ALLIANCE               = 0x25,
+    CHAT_MSG_BG_SYSTEM_HORDE                  = 0x26,
+    CHAT_MSG_RAID_LEADER                      = 0x27,
+    CHAT_MSG_RAID_WARNING                     = 0x28,
+    CHAT_MSG_RAID_BOSS_EMOTE                  = 0x29,
+    CHAT_MSG_RAID_BOSS_WHISPER                = 0x2A,
+    CHAT_MSG_FILTERED                         = 0x2B,
+    CHAT_MSG_RESTRICTED                       = 0x2C,
+    CHAT_MSG_BATTLENET                        = 0x2D,
+    CHAT_MSG_ACHIEVEMENT                      = 0x2E,
+    CHAT_MSG_GUILD_ACHIEVEMENT                = 0x2F,
+    CHAT_MSG_ARENA_POINTS                     = 0x30,
+    CHAT_MSG_PARTY_LEADER                     = 0x31,
+    CHAT_MSG_TARGETICONS                      = 0x32,
+    CHAT_MSG_BN_WHISPER                       = 0x33,
+    CHAT_MSG_BN_WHISPER_INFORM                = 0x34,
+    CHAT_MSG_BN_CONVERSATION                  = 0x35,
+    CHAT_MSG_BN_CONVERSATION_NOTICE           = 0x36,
+    CHAT_MSG_BN_CONVERSATION_LIST             = 0x37,
+    CHAT_MSG_BN_INLINE_TOAST_ALERT            = 0x38,
+    CHAT_MSG_BN_INLINE_TOAST_BROADCAST        = 0x39,
+    CHAT_MSG_BN_INLINE_TOAST_BROADCAST_INFORM = 0x3A,
+    CHAT_MSG_BN_INLINE_TOAST_CONVERSATION     = 0x3B,
+    CHAT_MSG_BN_WHISPER_PLAYER_OFFLINE        = 0x3C,
+    CHAT_MSG_COMBAT_GUILD_XP_GAIN             = 0x3D,
+    CHAT_MSG_CURRENCY                         = 0x3E,
+    CHAT_MSG_QUEST_BOSS_EMOTE                 = 0x3F,
+    CHAT_MSG_PET_BATTLE_COMBAT_LOG            = 0x40,
+    CHAT_MSG_PET_BATTLE_INFO                  = 0x41,
+    CHAT_MSG_INSTANCE                         = 0x42,
+    CHAT_MSG_INSTANCE_LEADER                  = 0x43,
+    MSG_NULL_ACTION                           = 0x44
 };
-
-#define MSG_NULL_ACTION 0x34
 
 enum ChatLinkColors
 {
@@ -3951,7 +3987,7 @@ enum BanReturn
 };
 
 // indexes of BattlemasterList.dbc
-enum BattlegroundTypeId
+enum class BattlegroundTypeId
 {
     BATTLEGROUND_TYPE_NONE      = 0, // None
     BATTLEGROUND_AV             = 1, // Alterac Valley
@@ -3978,7 +4014,7 @@ enum BattlegroundTypeId
     BATTLEGROUND_TOK           = 699, // 5.x Temple of Kotmogu
     BATTLEGROUND_CTF           = 706, // 5.x CTF3
     BATTLEGROUND_SM            = 708, // 5.x Silvershard Mines
-    BATTLEGROUND_TA            = 719, // 5.x Tol'Vir Arena
+    BATTLEGROUND_TV            = 719, // 5.x Tol'Vir Arena
     BATTLEGROUND_DG            = 754, // 5.x Deepwind Gorge
     BATTLEGROUND_TTP           = 757, // 5.x The Tiger's Peak
 };
@@ -4085,21 +4121,22 @@ enum RemoveMethod
     GROUP_REMOVEMETHOD_KICK_LFG = 3
 };
 
+/// 5.4.8 18414
 enum ActivateTaxiReply
-{
-    ERR_TAXIOK                      = 0,
-    ERR_TAXIUNSPECIFIEDSERVERERROR  = 1,
-    ERR_TAXINOSUCHPATH              = 2,
-    ERR_TAXINOTENOUGHMONEY          = 3,
-    ERR_TAXITOOFARAWAY              = 4,
-    ERR_TAXINOVENDORNEARBY          = 5,
-    ERR_TAXINOTVISITED              = 6,
-    ERR_TAXIPLAYERBUSY              = 7,
-    ERR_TAXIPLAYERALREADYMOUNTED    = 8,
-    ERR_TAXIPLAYERSHAPESHIFTED      = 9,
-    ERR_TAXIPLAYERMOVING            = 10,
-    ERR_TAXISAMENODE                = 11,
-    ERR_TAXINOTSTANDING             = 12
+{ 
+    ERR_TAXI_SAME_NODE                  = 2,
+    ERR_TAXI_PLAYER_MOVING              = 3,
+    ERR_TAXI_NOT_ENOUGH_MONEY           = 4,
+    ERR_TAXI_UNSPECIFIED_SERVER_ERROR   = 5,
+    ERR_TAXI_NO_SUCH_PATH               = 6,
+    ERR_TAXI_PLAYER_ALREADY_MOUNTED     = 7,
+    ERR_TAXI_OK                         = 8,
+    ERR_TAXI_PLAYER_SHAPESHIFTED        = 9,
+    ERR_TAXI_PLAYER_BUSY                = 10,
+    ERR_TAXI_NOT_STANDING               = 11,
+    ERR_TAXI_NO_VENDOR_NEARBY           = 12,
+    ERR_TAXI_TOO_FAR_AWAY               = 13,
+    ERR_TAXI_NOT_VISITED                = 15,
 };
 
 enum ProfessionUI
@@ -4253,13 +4290,13 @@ enum PartyResult
 };
 
 const uint32 MMAP_MAGIC = 0x4d4d4150; // 'MMAP'
-#define MMAP_VERSION 4
+#define MMAP_VERSION 5.2f
 
 struct MmapTileHeader
 {
     uint32 mmapMagic;
     uint32 dtVersion;
-    uint32 mmapVersion;
+    float mmapVersion;
     uint32 size;
     bool usesLiquids : 1;
 

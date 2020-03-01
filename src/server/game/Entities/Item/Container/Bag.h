@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_BAG_H
-#define TRINITY_BAG_H
+#ifndef SKYFIRE_BAG_H
+#define SKYFIRE_BAG_H
 
 // Maximum 36 Slots ((CONTAINER_END - CONTAINER_FIELD_SLOTS)/2
 #define MAX_BAG_SIZE 36                                     // 2.0.12
@@ -36,7 +36,7 @@ class Bag : public Item
         void AddToWorld();
         void RemoveFromWorld();
 
-        bool Create(uint32 guidlow, uint32 itemid, Player const* owner);
+        bool Create(uint32 guidlow, uint32 itemid, Player const* owner) OVERRIDE;
 
         void Clear();
         void StoreItem(uint8 slot, Item* pItem, bool update);

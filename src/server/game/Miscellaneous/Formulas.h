@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,15 +17,15 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_FORMULAS_H
-#define TRINITY_FORMULAS_H
+#ifndef SKYFIRE_FORMULAS_H
+#define SKYFIRE_FORMULAS_H
 
 #include "World.h"
 #include "SharedDefines.h"
 #include "ScriptMgr.h"
 #include "Player.h"
 
-namespace Trinity
+namespace Skyfire
 {
     namespace Honor
     {
@@ -40,7 +40,7 @@ namespace Trinity
         {
             return uint32(ceil(hk_honor_at_level_f(level, multiplier)));
         }
-    } // namespace Trinity::Honor
+    } // namespace Skyfire::Honor
 
     namespace XP
     {
@@ -136,7 +136,7 @@ namespace Trinity
                     nBaseExp = 7194;
                     break;
                 default:
-                    TC_LOG_ERROR("misc", "BaseGain: Unsupported content level %u", content);
+                    SF_LOG_ERROR("misc", "BaseGain: Unsupported content level %u", content);
                     nBaseExp = 45;
                     break;
             }
@@ -169,7 +169,7 @@ namespace Trinity
         {
             uint32 gain;
 
-            if (u->GetTypeId() == TYPEID_UNIT &&
+            if (u->GetTypeId() == TypeID::TYPEID_UNIT &&
                 (((Creature*)u)->IsTotem() || ((Creature*)u)->IsPet() ||
                 (((Creature*)u)->GetCreatureTemplate()->flags_extra & CREATURE_FLAG_EXTRA_NO_XP_AT_KILL) ||
                 ((Creature*)u)->GetCreatureTemplate()->type == CREATURE_TYPE_CRITTER))
@@ -178,16 +178,16 @@ namespace Trinity
             {
                 gain = BaseGain(player->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(u->GetMapId(), u->GetZoneId()));
 
-                if (gain != 0 && u->GetTypeId() == TYPEID_UNIT && ((Creature*)u)->isElite())
+                if (gain != 0 && u->GetTypeId() == TypeID::TYPEID_UNIT && ((Creature*)u)->isElite())
                 {
                     // Elites in instances have a 2.75x XP bonus instead of the regular 2x world bonus.
-                    if (u->GetMap() && u->GetMap()->IsDungeon())
+                    if (u->GetMap() && u->GetMap()->IsInstance())
                        gain = uint32(gain * 2.75);
                     else
                         gain *= 2;
                 }
 
-                gain = uint32(gain * sWorld->getRate(RATE_XP_KILL));
+                gain = uint32(gain * sWorld->getRate(Rates::RATE_XP_KILL));
             }
 
             sScriptMgr->OnGainCalculation(gain, player, u);
@@ -227,7 +227,7 @@ namespace Trinity
             sScriptMgr->OnGroupRateCalculation(rate, count, isRaid);
             return rate;
         }
-    } // namespace Trinity::XP
+    } // namespace Skyfire::XP
 
     namespace Currency
     {
@@ -247,7 +247,7 @@ namespace Trinity
             // WowWiki: Battleground ratings receive a bonus of 22.2% to the cap they generate
             return uint32((ConquestRatingCalculator(rate) * 1.222f) + 0.5f);
         }
-    } // namespace Trinity::Currency
-} // namespace Trinity
+    } // namespace Skyfire::Currency
+} // namespace Skyfire
 
 #endif

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -137,7 +137,7 @@ class boss_mechano_lord_capacitus : public CreatureScript
                         case EVENT_SUMMON_NETHER_CHARGE:
                             Position pos;
                             me->GetRandomNearPosition(pos, 5.0f);
-                            me->SummonCreature(NPC_NETHER_CHARGE, pos, TEMPSUMMON_TIMED_DESPAWN, 18000);
+                            me->SummonCreature(NPC_NETHER_CHARGE, pos, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 18000);
                             events.ScheduleEvent(EVENT_SUMMON_NETHER_CHARGE, 10 * IN_MILLISECONDS);
                             break;
                         case EVENT_BERSERK:

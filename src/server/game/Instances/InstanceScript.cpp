@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,9 +49,9 @@ void InstanceScript::HandleGameObject(uint64 GUID, bool open, GameObject* go)
     if (!go)
         go = instance->GetGameObject(GUID);
     if (go)
-        go->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
+        go->SetGoState(open ? GOState::GO_STATE_ACTIVE : GOState::GO_STATE_READY);
     else
-        TC_LOG_DEBUG("scripts", "InstanceScript: HandleGameObject failed");
+        SF_LOG_DEBUG("scripts", "InstanceScript: HandleGameObject failed");
 }
 
 bool InstanceScript::IsEncounterInProgress() const
@@ -72,7 +72,7 @@ void InstanceScript::LoadMinionData(const MinionData* data)
 
         ++data;
     }
-    TC_LOG_DEBUG("scripts", "InstanceScript::LoadMinionData: " UI64FMTD " minions loaded.", uint64(minions.size()));
+    SF_LOG_DEBUG("scripts", "InstanceScript::LoadMinionData: " UI64FMTD " minions loaded.", uint64(minions.size()));
 }
 
 void InstanceScript::LoadDoorData(const DoorData* data)
@@ -84,7 +84,7 @@ void InstanceScript::LoadDoorData(const DoorData* data)
 
         ++data;
     }
-    TC_LOG_DEBUG("scripts", "InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
+    SF_LOG_DEBUG("scripts", "InstanceScript::LoadDoorData: " UI64FMTD " doors loaded.", uint64(doors.size()));
 }
 
 void InstanceScript::UpdateMinionState(Creature* minion, EncounterState state)
@@ -134,7 +134,7 @@ void InstanceScript::UpdateDoorState(GameObject* door)
         }
     }
 
-    door->SetGoState(open ? GO_STATE_ACTIVE : GO_STATE_READY);
+    door->SetGoState(open ? GOState::GO_STATE_ACTIVE : GOState::GO_STATE_READY);
 }
 
 void InstanceScript::AddDoor(GameObject* door, bool add)
@@ -201,7 +201,7 @@ bool InstanceScript::SetBossState(uint32 id, EncounterState state)
         if (bossInfo->state == TO_BE_DECIDED) // loading
         {
             bossInfo->state = state;
-            //TC_LOG_ERROR("misc", "Inialize boss %u state as %u.", id, (uint32)state);
+            //SF_LOG_ERROR("misc", "Inialize boss %u state as %u.", id, (uint32)state);
             return false;
         }
         else
@@ -265,13 +265,13 @@ void InstanceScript::DoUseDoorOrButton(uint64 uiGuid, uint32 uiWithRestoreTime, 
     {
         if (go->GetGoType() == GAMEOBJECT_TYPE_DOOR || go->GetGoType() == GAMEOBJECT_TYPE_BUTTON)
         {
-            if (go->getLootState() == GO_READY)
+            if (go->getLootState() == LootState::GO_READY)
                 go->UseDoorOrButton(uiWithRestoreTime, bUseAlternativeState);
-            else if (go->getLootState() == GO_ACTIVATED)
+            else if (go->getLootState() == LootState::GO_ACTIVATED)
                 go->ResetDoorOrButton();
         }
         else
-            TC_LOG_ERROR("misc", "SD2: Script call DoUseDoorOrButton, but gameobject entry %u is type %u.", go->GetEntry(), go->GetGoType());
+            SF_LOG_ERROR("misc", "SD2: Script call DoUseDoorOrButton, but gameobject entry %u is type %u.", go->GetEntry(), go->GetGoType());
     }
 }
 
@@ -302,7 +302,7 @@ void InstanceScript::DoUpdateWorldState(uint32 uiStateId, uint32 uiStateData)
                 player->SendUpdateWorldState(uiStateId, uiStateData);
     }
     else
-        TC_LOG_DEBUG("scripts", "DoUpdateWorldState attempt send data but no players in map.");
+        SF_LOG_DEBUG("scripts", "DoUpdateWorldState attempt send data but no players in map.");
 }
 
 // Send Notify to all players in instance
@@ -388,7 +388,7 @@ void InstanceScript::DoCastSpellOnPlayers(uint32 spell)
 
 bool InstanceScript::CheckAchievementCriteriaMeet(uint32 criteria_id, Player const* /*source*/, Unit const* /*target*/ /*= NULL*/, uint32 /*miscvalue1*/ /*= 0*/)
 {
-    TC_LOG_ERROR("misc", "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
+    SF_LOG_ERROR("misc", "Achievement system call InstanceScript::CheckAchievementCriteriaMeet but instance script for map %u not have implementation for achievement criteria %u",
         instance->GetId(), criteria_id);
     return false;
 }
@@ -446,7 +446,7 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
             if (encounter->lastEncounterDungeon)
             {
                 dungeonId = encounter->lastEncounterDungeon;
-                TC_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->encounterName, dungeonId);
+                SF_LOG_DEBUG("lfg", "UpdateEncounterState: Instance %s (instanceId %u) completed encounter %s. Credit Dungeon: %u", instance->GetMapName(), instance->GetInstanceId(), encounter->dbcEntry->encounterName, dungeonId);
                 break;
             }
         }
@@ -470,11 +470,8 @@ void InstanceScript::UpdateEncounterState(EncounterCreditType type, uint32 credi
 
 void InstanceScript::UpdatePhasing()
 {
-    PhaseUpdateData phaseUdateData;
-    phaseUdateData.AddConditionType(CONDITION_INSTANCE_INFO);
-
     Map::PlayerList const& players = instance->GetPlayers();
     for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
         if (Player* player = itr->GetSource())
-            player->GetPhaseMgr().NotifyConditionChanged(phaseUdateData);
+            player->UpdatePhasing();
 }

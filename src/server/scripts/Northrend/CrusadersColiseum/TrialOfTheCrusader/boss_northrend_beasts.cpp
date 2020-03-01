@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -219,7 +219,7 @@ class boss_gormok : public CreatureScript
 
                 for (uint8 i = 0; i < MAX_SNOBOLDS; i++)
                 {
-                    if (Creature* pSnobold = DoSpawnCreature(NPC_SNOBOLD_VASSAL, 0, 0, 0, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Creature* pSnobold = DoSpawnCreature(NPC_SNOBOLD_VASSAL, 0, 0, 0, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         pSnobold->EnterVehicle(me, i);
                         pSnobold->SetInCombatWithZone();
@@ -547,7 +547,7 @@ struct boss_jormungarAI : public BossAI
 
     void KilledUnit(Unit* who) OVERRIDE
     {
-        if (who->GetTypeId() == TYPEID_PLAYER)
+        if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
             if (instance)
                 instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
     }
@@ -602,7 +602,7 @@ struct boss_jormungarAI : public BossAI
                     events.ScheduleEvent(EVENT_SLIME_POOL, 30*IN_MILLISECONDS, 0, PHASE_MOBILE);
                     return;
                 case EVENT_SUMMON_ACIDMAW:
-                    if (Creature* acidmaw = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TEMPSUMMON_MANUAL_DESPAWN))
+                    if (Creature* acidmaw = me->SummonCreature(NPC_ACIDMAW, ToCCommonLoc[9].GetPositionX(), ToCCommonLoc[9].GetPositionY(), ToCCommonLoc[9].GetPositionZ(), 5, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN))
                     {
                         acidmaw->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                         acidmaw->SetReactState(REACT_AGGRESSIVE);
@@ -843,7 +843,7 @@ class spell_gormok_fire_bomb : public SpellScriptLoader
                 if (const WorldLocation* pos = GetExplTargetDest())
                 {
                     if (Unit* caster = GetCaster())
-                        caster->SummonCreature(NPC_FIRE_BOMB, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 30*IN_MILLISECONDS);
+                        caster->SummonCreature(NPC_FIRE_BOMB, pos->GetPositionX(), pos->GetPositionY(), pos->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 30*IN_MILLISECONDS);
                 }
             }
 
@@ -948,7 +948,7 @@ class boss_icehowl : public CreatureScript
 
             void KilledUnit(Unit* who) OVERRIDE
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
                     if (instance)
                         instance->SetData(DATA_TRIBUTE_TO_IMMORTALITY_ELIGIBLE, 0);
@@ -964,7 +964,7 @@ class boss_icehowl : public CreatureScript
 
             void SpellHitTarget(Unit* target, SpellInfo const* spell) OVERRIDE
             {
-                if (spell->Id == SPELL_TRAMPLE && target->GetTypeId() == TYPEID_PLAYER)
+                if (spell->Id == SPELL_TRAMPLE && target->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
                     if (!_trampleCasted)
                     {

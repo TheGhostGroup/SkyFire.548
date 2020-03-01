@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,7 +61,7 @@ class AreaTrigger_at_coilfang_waterfall : public AreaTriggerScript
         bool OnTrigger(Player* player, AreaTriggerEntry const* /*trigger*/) OVERRIDE
         {
             if (GameObject* go = GetClosestGameObjectWithEntry(player, GO_COILFANG_WATERFALL, 35.0f))
-                if (go->getLootState() == GO_READY)
+                if (go->getLootState() == LootState::GO_READY)
                     go->UseDoorOrButton();
 
             return false;
@@ -165,7 +165,7 @@ class AreaTrigger_at_scent_larkorwi : public AreaTriggerScript
             if (!player->isDead() && player->GetQuestStatus(QUEST_SCENT_OF_LARKORWI) == QUEST_STATUS_INCOMPLETE)
             {
                 if (!player->FindNearestCreature(NPC_LARKORWI_MATE, 15))
-                    player->SummonCreature(NPC_LARKORWI_MATE, player->GetPositionX()+5, player->GetPositionY(), player->GetPositionZ(), 3.3f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
+                    player->SummonCreature(NPC_LARKORWI_MATE, player->GetPositionX()+5, player->GetPositionY(), player->GetPositionZ(), 3.3f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000);
             }
 
             return false;
@@ -296,7 +296,7 @@ class AreaTrigger_at_nats_landing : public AreaTriggerScript
             {
                 if (!player->FindNearestCreature(NPC_LURKING_SHARK, 20.0f))
                 {
-                    if (Creature* shark = player->SummonCreature(NPC_LURKING_SHARK, -4246.243f, -3922.356f, -7.488f, 5.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000))
+                    if (Creature* shark = player->SummonCreature(NPC_LURKING_SHARK, -4246.243f, -3922.356f, -7.488f, 5.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 100000))
                         shark->AI()->AttackStart(player);
 
                     return false;
@@ -420,7 +420,7 @@ class AreaTrigger_at_area_52_entrance : public AreaTriggerScript
                     break;
             }
 
-            player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 5000);
+            player->SummonCreature(NPC_SPOTLIGHT, x, y, z, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 5000);
             player->AddAura(SPELL_A52_NEURALYZER, player);
             _triggerTimes[trigger->id] = sWorld->GetGameTime();
             return false;
@@ -470,7 +470,7 @@ public:
         if (stormforgedEradictor)
             return false;
 
-        stormforgedMonitor = player->SummonCreature(NPC_STORMFORGED_MONITOR, stormforgedMonitorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+        stormforgedMonitor = player->SummonCreature(NPC_STORMFORGED_MONITOR, stormforgedMonitorPosition, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
         if (stormforgedMonitor)
         {
             stormforgedMonitorGUID = stormforgedMonitor->GetGUID();
@@ -480,7 +480,7 @@ public:
             stormforgedMonitor->GetMotionMaster()->MovePath(NPC_STORMFORGED_MONITOR * 100, false);
         }
 
-        stormforgedEradictor = player->SummonCreature(NPC_STORMFORGED_ERADICTOR, stormforgedEradictorPosition, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
+        stormforgedEradictor = player->SummonCreature(NPC_STORMFORGED_ERADICTOR, stormforgedEradictorPosition, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
         if (stormforgedEradictor)
         {
             stormforgedEradictorGUID = stormforgedEradictor->GetGUID();

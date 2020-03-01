@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -183,7 +183,7 @@ public:
                 if (unit && unit->IsAlive())
                     targets.push_back(unit);
             }
-            targets.sort(Trinity::ObjectDistanceOrderPred(me));
+            targets.sort(Skyfire::ObjectDistanceOrderPred(me));
             Unit* target = targets.front();
             if (target && me->IsWithinDistInMap(target, me->GetAttackDistance(target)))
             {
@@ -273,7 +273,7 @@ public:
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
         {
-            if (!Intro && who->GetTypeId() == TYPEID_PLAYER && me->CanCreatureAttack(who))
+            if (!Intro && who->GetTypeId() == TypeID::TYPEID_PLAYER && me->CanCreatureAttack(who))
             {
                 if (me->IsWithinDistInMap(who, VISIBLE_RANGE) && me->IsWithinLOSInMap(who))
                 {
@@ -366,7 +366,7 @@ public:
                     Creature* Construct = NULL;
                     float X = CalculateRandomLocation(ghost->GetPositionX(), 10);
                     float Y = CalculateRandomLocation(ghost->GetPositionY(), 10);
-                    Construct = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, Y, ghost->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
+                    Construct = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, Y, ghost->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 45000);
                     if (Construct)
                     {
                         Construct->CastSpell(Construct, SPELL_PASSIVE_SHADOWFORM, true);
@@ -421,7 +421,7 @@ public:
                 {
                     Creature* Shadow = NULL;
                     float X = CalculateRandomLocation(me->GetPositionX(), 10);
-                    Shadow = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 0);
+                    Shadow = me->SummonCreature(CREATURE_SHADOWY_CONSTRUCT, X, me->GetPositionY(), me->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 0);
                     if (Shadow)
                     {
                         Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
@@ -443,7 +443,7 @@ public:
                     float Y = CalculateRandomLocation(target->GetPositionY(), 20);
                     float Z = target->GetPositionZ();
                     Z = me->GetMap()->GetHeight(me->GetPhaseMask(), X, Y, Z);
-                    Creature* DoomBlossom = me->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, Z, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
+                    Creature* DoomBlossom = me->SummonCreature(CREATURE_DOOM_BLOSSOM, X, Y, Z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 20000);
                     if (DoomBlossom)
                     {
                         DoomBlossom->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);

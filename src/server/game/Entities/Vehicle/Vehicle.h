@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SF_TRINITY_VEHICLE_H
-#define SF_TRINITY_VEHICLE_H
+#ifndef SF_SKYFIRE_VEHICLE_H
+#define SF_SKYFIRE_VEHICLE_H
 
 #include "ObjectDefines.h"
 #include "Object.h"
@@ -47,7 +47,7 @@ class Vehicle : public TransportBase
         void Reset(bool evading = false);
         void InstallAllAccessories(bool evading);
         void ApplyAllImmunities();
-        void InstallAccessory(uint32 entry, int8 seatId, bool minion, uint8 type, uint32 summonTime);   //! May be called from scripts
+        void InstallAccessory(uint32 entry, int8 seatId, bool minion, TempSummonType type, uint32 summonTime);   //! May be called from scripts
 
         Unit* GetBase() const { return _me; }
         VehicleEntry const* GetVehicleInfo() const { return _vehicleInfo; }

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,7 +33,7 @@ char * wdtGetPlainName(char * FileName)
 
 extern HANDLE WorldMpq;
 
-WDTFile::WDTFile(char* file_name, char* file_name1):WDT(WorldMpq, file_name)
+WDTFile::WDTFile(char* file_name, char* file_name1):WDT(WorldMpq, file_name), gnWMO(0)
 {
     filename.append(file_name1,strlen(file_name1));
 }
@@ -78,15 +78,13 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
             {
                 char *buf = new char[size];
                 WDT.read(buf, size);
-                char *p=buf;
-                int q = 0;
-                gWmoInstansName = new string[size];
+                char *p = buf;
                 while (p < buf + size)
                 {
                     char* s=wdtGetPlainName(p);
                     FixNameCase(s,strlen(s));
                     p=p+strlen(p)+1;
-                    gWmoInstansName[q++] = s;
+                    gWmoInstansName.push_back(s);
                 }
                 delete[] buf;
             }
@@ -104,8 +102,6 @@ bool WDTFile::init(char* /*map_id*/, unsigned int mapID)
                     WDT.read(&id, 4);
                     WMOInstance inst(WDT,gWmoInstansName[id].c_str(), mapID, 65, 65, dirfile);
                 }
-
-                delete[] gWmoInstansName;
             }
         }
         WDT.seek((int)nextpos);
@@ -128,6 +124,6 @@ ADTFile* WDTFile::GetMap(int x, int z)
 
     char name[512];
 
-    sprintf(name,"World\\Maps\\%s\\%s_%d_%d_obj0.adt", filename.c_str(), filename.c_str(), x, z);
+    snprintf(name, sizeof(name), "World\\Maps\\%s\\%s_%d_%d_obj0.adt", filename.c_str(), filename.c_str(), x, z);
     return new ADTFile(name);
 }

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -59,7 +59,7 @@ enum TypeMask
     TYPEMASK_SEER           = TYPEMASK_PLAYER | TYPEMASK_UNIT | TYPEMASK_DYNAMICOBJECT
 };
 
-enum TypeID
+enum class TypeID
 {
     TYPEID_OBJECT        = 0,
     TYPEID_ITEM          = 1,
@@ -70,14 +70,13 @@ enum TypeID
     TYPEID_DYNAMICOBJECT = 6,
     TYPEID_CORPSE        = 7,
     TYPEID_AREATRIGGER   = 8,
-    TYPEID_SCENEOBJECT   = 9
+    TYPEID_SCENEOBJECT   = 9,
+    NUM_CLIENT_OBJECT_TYPES = 10
 };
 
-#define NUM_CLIENT_OBJECT_TYPES             10
+TypeID GuidHigh2TypeId(uint32 guid_hi);
 
-uint32 GuidHigh2TypeId(uint32 guid_hi);
-
-enum TempSummonType
+enum class TempSummonType
 {
     TEMPSUMMON_TIMED_OR_DEAD_DESPAWN       = 1,             // despawns after a specified time OR when the creature disappears
     TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN     = 2,             // despawns after a specified time OR when the creature dies
@@ -120,62 +119,6 @@ class ZoneScript;
 
 typedef UNORDERED_MAP<Player*, UpdateData> UpdateDataMapType;
 
-//! Structure to ease conversions from single 64 bit integer guid into individual bytes, for packet sending purposes
-//! Nuke this out when porting ObjectGuid from MaNGOS, but preserve the per-byte storage
-struct ObjectGuid
-{
-    public:
-        ObjectGuid() { _data.u64 = UI64LIT(0); }
-        ObjectGuid(uint64 guid) { _data.u64 = guid; }
-        ObjectGuid(ObjectGuid const& other) { _data.u64 = other._data.u64; }
-
-        uint8& operator[](uint32 index)
-        {
-            ASSERT(index < sizeof(uint64));
-
-#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
-            return _data.byte[index];
-#else
-            return _data.byte[7 - index];
-#endif
-        }
-
-        uint8 const& operator[](uint32 index) const
-        {
-            ASSERT(index < sizeof(uint64));
-
-#if TRINITY_ENDIAN == TRINITY_LITTLEENDIAN
-            return _data.byte[index];
-#else
-            return _data.byte[7 - index];
-#endif
-        }
-
-        operator uint64() const
-        {
-            return _data.u64;
-        }
-
-        ObjectGuid& operator=(uint64 guid)
-        {
-            _data.u64 = guid;
-            return *this;
-        }
-
-        ObjectGuid& operator=(ObjectGuid const& other)
-        {
-            _data.u64 = other._data.u64;
-            return *this;
-        }
-
-    private:
-        union
-        {
-            uint64 u64;
-            uint8 byte[8];
-        } _data;
-};
-
 class Object
 {
     public:
@@ -190,6 +133,7 @@ class Object
         uint32 GetGUIDLow() const { return GUID_LOPART(GetUInt64Value(0)); }
         uint32 GetGUIDMid() const { return GUID_ENPART(GetUInt64Value(0)); }
         uint32 GetGUIDHigh() const { return GUID_HIPART(GetUInt64Value(0)); }
+        ObjectGuid GetObjectGUID() const { return static_cast<ObjectGuid>(GetGUID()); }
         const ByteBuffer& GetPackGUID() const { return m_PackGUID; }
         uint32 GetEntry() const { return GetUInt32Value(OBJECT_FIELD_ENTRY_ID); }
         void SetEntry(uint32 entry) { SetUInt32Value(OBJECT_FIELD_ENTRY_ID, entry); }
@@ -207,6 +151,7 @@ class Object
         void BuildOutOfRangeUpdateBlock(UpdateData* data) const;
 
         virtual void DestroyForPlayer(Player* target, bool onDeath = false) const;
+        void SendDestroyObject(Player* target, ObjectGuid Guid, bool onDeath = false) const;
 
         int32 GetInt32Value(uint16 index) const;
         uint32 GetUInt32Value(uint16 index) const;
@@ -270,26 +215,26 @@ class Object
         // FG: some hacky helpers
         void ForceValuesUpdateAtIndex(uint32);
 
-        Player* ToPlayer() { if (GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player*>(this); else return NULL; }
-        Player const* ToPlayer() const { if (GetTypeId() == TYPEID_PLAYER) return reinterpret_cast<Player const*>(this); else return NULL; }
+        Player* ToPlayer() { if (GetTypeId() == TypeID::TYPEID_PLAYER) return reinterpret_cast<Player*>(this); else return NULL; }
+        Player const* ToPlayer() const { if (GetTypeId() == TypeID::TYPEID_PLAYER) return reinterpret_cast<Player const*>(this); else return NULL; }
 
-        Creature* ToCreature() { if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature*>(this); else return NULL; }
-        Creature const* ToCreature() const { if (GetTypeId() == TYPEID_UNIT) return reinterpret_cast<Creature const*>(this); else return NULL; }
+        Creature* ToCreature() { if (GetTypeId() == TypeID::TYPEID_UNIT) return reinterpret_cast<Creature*>(this); else return NULL; }
+        Creature const* ToCreature() const { if (GetTypeId() == TypeID::TYPEID_UNIT) return reinterpret_cast<Creature const*>(this); else return NULL; }
 
         Unit* ToUnit() { if (isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit*>(this); else return NULL; }
         Unit const* ToUnit() const { if (isType(TYPEMASK_UNIT)) return reinterpret_cast<Unit const*>(this); else return NULL; }
 
-        GameObject* ToGameObject() { if (GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject*>(this); else return NULL; }
-        GameObject const* ToGameObject() const { if (GetTypeId() == TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject const*>(this); else return NULL; }
+        GameObject* ToGameObject() { if (GetTypeId() == TypeID::TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject*>(this); else return NULL; }
+        GameObject const* ToGameObject() const { if (GetTypeId() == TypeID::TYPEID_GAMEOBJECT) return reinterpret_cast<GameObject const*>(this); else return NULL; }
 
-        Corpse* ToCorpse() { if (GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse*>(this); else return NULL; }
-        Corpse const* ToCorpse() const { if (GetTypeId() == TYPEID_CORPSE) return reinterpret_cast<Corpse const*>(this); else return NULL; }
+        Corpse* ToCorpse() { if (GetTypeId() == TypeID::TYPEID_CORPSE) return reinterpret_cast<Corpse*>(this); else return NULL; }
+        Corpse const* ToCorpse() const { if (GetTypeId() == TypeID::TYPEID_CORPSE) return reinterpret_cast<Corpse const*>(this); else return NULL; }
 
-        DynamicObject* ToDynObject() { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(this); else return NULL; }
-        DynamicObject const* ToDynObject() const { if (GetTypeId() == TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(this); else return NULL; }
+        DynamicObject* ToDynObject() { if (GetTypeId() == TypeID::TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject*>(this); else return NULL; }
+        DynamicObject const* ToDynObject() const { if (GetTypeId() == TypeID::TYPEID_DYNAMICOBJECT) return reinterpret_cast<DynamicObject const*>(this); else return NULL; }
 
-        AreaTrigger* ToAreaTrigger() { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger*>(this); else return NULL; }
-        AreaTrigger const* ToAreaTrigger() const { if (GetTypeId() == TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger const*>(this); else return NULL; }
+        AreaTrigger* ToAreaTrigger() { if (GetTypeId() == TypeID::TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger*>(this); else return NULL; }
+        AreaTrigger const* ToAreaTrigger() const { if (GetTypeId() == TypeID::TYPEID_AREATRIGGER) return reinterpret_cast<AreaTrigger const*>(this); else return NULL; }
 
     protected:
         Object();
@@ -335,8 +280,8 @@ class Object
 
         // for output helpfull error messages from asserts
         bool PrintIndexError(uint32 index, bool set) const;
-        Object(const Object&);                              // prevent generation copy constructor
-        Object& operator=(Object const&);                   // prevent generation assigment operator
+        Object(Object const& right) = delete;
+        Object & operator=(Object const& right) = delete;
 };
 
 struct Position
@@ -574,6 +519,7 @@ template<class T>
 class GridObject
 {
     public:
+        virtual ~GridObject() { }
         bool IsInGrid() const { return _gridRef.isValid(); }
         void AddToGrid(GridRefManager<T>& m) { ASSERT(!IsInGrid()); _gridRef.link(&m, (T*)this); }
         void RemoveFromGrid() { ASSERT(IsInGrid()); _gridRef.unlink(); }
@@ -618,7 +564,7 @@ class MapObject
         friend class ObjectGridLoader; //grid loader for loading creatures
 
     protected:
-        MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE) { }
+        MapObject() : _moveState(MAP_OBJECT_CELL_MOVE_NONE) { _newPosition.Relocate(0.0f, 0.0f, 0.0f, 0.0f); }
 
     private:
         Cell _currentCell;
@@ -666,7 +612,20 @@ class WorldObject : public Object, public WorldLocation
         uint32 GetInstanceId() const { return m_InstanceId; }
 
         virtual void SetPhaseMask(uint32 newPhaseMask, bool update);
+        virtual bool SetPhased(uint32 id, bool update, bool apply);
+        bool HasPhaseList(uint32 phase);
         uint32 GetPhaseMask() const { return m_phaseMask; }
+        void ClearPhases(bool update = false);
+        bool IsPhased(WorldObject const* obj) const;
+        bool IsPhased(uint32 phase) const { return _phases.find(phase) != _phases.end(); }
+        std::set<uint32> const& GetPhases() const { return _phases; }
+        bool IsTerrainSwaped(uint32 terrainSwap) const { return _terrainSwaps.find(terrainSwap) != _terrainSwaps.end(); }
+        std::set<uint32> const& GetTerrainSwaps() const { return _terrainSwaps; }
+        std::set<uint32> const& GetWorldMapSwaps() const { return _worldMapSwaps; }
+        void RebuildTerrainSwaps();
+        void RebuildWorldMapAreaSwaps();
+        void UpdateAreaPhase();
+
         bool InSamePhase(WorldObject const* obj) const;
         bool InSamePhase(uint32 phasemask) const { return (GetPhaseMask() & phasemask); }
 
@@ -716,12 +675,12 @@ class WorldObject : public Object, public WorldLocation
 
         virtual uint8 getLevelForTarget(WorldObject const* /*target*/) const { return 1; }
 
-        void MonsterSay(const char* text, uint32 language, WorldObject const* target);
-        void MonsterYell(const char* text, uint32 language, WorldObject const* target);
+        void MonsterSay(const char* text, Language language, WorldObject const* target);
+        void MonsterYell(const char* text, Language language, WorldObject const* target);
         void MonsterTextEmote(const char* text, WorldObject const* target, bool IsBossEmote = false);
         void MonsterWhisper(const char* text, Player const* target, bool IsBossWhisper = false);
-        void MonsterSay(int32 textId, uint32 language, WorldObject const* target);
-        void MonsterYell(int32 textId, uint32 language, WorldObject const* target);
+        void MonsterSay(int32 textId, Language language, WorldObject const* target);
+        void MonsterYell(int32 textId, Language language, WorldObject const* target);
         void MonsterTextEmote(int32 textId, WorldObject const* target, bool IsBossEmote = false);
         void MonsterWhisper(int32 textId, Player const* target, bool IsBossWhisper = false);
 
@@ -762,8 +721,8 @@ class WorldObject : public Object, public WorldLocation
         void SetZoneScript();
         ZoneScript* GetZoneScript() const { return m_zoneScript; }
 
-        TempSummon* SummonCreature(uint32 id, Position const &pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0) const;
-        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0) const;
+        TempSummon* SummonCreature(uint32 id, Position const &pos, TempSummonType spwtype = TempSummonType::TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0) const;
+        TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TempSummonType::TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0) const;
         GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime);
         Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, CreatureAI* (*GetAI)(Creature*) = NULL);
         void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = NULL);
@@ -852,6 +811,9 @@ class WorldObject : public Object, public WorldLocation
         //uint32 m_mapId;                                     // object at map with map_id
         uint32 m_InstanceId;                                // in map copy with instance id
         uint32 m_phaseMask;                                 // in area phase state
+        std::set<uint32> _phases;
+        std::set<uint32> _terrainSwaps;
+        std::set<uint32> _worldMapSwaps;
 
         uint16 m_notifyflags;
         uint16 m_executed_notifies;
@@ -864,7 +826,7 @@ class WorldObject : public Object, public WorldLocation
         bool CanDetectStealthOf(WorldObject const* obj) const;
 };
 
-namespace Trinity
+namespace Skyfire
 {
     // Binary predicate to sort WorldObjects based on the distance to a reference WorldObject
     class ObjectDistanceOrderPred

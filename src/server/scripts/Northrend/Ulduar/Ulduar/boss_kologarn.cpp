@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -157,7 +157,7 @@ class boss_kologarn : public CreatureScript
 
             void KilledUnit(Unit* who) OVERRIDE
             {
-                if (who->GetTypeId() == TYPEID_PLAYER)
+                if (who->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_SLAY);
             }
 
@@ -291,7 +291,7 @@ class boss_kologarn : public CreatureScript
                             {
                                 int8 seat = eventId == EVENT_RESPAWN_LEFT_ARM ? 0 : 1;
                                 uint32 entry = eventId == EVENT_RESPAWN_LEFT_ARM ? NPC_LEFT_ARM : NPC_RIGHT_ARM;
-                                vehicle->InstallAccessory(entry, seat, true, TEMPSUMMON_MANUAL_DESPAWN, 0);
+                                vehicle->InstallAccessory(entry, seat, true, TempSummonType::TEMPSUMMON_MANUAL_DESPAWN, 0);
                             }
                             break;
                         }
@@ -361,7 +361,7 @@ class spell_ulduar_rubble_summon : public SpellScriptLoader
 };
 
 // predicate function to select non main tank target
-class StoneGripTargetSelector : public std::unary_function<Unit*, bool>
+class StoneGripTargetSelector : public SF_UNARY_FUNCTION<Unit*, bool>
 {
     public:
         StoneGripTargetSelector(Creature* me, Unit const* victim) : _me(me), _victim(victim) { }
@@ -371,7 +371,7 @@ class StoneGripTargetSelector : public std::unary_function<Unit*, bool>
             if (target == _victim && _me->getThreatManager().getThreatList().size() > 1)
                 return true;
 
-            if (target->GetTypeId() != TYPEID_PLAYER)
+            if (target->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return true;
 
             return false;
@@ -392,7 +392,7 @@ class spell_ulduar_stone_grip_cast_target : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                if (GetCaster()->GetTypeId() != TYPEID_UNIT)
+                if (GetCaster()->GetTypeId() != TypeID::TYPEID_UNIT)
                     return false;
                 return true;
             }
@@ -458,10 +458,10 @@ class spell_ulduar_cancel_stone_grip : public SpellScriptLoader
 
                 switch (target->GetMap()->GetDifficulty())
                 {
-                    case RAID_DIFFICULTY_10MAN_NORMAL:
+                    case DIFFICULTY_10MAN_NORMAL:
                         target->RemoveAura(GetSpellInfo()->Effects[EFFECT_0].CalcValue());
                         break;
-                    case RAID_DIFFICULTY_25MAN_NORMAL:
+                    case DIFFICULTY_25MAN_NORMAL:
                         target->RemoveAura(GetSpellInfo()->Effects[EFFECT_1].CalcValue());
                         break;
                     default:
@@ -538,7 +538,7 @@ class spell_ulduar_stone_grip_absorb : public SpellScriptLoader
                 if (!GetOwner()->ToCreature())
                     return;
 
-                uint32 rubbleStalkerEntry = (GetOwner()->GetMap()->GetDifficulty() == DUNGEON_DIFFICULTY_NORMAL ? 33809 : 33942);
+                uint32 rubbleStalkerEntry = (GetOwner()->GetMap()->GetDifficulty() == DIFFICULTY_NORMAL ? 33809 : 33942);
                 Creature* rubbleStalker = GetOwner()->FindNearestCreature(rubbleStalkerEntry, 200.0f, true);
                 if (rubbleStalker)
                     rubbleStalker->CastSpell(rubbleStalker, SPELL_STONE_GRIP_CANCEL, true);

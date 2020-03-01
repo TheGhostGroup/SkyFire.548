@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
-# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -12,14 +12,12 @@
 ########### authserver ###############
 
 file(GLOB_RECURSE sources_Authentication Authentication/*.cpp Authentication/*.h)
-file(GLOB_RECURSE sources_PrecompiledHeaders PrecompiledHeaders/*.cpp PrecompiledHeaders/*.h)
 file(GLOB_RECURSE sources_Realms Realms/*.cpp Realms/*.h)
 file(GLOB_RECURSE sources_Server Server/*.cpp Server/*.h)
 file(GLOB sources_Localdir *.cpp *.h)
 
 source_group(CMake FILES CMakeLists.txt)
 source_group(Authentication FILES ${sources_Authentication})
-source_group(PrecompiledHeaders FILES ${sources_PrecompiledHeaders})
 source_group(Realms FILES ${sources_Realms})
 source_group(Server FILES ${sources_Server})
 source_group(localdir FILES ${sources_Localdir})
@@ -79,7 +77,7 @@ add_dependencies(authserver revision.h)
 
 if( NOT WIN32 )
   set_target_properties(authserver PROPERTIES
-    COMPILE_DEFINITIONS _TRINITY_REALM_CONFIG="${CONF_DIR}/authserver.conf"
+    COMPILE_DEFINITIONS _SKYFIRE_REALM_CONFIG="${CONF_DIR}/authserver.conf"
   )
 endif()
 

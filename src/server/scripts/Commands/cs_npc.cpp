@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -44,7 +44,7 @@ struct EnumName
 
 #define CREATE_NAMED_ENUM(VALUE) { VALUE, STRINGIZE(VALUE) }
 
-#define NPCFLAG_COUNT   27
+#define NPCFLAG_COUNT   29
 
 EnumName<NPCFlags, int32> const npcFlagTexts[NPCFLAG_COUNT] =
 {
@@ -74,7 +74,9 @@ EnumName<NPCFlags, int32> const npcFlagTexts[NPCFLAG_COUNT] =
     { UNIT_NPC_FLAG_VENDOR_AMMO,        LANG_NPCINFO_VENDOR_AMMO        },
     { UNIT_NPC_FLAG_VENDOR_FOOD,        LANG_NPCINFO_VENDOR_FOOD        },
     { UNIT_NPC_FLAG_VENDOR_POISON,      LANG_NPCINFO_VENDOR_POISON      },
-    { UNIT_NPC_FLAG_VENDOR_REAGENT,     LANG_NPCINFO_VENDOR_REAGENT     }
+    { UNIT_NPC_FLAG_VENDOR_REAGENT,     LANG_NPCINFO_VENDOR_REAGENT     },
+    { UNIT_NPC_FLAG_WILDPET_CAPTURABLE, LANG_NPCINFO_WILDPET_CAPTURABLE },
+    { UNIT_NPC_FLAG_BMAH,               LANG_NPCINFO_BMAUCTIONEER       },
 };
 
 EnumName<Mechanics> const mechanicImmunes[MAX_MECHANIC] =
@@ -145,7 +147,7 @@ EnumName<UnitFlags> const unitFlags[MAX_UNIT_FLAGS] =
     CREATE_NAMED_ENUM(UNIT_FLAG_SKINNABLE),
     CREATE_NAMED_ENUM(UNIT_FLAG_MOUNT),
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_28),
-    CREATE_NAMED_ENUM(UNIT_FLAG_UNK_29),
+    CREATE_NAMED_ENUM(UNIT_FLAG_DISABLE_POWERS),
     CREATE_NAMED_ENUM(UNIT_FLAG_SHEATHE),
     CREATE_NAMED_ENUM(UNIT_FLAG_UNK_31)
 };
@@ -155,69 +157,64 @@ class npc_commandscript : public CommandScript
 public:
     npc_commandscript() : CommandScript("npc_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand npcAddCommandTable[] =
+        static std::vector<ChatCommand> npcAddCommandTable =
         {
-            { "formation", rbac::RBAC_PERM_COMMAND_NPC_ADD_FORMATION, false, &HandleNpcAddFormationCommand,      "", NULL },
-            { "item",      rbac::RBAC_PERM_COMMAND_NPC_ADD_ITEM,      false, &HandleNpcAddVendorItemCommand,     "", NULL },
-            { "move",      rbac::RBAC_PERM_COMMAND_NPC_ADD_MOVE,      false, &HandleNpcAddMoveCommand,           "", NULL },
-            { "temp",      rbac::RBAC_PERM_COMMAND_NPC_ADD_TEMP,      false, &HandleNpcAddTempSpawnCommand,      "", NULL },
+            { "formation", rbac::RBAC_PERM_COMMAND_NPC_ADD_FORMATION, false, &HandleNpcAddFormationCommand,      "", },
+            { "item",      rbac::RBAC_PERM_COMMAND_NPC_ADD_ITEM,      false, &HandleNpcAddVendorItemCommand,     "", },
+            { "move",      rbac::RBAC_PERM_COMMAND_NPC_ADD_MOVE,      false, &HandleNpcAddMoveCommand,           "", },
+            { "temp",      rbac::RBAC_PERM_COMMAND_NPC_ADD_TEMP,      false, &HandleNpcAddTempSpawnCommand,      "", },
             //{ "weapon",    rbac::RBAC_PERM_COMMAND_NPC_ADD_WEAPON,    false, &HandleNpcAddWeaponCommand,         "", NULL },
-            { "",          rbac::RBAC_PERM_COMMAND_NPC_ADD,           false, &HandleNpcAddCommand,               "", NULL },
-            { NULL,        0,                                   false, NULL,                               "", NULL }
+            { "",          rbac::RBAC_PERM_COMMAND_NPC_ADD,           false, &HandleNpcAddCommand,               "", },
         };
-        static ChatCommand npcDeleteCommandTable[] =
+        static std::vector<ChatCommand> npcDeleteCommandTable =
         {
-            { "item", rbac::RBAC_PERM_COMMAND_NPC_DELETE_ITEM, false, &HandleNpcDeleteVendorItemCommand,  "", NULL },
-            { "",     rbac::RBAC_PERM_COMMAND_NPC_DELETE,      false, &HandleNpcDeleteCommand,            "", NULL },
-            { NULL,   0,                                 false, NULL,                               "", NULL }
+            { "item", rbac::RBAC_PERM_COMMAND_NPC_DELETE_ITEM, false, &HandleNpcDeleteVendorItemCommand,  "", },
+            { "",     rbac::RBAC_PERM_COMMAND_NPC_DELETE,      false, &HandleNpcDeleteCommand,            "", },
         };
-        static ChatCommand npcFollowCommandTable[] =
+        static std::vector<ChatCommand> npcFollowCommandTable =
         {
-            { "stop", rbac::RBAC_PERM_COMMAND_NPC_FOLLOW_STOP, false, &HandleNpcUnFollowCommand,          "", NULL },
-            { "",     rbac::RBAC_PERM_COMMAND_NPC_FOLLOW,      false, &HandleNpcFollowCommand,            "", NULL },
-            { NULL,   0,                                 false, NULL,                               "", NULL }
+            { "stop", rbac::RBAC_PERM_COMMAND_NPC_FOLLOW_STOP, false, &HandleNpcUnFollowCommand,          "", },
+            { "",     rbac::RBAC_PERM_COMMAND_NPC_FOLLOW,      false, &HandleNpcFollowCommand,            "", },
         };
-        static ChatCommand npcSetCommandTable[] =
+        static std::vector<ChatCommand> npcSetCommandTable =
         {
-            { "allowmove",  rbac::RBAC_PERM_COMMAND_NPC_SET_ALLOWMOVE, false, &HandleNpcSetAllowMovementCommand, "", NULL },
-            { "entry",      rbac::RBAC_PERM_COMMAND_NPC_SET_ENTRY,     false, &HandleNpcSetEntryCommand,         "", NULL },
-            { "factionid",  rbac::RBAC_PERM_COMMAND_NPC_SET_FACTIONID, false, &HandleNpcSetFactionIdCommand,     "", NULL },
-            { "flag",       rbac::RBAC_PERM_COMMAND_NPC_SET_FLAG,      false, &HandleNpcSetFlagCommand,          "", NULL },
-            { "level",      rbac::RBAC_PERM_COMMAND_NPC_SET_LEVEL,     false, &HandleNpcSetLevelCommand,         "", NULL },
-            { "link",       rbac::RBAC_PERM_COMMAND_NPC_SET_LINK,      false, &HandleNpcSetLinkCommand,          "", NULL },
-            { "model",      rbac::RBAC_PERM_COMMAND_NPC_SET_MODEL,     false, &HandleNpcSetModelCommand,         "", NULL },
-            { "movetype",   rbac::RBAC_PERM_COMMAND_NPC_SET_MOVETYPE,  false, &HandleNpcSetMoveTypeCommand,      "", NULL },
-            { "phase",      rbac::RBAC_PERM_COMMAND_NPC_SET_PHASE,     false, &HandleNpcSetPhaseCommand,         "", NULL },
-            { "spawndist",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNDIST, false, &HandleNpcSetSpawnDistCommand,     "", NULL },
-            { "spawntime",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME, false, &HandleNpcSetSpawnTimeCommand,     "", NULL },
-            { "data",       rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,      false, &HandleNpcSetDataCommand,          "", NULL },
+            { "allowmove",  rbac::RBAC_PERM_COMMAND_NPC_SET_ALLOWMOVE, false, &HandleNpcSetAllowMovementCommand, "", },
+            { "entry",      rbac::RBAC_PERM_COMMAND_NPC_SET_ENTRY,     false, &HandleNpcSetEntryCommand,         "", },
+            { "factionid",  rbac::RBAC_PERM_COMMAND_NPC_SET_FACTIONID, false, &HandleNpcSetFactionIdCommand,     "", },
+            { "flag",       rbac::RBAC_PERM_COMMAND_NPC_SET_FLAG,      false, &HandleNpcSetFlagCommand,          "", },
+            { "level",      rbac::RBAC_PERM_COMMAND_NPC_SET_LEVEL,     false, &HandleNpcSetLevelCommand,         "", },
+            { "link",       rbac::RBAC_PERM_COMMAND_NPC_SET_LINK,      false, &HandleNpcSetLinkCommand,          "", },
+            { "model",      rbac::RBAC_PERM_COMMAND_NPC_SET_MODEL,     false, &HandleNpcSetModelCommand,         "", },
+            { "movetype",   rbac::RBAC_PERM_COMMAND_NPC_SET_MOVETYPE,  false, &HandleNpcSetMoveTypeCommand,      "", },
+            { "phase",      rbac::RBAC_PERM_COMMAND_NPC_SET_PHASE,     false, &HandleNpcSetPhaseCommand,         "", },
+            { "phasegroup", rbac::RBAC_PERM_COMMAND_NPC_SET_PHASE,     false, &HandleNpcSetPhaseGroup,           "", },
+            { "spawndist",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNDIST, false, &HandleNpcSetSpawnDistCommand,     "", },
+            { "spawntime",  rbac::RBAC_PERM_COMMAND_NPC_SET_SPAWNTIME, false, &HandleNpcSetSpawnTimeCommand,     "", },
+            { "data",       rbac::RBAC_PERM_COMMAND_NPC_SET_DATA,      false, &HandleNpcSetDataCommand,          "", },
             //{ "name",       rbac::RBAC_PERM_COMMAND_NPC_SET_NAME,    false, &HandleNpcSetNameCommand,          "", NULL },
             //{ "subname",    rbac::RBAC_PERM_COMMAND_NPC_SET_SUBNAME, false, &HandleNpcSetSubNameCommand,       "", NULL },
-            { NULL,         0,                                   false, NULL,                              "", NULL }
         };
-        static ChatCommand npcCommandTable[] =
+        static std::vector<ChatCommand> npcCommandTable =
         {
-            { "info",      rbac::RBAC_PERM_COMMAND_NPC_INFO,      false, &HandleNpcInfoCommand,              "", NULL },
-            { "near",      rbac::RBAC_PERM_COMMAND_NPC_NEAR,      false, &HandleNpcNearCommand,              "", NULL },
-            { "move",      rbac::RBAC_PERM_COMMAND_NPC_MOVE,      false, &HandleNpcMoveCommand,              "", NULL },
-            { "playemote", rbac::RBAC_PERM_COMMAND_NPC_PLAYEMOTE, false, &HandleNpcPlayEmoteCommand,         "", NULL },
-            { "say",       rbac::RBAC_PERM_COMMAND_NPC_SAY,       false, &HandleNpcSayCommand,               "", NULL },
-            { "textemote", rbac::RBAC_PERM_COMMAND_NPC_TEXTEMOTE, false, &HandleNpcTextEmoteCommand,         "", NULL },
-            { "whisper",   rbac::RBAC_PERM_COMMAND_NPC_WHISPER,   false, &HandleNpcWhisperCommand,           "", NULL },
-            { "yell",      rbac::RBAC_PERM_COMMAND_NPC_YELL,      false, &HandleNpcYellCommand,              "", NULL },
-            { "tame",      rbac::RBAC_PERM_COMMAND_NPC_TAME,      false, &HandleNpcTameCommand,              "", NULL },
+            { "info",      rbac::RBAC_PERM_COMMAND_NPC_INFO,      false, &HandleNpcInfoCommand,              "", },
+            { "near",      rbac::RBAC_PERM_COMMAND_NPC_NEAR,      false, &HandleNpcNearCommand,              "", },
+            { "move",      rbac::RBAC_PERM_COMMAND_NPC_MOVE,      false, &HandleNpcMoveCommand,              "", },
+            { "playemote", rbac::RBAC_PERM_COMMAND_NPC_PLAYEMOTE, false, &HandleNpcPlayEmoteCommand,         "", },
+            { "say",       rbac::RBAC_PERM_COMMAND_NPC_SAY,       false, &HandleNpcSayCommand,               "", },
+            { "textemote", rbac::RBAC_PERM_COMMAND_NPC_TEXTEMOTE, false, &HandleNpcTextEmoteCommand,         "", },
+            { "whisper",   rbac::RBAC_PERM_COMMAND_NPC_WHISPER,   false, &HandleNpcWhisperCommand,           "", },
+            { "yell",      rbac::RBAC_PERM_COMMAND_NPC_YELL,      false, &HandleNpcYellCommand,              "", },
+            { "tame",      rbac::RBAC_PERM_COMMAND_NPC_TAME,      false, &HandleNpcTameCommand,              "", },
             { "add",       rbac::RBAC_PERM_COMMAND_NPC_ADD,       false, NULL,                 "", npcAddCommandTable },
             { "delete",    rbac::RBAC_PERM_COMMAND_NPC_DELETE,    false, NULL,              "", npcDeleteCommandTable },
             { "follow",    rbac::RBAC_PERM_COMMAND_NPC_FOLLOW,    false, NULL,              "", npcFollowCommandTable },
             { "set",       rbac::RBAC_PERM_COMMAND_NPC_SET,       false, NULL,                 "", npcSetCommandTable },
-            { NULL,        0,                               false, NULL,                               "", NULL }
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "npc", rbac::RBAC_PERM_COMMAND_NPC, false, NULL, "", npcCommandTable },
-            { NULL,  0,                     false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -256,7 +253,6 @@ public:
             uint32 guid = sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT);
             CreatureData& data = sObjectMgr->NewOrExistCreatureData(guid);
             data.id = id;
-            data.phaseMask = chr->GetPhaseMgr().GetPhaseMaskForSpawn();
             data.posX = chr->GetTransOffsetX();
             data.posY = chr->GetTransOffsetY();
             data.posZ = chr->GetTransOffsetZ();
@@ -264,20 +260,23 @@ public:
 
             Creature* creature = trans->CreateNPCPassenger(guid, &data);
 
-            creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode(), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
+            creature->SaveToDB(trans->GetGOInfo()->moTransport.mapID, 1 << map->GetSpawnMode());
 
             sObjectMgr->AddCreatureToGrid(guid, &data);
             return true;
         }
 
         Creature* creature = new Creature();
-        if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, chr->GetPhaseMgr().GetPhaseMaskForSpawn(), id, 0, (uint32)teamval, x, y, z, o))
+        if (!creature->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_UNIT), map, id, 0, (uint32)teamval, x, y, z, o))
         {
             delete creature;
             return false;
         }
 
-        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()), chr->GetPhaseMgr().GetPhaseMaskForSpawn());
+        for (auto phase : chr->GetPhases())
+            creature->SetPhased(phase, false, true);
+
+        creature->SaveToDB(map->GetId(), (1 << map->GetSpawnMode()));
 
         uint32 db_guid = creature->GetDBTableGUIDLow();
 
@@ -404,7 +403,7 @@ public:
             creature->GetMotionMaster()->Initialize();
             if (creature->IsAlive())                            // dead creature will reset movement generator at respawn
             {
-                creature->setDeathState(JUST_DIED);
+                creature->setDeathState(DeathState::JUST_DIED);
                 creature->Respawn(true);
             }
             creature->SaveToDB();
@@ -440,7 +439,7 @@ public:
             return false;
 
         Unit* unit = handler->getSelectedUnit();
-        if (!unit || unit->GetTypeId() != TYPEID_UNIT)
+        if (!unit || unit->GetTypeId() != TypeID::TYPEID_UNIT)
         {
             handler->SendSysMessage(LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage(true);
@@ -461,7 +460,7 @@ public:
             return false;
 
         uint8 lvl = (uint8) atoi((char*)args);
-        if (lvl < 1 || lvl > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL) + 3)
+        if (lvl < 1 || lvl > sWorld->getIntConfig(WorldIntConfigs::CONFIG_MAX_PLAYER_LEVEL) + 3)
         {
             handler->SendSysMessage(LANG_BAD_VALUE);
             handler->SetSentErrorMessage(true);
@@ -876,7 +875,7 @@ public:
             creature->GetMotionMaster()->Initialize();
             if (creature->IsAlive())                            // dead creature will reset movement generator at respawn
             {
-                creature->setDeathState(JUST_DIED);
+                creature->setDeathState(DeathState::JUST_DIED);
                 creature->Respawn();
             }
         }
@@ -976,7 +975,7 @@ public:
 
         if (dontdel_str)
         {
-            //TC_LOG_ERROR("misc", "DEBUG: All 3 params are set");
+            //SF_LOG_ERROR("misc", "DEBUG: All 3 params are set");
 
             // All 3 params are set
             // GUID
@@ -984,7 +983,7 @@ public:
             // doNotDEL
             if (stricmp(dontdel_str, "NODEL") == 0)
             {
-                //TC_LOG_ERROR("misc", "DEBUG: doNotDelete = true;");
+                //SF_LOG_ERROR("misc", "DEBUG: doNotDelete = true;");
                 doNotDelete = true;
             }
         }
@@ -993,10 +992,10 @@ public:
             // Only 2 params - but maybe NODEL is set
             if (type_str)
             {
-                TC_LOG_ERROR("misc", "DEBUG: Only 2 params ");
+                SF_LOG_ERROR("misc", "DEBUG: Only 2 params ");
                 if (stricmp(type_str, "NODEL") == 0)
                 {
-                    //TC_LOG_ERROR("misc", "DEBUG: type_str, NODEL ");
+                    //SF_LOG_ERROR("misc", "DEBUG: type_str, NODEL ");
                     doNotDelete = true;
                     type_str = NULL;
                 }
@@ -1067,7 +1066,7 @@ public:
             creature->GetMotionMaster()->Initialize();
             if (creature->IsAlive())                            // dead creature will reset movement generator at respawn
             {
-                creature->setDeathState(JUST_DIED);
+                creature->setDeathState(DeathState::JUST_DIED);
                 creature->Respawn();
             }
             creature->SaveToDB();
@@ -1084,33 +1083,56 @@ public:
         return true;
     }
 
-    //npc phasemask handling
-    //change phasemask of creature or pet
-    static bool HandleNpcSetPhaseCommand(ChatHandler* handler, char const* args)
+    //npc phase handling
+    //change phase of creature
+    static bool HandleNpcSetPhaseGroup(ChatHandler* handler, char const* args)
     {
         if (!*args)
             return false;
 
-        uint32 phasemask = (uint32) atoi((char*)args);
-        if (phasemask == 0)
-        {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
-        }
+        uint32 phaseGroupId = (uint32)atoi((char*)args);
 
         Creature* creature = handler->getSelectedCreature();
-        if (!creature)
+        if (!creature || creature->IsPet())
         {
             handler->SendSysMessage(LANG_SELECT_CREATURE);
             handler->SetSentErrorMessage(true);
             return false;
         }
 
-        creature->SetPhaseMask(phasemask, true);
+        creature->ClearPhases();
 
-        if (!creature->IsPet())
-            creature->SaveToDB();
+        for (uint32 id : GetPhasesForGroup(phaseGroupId))
+            creature->SetPhased(id, false, true); // don't send update here for multiple phases, only send it once after adding all phases
+
+        creature->UpdateObjectVisibility();
+
+        creature->SaveToDB();
+
+        return true;
+    }
+
+    //npc phase handling
+    //change phase of creature
+    static bool HandleNpcSetPhaseCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+
+        uint32 phase = (uint32)atoi((char*)args);
+
+        Creature* creature = handler->getSelectedCreature();
+        if (!creature || creature->IsPet())
+        {
+            handler->SendSysMessage(LANG_SELECT_CREATURE);
+            handler->SetSentErrorMessage(true);
+            return false;
+        }
+
+        creature->ClearPhases();
+        creature->SetPhased(phase, true, true);
+
+        creature->SaveToDB();
 
         return true;
     }
@@ -1145,7 +1167,7 @@ public:
         creature->GetMotionMaster()->Initialize();
         if (creature->IsAlive())                                // dead creature will reset movement generator at respawn
         {
-            creature->setDeathState(JUST_DIED);
+            creature->setDeathState(DeathState::JUST_DIED);
             creature->Respawn();
         }
 
@@ -1215,7 +1237,7 @@ public:
             return false;
         }
 
-        creature->MonsterSay(args, LANG_UNIVERSAL, NULL);
+        creature->MonsterSay(args, Language::LANG_UNIVERSAL, NULL);
 
         // make some emotes
         char lastchar = args[strlen(args) - 1];
@@ -1323,7 +1345,7 @@ public:
             return false;
         }
 
-        creature->MonsterYell(args, LANG_UNIVERSAL, NULL);
+        creature->MonsterYell(args, Language::LANG_UNIVERSAL, NULL);
 
         // make an emote
         creature->HandleEmoteCommand(EMOTE_ONESHOT_SHOUT);
@@ -1350,7 +1372,7 @@ public:
         if (!sObjectMgr->GetCreatureTemplate(id))
             return false;
 
-        chr->SummonCreature(id, *chr, TEMPSUMMON_CORPSE_DESPAWN, 120);
+        chr->SummonCreature(id, *chr, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 120);
 
         return true;
     }

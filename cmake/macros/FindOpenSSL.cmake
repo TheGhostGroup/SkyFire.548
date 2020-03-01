@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2014 Project SkyFire <http://www.projectskyfire.org/>
-# Copyright (C) 2008-2014 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2011-2019 Project SkyFire <http://www.projectskyfire.org/
+# Copyright (C) 2008-2019 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -44,6 +44,7 @@ SET(_OPENSSL_ROOT_HINTS
 IF(PLATFORM EQUAL 64)
   SET(_OPENSSL_ROOT_PATHS
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (64-bit)_is1;InstallLocation]"
+    "C:/Program Files/OpenSSL-Win64/"
     "C:/OpenSSL-Win64/"
     "C:/OpenSSL/"
   )
@@ -51,6 +52,8 @@ ELSE()
   SET(_OPENSSL_ROOT_PATHS
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;InstallLocation]"
     "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OpenSSL (32-bit)_is1;InstallLocation]"
+    "C:/Program Files/OpenSSL-Win32/"
+    "C:/OpenSSL-Win32/"
     "C:/OpenSSL/"
   )
 ENDIF()
@@ -90,28 +93,28 @@ IF(WIN32 AND NOT CYGWIN)
 
     FIND_LIBRARY(LIB_EAY_DEBUG
       NAMES
-        libeay32MDd libeay32
+        libcrypto32MDd libcrypto32 libcrypto64MDd libcrypto64
       PATHS
         ${OPENSSL_ROOT_DIR}/lib/VC
     )
 
     FIND_LIBRARY(LIB_EAY_RELEASE
       NAMES
-        libeay32MD libeay32
+        libcrypto32MD libcrypto32 libcrypto64MD libcrypto64
       PATHS
         ${OPENSSL_ROOT_DIR}/lib/VC
     )
 
     FIND_LIBRARY(SSL_EAY_DEBUG
       NAMES
-        ssleay32MDd ssleay32 ssl
+        libssl32MDd libssl32 ssl libssl64MDd libssl64
       PATHS
         ${OPENSSL_ROOT_DIR}/lib/VC
     )
 
     FIND_LIBRARY(SSL_EAY_RELEASE
       NAMES
-        ssleay32MD ssleay32 ssl
+        libssl32MD libssl32 ssl libssl libssl64MD libssl64
       PATHS
         ${OPENSSL_ROOT_DIR}/lib/VC
     )
@@ -231,7 +234,7 @@ if (OPENSSL_INCLUDE_DIR)
   include(EnsureVersion)
   ENSURE_VERSION( "${OPENSSL_EXPECTED_VERSION}" "${OPENSSL_VERSION}" OPENSSL_VERSION_OK)
   if (NOT OPENSSL_VERSION_OK)
-      message(FATAL_ERROR "TrinityCore needs OpenSSL version ${OPENSSL_EXPECTED_VERSION} but found version ${OPENSSL_VERSION}")
+      message(FATAL_ERROR "SkyFire needs OpenSSL version ${OPENSSL_EXPECTED_VERSION} but found version ${OPENSSL_VERSION}")
   endif()
 endif (OPENSSL_INCLUDE_DIR)
 

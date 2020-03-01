@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -195,7 +195,7 @@ public:
                 {
                     if (data == IN_PROGRESS)
                     {
-                        TC_LOG_DEBUG("scripts", "Instance The Black Morass: Starting event.");
+                        SF_LOG_DEBUG("scripts", "Instance The Black Morass: Starting event.");
                         InitWorldState();
                         m_auiEncounter[1] = IN_PROGRESS;
                         ScheduleEventNextPortal(15000);
@@ -204,7 +204,7 @@ public:
                     if (data == DONE)
                     {
                         //this may be completed further out in the post-event
-                        TC_LOG_DEBUG("scripts", "Instance The Black Morass: Event completed.");
+                        SF_LOG_DEBUG("scripts", "Instance The Black Morass: Event completed.");
                         Map::PlayerList const& players = instance->GetPlayers();
 
                         if (!players.isEmpty())
@@ -269,7 +269,7 @@ public:
             if (entry == RIFT_BOSS)
                 entry = RandRiftBoss();
 
-            TC_LOG_DEBUG("scripts", "Instance The Black Morass: Summoning rift boss entry %u.", entry);
+            SF_LOG_DEBUG("scripts", "Instance The Black Morass: Summoning rift boss entry %u.", entry);
 
             Position pos;
             me->GetRandomNearPosition(pos, 10.0f);
@@ -277,10 +277,10 @@ public:
             //normalize Z-level if we can, if rift is not at ground level.
             pos.m_positionZ = std::max(me->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
 
-            if (Creature* summon = me->SummonCreature(entry, pos, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
+            if (Creature* summon = me->SummonCreature(entry, pos, TempSummonType::TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
                 return summon;
 
-            TC_LOG_DEBUG("scripts", "Instance The Black Morass: What just happened there? No boss, no loot, no fun...");
+            SF_LOG_DEBUG("scripts", "Instance The Black Morass: What just happened there? No boss, no loot, no fun...");
             return NULL;
         }
 
@@ -293,13 +293,13 @@ public:
                 if (tmp >= _currentRiftId)
                     ++tmp;
 
-                TC_LOG_DEBUG("scripts", "Instance The Black Morass: Creating Time Rift at locationId %i (old locationId was %u).", tmp, _currentRiftId);
+                SF_LOG_DEBUG("scripts", "Instance The Black Morass: Creating Time Rift at locationId %i (old locationId was %u).", tmp, _currentRiftId);
 
                 _currentRiftId = tmp;
 
                 Creature* temp = medivh->SummonCreature(NPC_TIME_RIFT,
                     PortalLocation[tmp][0], PortalLocation[tmp][1], PortalLocation[tmp][2], PortalLocation[tmp][3],
-                    TEMPSUMMON_CORPSE_DESPAWN, 0);
+                    TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0);
                 if (temp)
                 {
                     temp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);

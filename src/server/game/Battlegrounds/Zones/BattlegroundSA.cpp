@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -164,7 +164,7 @@ bool BattlegroundSA::ResetObjs()
 
         if (!sg)
         {
-            TC_LOG_ERROR("bg.battleground", "SOTA: Can't find GY entry %u", BG_SA_GYEntries[i]);
+            SF_LOG_ERROR("bg.battleground", "SOTA: Can't find GY entry %u", BG_SA_GYEntries[i]);
             return false;
         }
 
@@ -177,7 +177,7 @@ bool BattlegroundSA::ResetObjs()
         {
             GraveyardStatus[i] = ((Attackers == TEAM_HORDE)? TEAM_ALLIANCE : TEAM_HORDE);
             if (!AddSpiritGuide(i + BG_SA_MAXNPC, sg->x, sg->y, sg->z, BG_SA_GYOrientation[i], ((Attackers == TEAM_HORDE)? ALLIANCE : HORDE)))
-                TC_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn GY: %u", i);
+                SF_LOG_ERROR("bg.battleground", "SOTA: couldn't spawn GY: %u", i);
         }
     }
 
@@ -290,7 +290,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             {
                 SignaledRoundTwo = true;
                 InitSecondRound = false;
-                SendMessageToAll(LANG_BG_SA_ROUND_TWO_ONE_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                SendMessageToAll(LANG_BG_SA_ROUND_TWO_ONE_MINUTE, ChatMsg::CHAT_MSG_BG_SYSTEM_NEUTRAL);
             }
         }
         else
@@ -342,7 +342,7 @@ void BattlegroundSA::PostUpdateImpl(uint32 diff)
             if (!SignaledRoundTwoHalfMin)
             {
                 SignaledRoundTwoHalfMin = true;
-                SendMessageToAll(LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                SendMessageToAll(LANG_BG_SA_ROUND_TWO_START_HALF_MINUTE, ChatMsg::CHAT_MSG_BG_SYSTEM_NEUTRAL);
             }
         }
         StartShips();
@@ -727,7 +727,7 @@ void BattlegroundSA::CaptureGraveyard(BG_SA_Graveyards i, Player* Source)
     WorldSafeLocsEntry const* sg = sWorldSafeLocsStore.LookupEntry(BG_SA_GYEntries[i]);
     if (!sg)
     {
-        TC_LOG_ERROR("bg.battleground", "BattlegroundSA::CaptureGraveyard: non-existant GY entry: %u", BG_SA_GYEntries[i]);
+        SF_LOG_ERROR("bg.battleground", "BattlegroundSA::CaptureGraveyard: non-existant GY entry: %u", BG_SA_GYEntries[i]);
         return;
     }
 
@@ -826,8 +826,8 @@ void BattlegroundSA::EventPlayerUsedGO(Player* Source, GameObject* object)
         if (Source->GetTeamId() == Attackers)
         {
             if (Source->GetTeamId() == TEAM_ALLIANCE)
-                SendMessageToAll(LANG_BG_SA_ALLIANCE_CAPTURED_RELIC, CHAT_MSG_BG_SYSTEM_NEUTRAL);
-            else SendMessageToAll(LANG_BG_SA_HORDE_CAPTURED_RELIC, CHAT_MSG_BG_SYSTEM_NEUTRAL);
+                SendMessageToAll(LANG_BG_SA_ALLIANCE_CAPTURED_RELIC, ChatMsg::CHAT_MSG_BG_SYSTEM_NEUTRAL);
+            else SendMessageToAll(LANG_BG_SA_HORDE_CAPTURED_RELIC, ChatMsg::CHAT_MSG_BG_SYSTEM_NEUTRAL);
 
             if (Status == BG_SA_ROUND_ONE)
             {

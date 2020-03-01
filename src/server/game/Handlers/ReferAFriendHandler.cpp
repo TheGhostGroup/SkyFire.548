@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@
 
 void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_GRANT_LEVEL");
+    SF_LOG_DEBUG("network", "WORLD: CMSG_GRANT_LEVEL");
 
     ObjectGuid guid;
 
@@ -62,7 +62,7 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
         error = ERR_REFER_A_FRIEND_DIFFERENT_FACTION;
     else if (target->getLevel() >= _player->getLevel())
         error = ERR_REFER_A_FRIEND_TARGET_TOO_HIGH;
-    else if (target->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
+    else if (target->getLevel() >= sWorld->getIntConfig(WorldIntConfigs::CONFIG_MAX_RECRUIT_A_FRIEND_BONUS_PLAYER_LEVEL))
         error = ERR_REFER_A_FRIEND_GRANT_LEVEL_MAX_I;
     else if (target->GetGroup() != _player->GetGroup())
         error = ERR_REFER_A_FRIEND_NOT_IN_GROUP;
@@ -103,7 +103,7 @@ void WorldSession::HandleGrantLevel(WorldPacket& recvData)
 
 void WorldSession::HandleAcceptGrantLevel(WorldPacket& recvData)
 {
-    TC_LOG_DEBUG("network", "WORLD: CMSG_ACCEPT_LEVEL_GRANT");
+    SF_LOG_DEBUG("network", "WORLD: CMSG_ACCEPT_LEVEL_GRANT");
 
     ObjectGuid guid;
 

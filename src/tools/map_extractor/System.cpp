@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -111,8 +111,9 @@ char const* CONF_mpq_list[] =
 uint32 const Builds[] = {16016, 16048, 16057, 16309, 16357, 16516, 16650, 16844, 16965, 17116, 17266, 17325, 17345, 17538, 17645, 17688, 17898, 18273};
 //#define LAST_DBC_IN_DATA_BUILD 13623    // after this build mpqs with dbc are back to locale folder
 #define NEW_BASE_SET_BUILD  15211
+#define LOCALES_COUNT 15
 
-char const* Locales[] =
+char const* Locales[LOCALES_COUNT] =
 {
     "enGB", "enUS",
     "deDE", "esES",
@@ -124,7 +125,7 @@ char const* Locales[] =
     "itIT",
 };
 
-TCHAR const* LocalesT[] =
+TCHAR const* LocalesT[LOCALES_COUNT] =
 {
     _T("enGB"), _T("enUS"),
     _T("deDE"), _T("esES"),
@@ -135,8 +136,6 @@ TCHAR const* LocalesT[] =
     _T("ptBR"), _T("ptPT"),
     _T("itIT"),
 };
-
-#define LOCALES_COUNT 15
 
 void CreateDir(std::string const& path)
 {
@@ -374,7 +373,7 @@ void ReadLiquidTypeTableDBC()
 
 // Map file format data
 static char const* MAP_MAGIC         = "MAPS";
-static char const* MAP_VERSION_MAGIC = "v1.3";
+static char const* MAP_VERSION_MAGIC = "v1.4";
 static char const* MAP_AREA_MAGIC    = "AREA";
 static char const* MAP_HEIGHT_MAGIC  = "MHGT";
 static char const* MAP_LIQUID_MAGIC  = "MLIQ";
@@ -1008,7 +1007,7 @@ void ExtractMapsFromMpq(uint32 build)
     {
         printf("Extract %s (%d/%u)                  \n", map_ids[z].name, z+1, map_count);
         // Loadup map grid data
-        sprintf(mpq_map_name, "World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
+        snprintf(mpq_map_name, sizeof(mpq_map_name), "World\\Maps\\%s\\%s.wdt", map_ids[z].name, map_ids[z].name);
         ChunkedFile wdt;
         if (!wdt.loadFile(WorldMpq, mpq_map_name, true))
             continue;
@@ -1021,8 +1020,8 @@ void ExtractMapsFromMpq(uint32 build)
                 if (!(chunk->As<wdt_MAIN>()->adt_list[y][x].flag & 0x1))
                     continue;
 
-                sprintf(mpq_filename, "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
-                sprintf(output_filename, "%s/maps/%03u%02u%02u.map", output_path, map_ids[z].id, y, x);
+                snprintf(mpq_filename, sizeof(mpq_filename), "World\\Maps\\%s\\%s_%u_%u.adt", map_ids[z].name, map_ids[z].name, x, y);
+                snprintf(output_filename, sizeof(output_filename), "%s/maps/%04u_%02u_%02u.map", output_path, map_ids[z].id, y, x);
                 ConvertADT(mpq_filename, output_filename, y, x, build);
             }
 
@@ -1121,11 +1120,14 @@ void ExtractDB2Files(int l, bool basicLocale)
     if (listFile)
     {
         std::string outputPath = output_path;
-        outputPath += "/dbc/";
+        outputPath += "/db2/";
+
+        CreateDir(outputPath);
         if (!basicLocale)
         {
             outputPath += Locales[l];
             outputPath += "/";
+            CreateDir(outputPath);
         }
 
         std::string filename;

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -306,7 +306,7 @@ class boss_alar : public CreatureScript
                                 return;
                             case WE_SUMMON:
                                 for (uint8 i = 0; i < 2; ++i)
-                                    DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                                    DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                                 me->SetFloatValue(UNIT_FIELD_BOUNDING_RADIUS, 10);
                                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                                 me->SetDisplayId(me->GetNativeDisplayId());
@@ -345,7 +345,7 @@ class boss_alar : public CreatureScript
                         {
                             if (urand(0, 4)) // next platform
                             {
-                                DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
+                                DoSpawnCreature(CREATURE_EMBER_OF_ALAR, 0, 0, 0, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000);
                                 if (cur_wp == 3)
                                     cur_wp = 0;
                                 else
@@ -405,7 +405,7 @@ class boss_alar : public CreatureScript
                     {
                         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0))
                         {
-                            Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 120000);
+                            Creature* Summoned = me->SummonCreature(CREATURE_FLAME_PATCH_ALAR, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 120000);
                             if (Summoned)
                             {
                                 Summoned->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -443,7 +443,7 @@ class boss_alar : public CreatureScript
                         else
                         {
                             DoCast(me, SPELL_FLAME_BUFFET, true);
-                            me->setAttackTimer(BASE_ATTACK, 1500);
+                            me->setAttackTimer(WeaponAttackType::BASE_ATTACK, 1500);
                         }
                     }
                 }
@@ -485,7 +485,7 @@ class npc_ember_of_alar : public CreatureScript
 
             void EnterEvadeMode() OVERRIDE
             {
-                me->setDeathState(JUST_DIED);
+                me->setDeathState(DeathState::JUST_DIED);
             }
 
             void DamageTaken(Unit* killer, uint32 &damage) OVERRIDE

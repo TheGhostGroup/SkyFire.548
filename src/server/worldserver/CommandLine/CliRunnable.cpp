@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/// \addtogroup Trinityd
+/// \addtogroup Skyfired
 /// @{
 /// \file
 
@@ -42,9 +42,9 @@
 
 char* command_finder(const char* text, int state)
 {
-    static int idx, len;
+    static size_t idx, len;
     const char* ret;
-    ChatCommand* cmd = ChatHandler::getCommandTable();
+    std::vector<ChatCommand> const& cmd = ChatHandler::getCommandTable();
 
     if (!state)
     {
@@ -52,20 +52,19 @@ char* command_finder(const char* text, int state)
         len = strlen(text);
     }
 
-    while ((ret = cmd[idx].Name))
+    while (idx < cmd.size())
     {
+        ret = cmd[idx].Name;
         if (!cmd[idx].AllowConsole)
         {
-            idx++;
+            ++idx;
             continue;
         }
 
-        idx++;
+        ++idx;
         //printf("Checking %s \n", cmd[idx].Name);
         if (strncmp(ret, text, len) == 0)
             return strdup(ret);
-        if (cmd[idx].Name == NULL)
-            break;
     }
 
     return ((char*)NULL);
@@ -135,7 +134,7 @@ int kb_hit_return()
 void CliRunnable::run()
 {
     ///- Display the list of available CLI functions then beep
-    //TC_LOG_INFO("server.worldserver", "");
+    //SF_LOG_INFO("server.worldserver", "");
 #if PLATFORM != PLATFORM_WINDOWS
     rl_attempted_completion_function = cli_completion;
     rl_event_hook = cli_hook_func;

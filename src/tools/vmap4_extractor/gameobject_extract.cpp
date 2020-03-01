@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -53,18 +53,18 @@ bool ExtractSingleModel(std::string& fname)
     return mdl.ConvertToVMAPModel(output.c_str());
 }
 
-extern HANDLE LocaleMpq;
+extern HANDLE WorldMpq;
 
 void ExtractGameobjectModels()
 {
     printf("Extracting GameObject models...");
-    DBCFile dbc(LocaleMpq, "DBFilesClient\\GameObjectDisplayInfo.dbc");
+    DBCFile dbc(WorldMpq, "DBFilesClient\\GameObjectDisplayInfo.dbc");
     if(!dbc.open())
     {
         printf("Fatal error: Invalid GameObjectDisplayInfo.dbc file format!\n");
         exit(1);
     }
-
+    
     std::string basepath = szWorkDirWmo;
     basepath += "/";
     std::string path;
@@ -93,7 +93,7 @@ void ExtractGameobjectModels()
             result = ExtractSingleWmo(path);
         else if (!strcmp(ch_ext, ".mdl"))   // TODO: extract .mdl files, if needed
             continue;
-        else //if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
+        else if (!strcmp(ch_ext, ".mdx") || !strcmp(ch_ext, ".m2"))
             result = ExtractSingleModel(path);
 
         if (result)
@@ -107,6 +107,5 @@ void ExtractGameobjectModels()
     }
 
     fclose(model_list);
-
     printf("Done!\n");
 }

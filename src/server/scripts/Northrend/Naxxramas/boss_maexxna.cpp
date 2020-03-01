@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -114,7 +114,7 @@ public:
                                 target->RemoveAura(RAID_MODE(SPELL_WEB_SPRAY_10, SPELL_WEB_SPRAY_25));
                                 uint8 pos = rand()%MAX_POS_WRAP;
                                 target->GetMotionMaster()->MoveJump(PosWrap[pos].GetPositionX(), PosWrap[pos].GetPositionY(), PosWrap[pos].GetPositionZ(), 20, 20);
-                                if (Creature* wrap = DoSummon(NPC_WEB_WRAP, PosWrap[pos], 0, TEMPSUMMON_CORPSE_DESPAWN))
+                                if (Creature* wrap = DoSummon(NPC_WEB_WRAP, PosWrap[pos], 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN))
                                     wrap->AI()->SetGUID(target->GetGUID());
                             }
                         }
@@ -140,7 +140,7 @@ public:
                         /// @todo Add missing text
                         uint8 amount = urand(8, 10);
                         for (uint8 i = 0; i < amount; ++i)
-                            DoSummon(NPC_SPIDERLING, me, 0, TEMPSUMMON_CORPSE_DESPAWN);
+                            DoSummon(NPC_SPIDERLING, me, 0, 30000, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN);
                         events.ScheduleEvent(EVENT_SUMMON, 40000);
                         break;
                 }

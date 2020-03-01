@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -24,7 +24,7 @@ namespace lfg
 {
 
 LfgGroupData::LfgGroupData(): m_State(LFG_STATE_NONE), m_OldState(LFG_STATE_NONE),
-    m_Leader(0), m_Dungeon(0), m_KicksLeft(LFG_GROUP_MAX_KICKS)
+    m_Leader(0), m_Dungeon(0), m_KicksLeft(LFG_GROUP_MAX_KICKS), m_VoteKickActive(false)
 { }
 
 LfgGroupData::~LfgGroupData()
@@ -126,6 +126,15 @@ uint32 LfgGroupData::GetDungeon(bool asId /* = true */) const
 uint8 LfgGroupData::GetKicksLeft() const
 {
     return m_KicksLeft;
+}
+
+void LfgGroupData::SetVoteKick(bool active)
+{
+    m_VoteKickActive = active;
+}
+bool LfgGroupData::IsVoteKickActive() const
+{
+    return m_VoteKickActive;
 }
 
 } // namespace lfg

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,7 +40,7 @@ void AddItemsSetItem(Player* player, Item* item)
 
     if (!set)
     {
-        TC_LOG_ERROR("sql.sql", "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
+        SF_LOG_ERROR("sql.sql", "Item set %u for item (id %u) not found, mods not applied.", setid, proto->ItemId);
         return;
     }
 
@@ -100,7 +100,7 @@ void AddItemsSetItem(Player* player, Item* item)
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(set->spells[x]);
                 if (!spellInfo)
                 {
-                    TC_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
+                    SF_LOG_ERROR("entities.player.items", "WORLD: unknown spell id %u in items set %u effects", set->spells[x], setid);
                     break;
                 }
 
@@ -121,7 +121,7 @@ void RemoveItemsSetItem(Player*player, ItemTemplate const* proto)
 
     if (!set)
     {
-        TC_LOG_ERROR("sql.sql", "Item set #%u for item #%u not found, mods not removed.", setid, proto->ItemId);
+        SF_LOG_ERROR("sql.sql", "Item set #%u for item #%u not found, mods not removed.", setid, proto->ItemId);
         return;
     }
 
@@ -247,7 +247,7 @@ bool ItemCanGoIntoBag(ItemTemplate const* pProto, ItemTemplate const* pBagProto)
 Item::Item()
 {
     m_objectType |= TYPEMASK_ITEM;
-    m_objectTypeId = TYPEID_ITEM;
+    m_objectTypeId = TypeID::TYPEID_ITEM;
 
     m_updateFlag = 0;
 
@@ -273,15 +273,20 @@ Item::Item()
     }
 }
 
-bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
+inline bool Item::Create(uint32 guidlow, uint32 itemid, Player const* owner)
+{
+    return Create(guidlow, itemid, owner ? owner->GetGUID() : 0);
+}
+
+bool Item::Create(uint32 guidlow, uint32 itemid, uint64 owner)
 {
     Object::_Create(guidlow, 0, HIGHGUID_ITEM);
 
     SetEntry(itemid);
     SetObjectScale(1.0f);
 
-    SetUInt64Value(ITEM_FIELD_OWNER, owner ? owner->GetGUID() : 0);
-    SetUInt64Value(ITEM_FIELD_CONTAINED_IN, owner ? owner->GetGUID() : 0);
+    SetUInt64Value(ITEM_FIELD_OWNER, owner);
+    SetUInt64Value(ITEM_FIELD_CONTAINED_IN, owner);
 
     ItemTemplate const* itemProto = sObjectMgr->GetItemTemplate(itemid);
     if (!itemProto)
@@ -313,7 +318,7 @@ void Item::UpdateDuration(Player* owner, uint32 diff)
     if (!GetUInt32Value(ITEM_FIELD_EXPIRATION))
         return;
 
-    TC_LOG_DEBUG("entities.player.items", "Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)", GetEntry(), GetUInt32Value(ITEM_FIELD_EXPIRATION), diff);
+    SF_LOG_DEBUG("entities.player.items", "Item::UpdateDuration Item (Entry: %u Duration %u Diff %u)", GetEntry(), GetUInt32Value(ITEM_FIELD_EXPIRATION), diff);
 
     if (GetUInt32Value(ITEM_FIELD_EXPIRATION) <= diff)
     {
@@ -555,7 +560,7 @@ uint32 Item::GetSkill()
         SKILL_AXES,     SKILL_2H_AXES,  SKILL_BOWS,          SKILL_GUNS,      SKILL_MACES,
         SKILL_2H_MACES, SKILL_POLEARMS, SKILL_SWORDS,        SKILL_2H_SWORDS, 0,
         SKILL_STAVES,   0,              0,                   SKILL_FIST_WEAPONS,   0,
-        SKILL_DAGGERS,  SKILL_THROWN,   SKILL_ASSASSINATION, SKILL_CROSSBOWS, SKILL_WANDS,
+        SKILL_DAGGERS,  0,              0,                   SKILL_CROSSBOWS, SKILL_WANDS,
         SKILL_FISHING
     };
 
@@ -599,7 +604,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
     // item can have not null only one from field values
     if ((itemProto->RandomProperty) && (itemProto->RandomSuffix))
     {
-        TC_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
+        SF_LOG_ERROR("sql.sql", "Item template %u have RandomProperty == %u and RandomSuffix == %u, but must have one from field =0", itemProto->ItemId, itemProto->RandomProperty, itemProto->RandomSuffix);
         return 0;
     }
 
@@ -610,7 +615,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
         ItemRandomPropertiesEntry const* random_id = sItemRandomPropertiesStore.LookupEntry(randomPropId);
         if (!random_id)
         {
-            TC_LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
+            SF_LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in 'ItemRandomProperties.dbc'", randomPropId);
             return 0;
         }
 
@@ -623,7 +628,7 @@ int32 Item::GenerateItemRandomPropertyId(uint32 item_id)
         ItemRandomSuffixEntry const* random_id = sItemRandomSuffixStore.LookupEntry(randomPropId);
         if (!random_id)
         {
-            TC_LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
+            SF_LOG_ERROR("sql.sql", "Enchantment id #%u used but it doesn't have records in sItemRandomSuffixStore.", randomPropId);
             return 0;
         }
 
@@ -713,7 +718,7 @@ void Item::AddToUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        TC_LOG_DEBUG("entities.player.items", "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
+        SF_LOG_DEBUG("entities.player.items", "Item::AddToUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
         return;
     }
 
@@ -733,7 +738,7 @@ void Item::RemoveFromUpdateQueueOf(Player* player)
 
     if (player->GetGUID() != GetOwnerGUID())
     {
-        TC_LOG_DEBUG("entities.player.items", "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
+        SF_LOG_DEBUG("entities.player.items", "Item::RemoveFromUpdateQueueOf - Owner's guid (%u) and player's guid (%u) don't match!", GUID_LOPART(GetOwnerGUID()), player->GetGUIDLow());
         return;
     }
 
@@ -794,25 +799,6 @@ bool Item::HasEnchantRequiredSkill(const Player* player) const
     }
 
   return true;
-}
-
-uint32 Item::GetEnchantRequiredLevel() const
-{
-    uint32 level = 0;
-
-    // Check all enchants for required level
-    for (uint32 enchant_slot = PERM_ENCHANTMENT_SLOT; enchant_slot < MAX_ENCHANTMENT_SLOT; ++enchant_slot)
-    {
-        if (enchant_slot > PRISMATIC_ENCHANTMENT_SLOT && enchant_slot < PROP_ENCHANTMENT_SLOT_0)    // not holding enchantment id
-            continue;
-
-        if (uint32 enchant_id = GetEnchantmentId(EnchantmentSlot(enchant_slot)))
-            if (SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(enchant_id))
-                if (enchantEntry->requiredLevel > level)
-                    level = enchantEntry->requiredLevel;
-    }
-
-    return level;
 }
 
 bool Item::IsBoundByEnchant() const
@@ -895,10 +881,10 @@ void Item::SetEnchantment(EnchantmentSlot slot, uint32 id, uint32 duration, uint
     if (slot < MAX_INSPECTED_ENCHANTMENT_SLOT)
     {
         if (uint32 oldEnchant = GetEnchantmentId(slot))
-            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), 0, GetEntry(), oldEnchant);
+            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), 0, GetGUID(), GetEntry(), oldEnchant, slot);
 
         if (id)
-            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetEntry(), id);
+            owner->GetSession()->SendEnchantmentLog(GetOwnerGUID(), caster, GetGUID(), GetEntry(), id, slot);
     }
 
     SetUInt32Value(ITEM_FIELD_ENCHANTMENT + slot*MAX_ENCHANTMENT_OFFSET + ENCHANTMENT_ID_OFFSET, id);
@@ -1021,16 +1007,6 @@ bool Item::IsLimitedToAnotherMapOrZone(uint32 cur_mapId, uint32 cur_zoneId) cons
     return proto && ((proto->Map && proto->Map != cur_mapId) || (proto->Area && proto->Area != cur_zoneId));
 }
 
-void Item::SendUpdateSockets()
-{
-    WorldPacket data(SMSG_SOCKET_GEMS_RESULT, 8+4+4+4+4);
-    data << uint64(GetGUID());
-    for (uint32 i = SOCK_ENCHANTMENT_SLOT; i <= BONUS_ENCHANTMENT_SLOT; ++i)
-        data << uint32(GetEnchantmentId(EnchantmentSlot(i)));
-
-    GetOwner()->GetSession()->SendPacket(&data);
-}
-
 // Though the client has the information in the item's data field,
 // we have to send SMSG_ITEM_TIME_UPDATE to display the remaining
 // time.
@@ -1067,6 +1043,11 @@ void Item::SendTimeUpdate(Player* owner)
 }
 
 Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
+{ 
+    return CreateItem(itemEntry, count, player ? player->GetGUID() : 0); 
+}
+
+Item* Item::CreateItem(uint32 itemEntry, uint32 count, uint64 playerGuid)
 {
     if (count < 1)
         return NULL;                                        //don't create item at zero count
@@ -1080,7 +1061,7 @@ Item* Item::CreateItem(uint32 itemEntry, uint32 count, Player const* player)
         ASSERT(count != 0 && "pProto->Stackable == 0 but checked at loading already");
 
         Item* item = NewItemOrBag(proto);
-        if (item->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), itemEntry, player))
+        if (item->Create(sObjectMgr->GenerateLowGuid(HIGHGUID_ITEM), itemEntry, playerGuid))
         {
             item->SetCount(count);
             return item;
@@ -1353,6 +1334,9 @@ bool Item::HasStats() const
     for (uint8 i = 0; i < MAX_ITEM_PROTO_STATS; ++i)
         if (proto->ItemStat[i].ItemStatValue != 0)
             return true;
+
+    if (proto->ScalingStatDistribution != 0)
+        return true;
 
     return false;
 }

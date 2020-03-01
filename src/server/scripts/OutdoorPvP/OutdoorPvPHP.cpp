@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -180,13 +180,13 @@ void OPvPCapturePointHP::ChangeState()
         field = HP_MAP_A[m_TowerType];
         if (uint32 alliance_towers = ((OutdoorPvPHP*)m_PvP)->GetAllianceTowersControlled())
             ((OutdoorPvPHP*)m_PvP)->SetAllianceTowersControlled(--alliance_towers);
-        sWorld->SendZoneText(OutdoorPvPHPBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(HP_LANG_LOSE_A[m_TowerType]));
+        sWorld->SendZoneText(OutdoorPvPHPBuffZones[0], sObjectMgr->GetSkyFireStringForDBCLocale(HP_LANG_LOSE_A[m_TowerType]));
         break;
     case OBJECTIVESTATE_HORDE:
         field = HP_MAP_H[m_TowerType];
         if (uint32 horde_towers = ((OutdoorPvPHP*)m_PvP)->GetHordeTowersControlled())
             ((OutdoorPvPHP*)m_PvP)->SetHordeTowersControlled(--horde_towers);
-        sWorld->SendZoneText(OutdoorPvPHPBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(HP_LANG_LOSE_H[m_TowerType]));
+        sWorld->SendZoneText(OutdoorPvPHPBuffZones[0], sObjectMgr->GetSkyFireStringForDBCLocale(HP_LANG_LOSE_H[m_TowerType]));
         break;
     case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
         field = HP_MAP_N[m_TowerType];
@@ -223,7 +223,7 @@ void OPvPCapturePointHP::ChangeState()
         uint32 alliance_towers = ((OutdoorPvPHP*)m_PvP)->GetAllianceTowersControlled();
         if (alliance_towers < 3)
             ((OutdoorPvPHP*)m_PvP)->SetAllianceTowersControlled(++alliance_towers);
-        sWorld->SendZoneText(OutdoorPvPHPBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(HP_LANG_CAPTURE_A[m_TowerType]));
+        sWorld->SendZoneText(OutdoorPvPHPBuffZones[0], sObjectMgr->GetSkyFireStringForDBCLocale(HP_LANG_CAPTURE_A[m_TowerType]));
         break;
     }
     case OBJECTIVESTATE_HORDE:
@@ -234,7 +234,7 @@ void OPvPCapturePointHP::ChangeState()
         uint32 horde_towers = ((OutdoorPvPHP*)m_PvP)->GetHordeTowersControlled();
         if (horde_towers < 3)
             ((OutdoorPvPHP*)m_PvP)->SetHordeTowersControlled(++horde_towers);
-        sWorld->SendZoneText(OutdoorPvPHPBuffZones[0], sObjectMgr->GetTrinityStringForDBCLocale(HP_LANG_CAPTURE_H[m_TowerType]));
+        sWorld->SendZoneText(OutdoorPvPHPBuffZones[0], sObjectMgr->GetSkyFireStringForDBCLocale(HP_LANG_CAPTURE_H[m_TowerType]));
         break;
     }
     case OBJECTIVESTATE_NEUTRAL_ALLIANCE_CHALLENGE:
@@ -333,7 +333,7 @@ void OPvPCapturePointHP::HandlePlayerLeave(Player* player)
 
 void OutdoorPvPHP::HandleKillImpl(Player* player, Unit* killed)
 {
-    if (killed->GetTypeId() != TYPEID_PLAYER)
+    if (killed->GetTypeId() != TypeID::TYPEID_PLAYER)
         return;
 
     if (player->GetTeam() == ALLIANCE && killed->ToPlayer()->GetTeam() != ALLIANCE)

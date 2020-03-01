@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -99,7 +99,7 @@ public:
             if (uiSpringTimer <= diff)
             {
                 Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 1);
-                if (target && target->GetTypeId() == TYPEID_PLAYER)
+                if (target && target->GetTypeId() == TypeID::TYPEID_PLAYER)
                 {
                     DoCast(target, RAND(SPELL_ECK_SPRING_1, SPELL_ECK_SPRING_2));
                     uiSpringTimer = urand(5*IN_MILLISECONDS, 10*IN_MILLISECONDS);
@@ -162,7 +162,7 @@ public:
             {
                 instance->SetData64(DATA_RUIN_DWELLER_DIED, me->GetGUID());
                 if (instance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
-                    me->SummonCreature(CREATURE_ECK, EckSpawnPoint, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS);
+                    me->SummonCreature(CREATURE_ECK, EckSpawnPoint, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILLISECONDS);
             }
         }
     };

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -174,7 +174,7 @@ class boss_devourer_of_souls : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() != TYPEID_PLAYER)
+                if (victim->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return;
 
                 int32 textId = 0;
@@ -215,7 +215,7 @@ class boss_devourer_of_souls : public CreatureScript
 
                 for (int8 i = 0; outroPositions[i].entry[entryIndex] != 0; ++i)
                 {
-                    if (Creature* summon = me->SummonCreature(outroPositions[i].entry[entryIndex], spawnPoint, TEMPSUMMON_DEAD_DESPAWN))
+                    if (Creature* summon = me->SummonCreature(outroPositions[i].entry[entryIndex], spawnPoint, TempSummonType::TEMPSUMMON_DEAD_DESPAWN))
                     {
                         summon->GetMotionMaster()->MovePoint(0, outroPositions[i].movePosition);
                         if (summon->GetEntry() == NPC_JAINA_PART2)
@@ -456,7 +456,7 @@ class spell_devourer_of_souls_mirrored_soul_target_selector : public SpellScript
                 if (targets.empty())
                     return;
 
-                WorldObject* target = Trinity::Containers::SelectRandomContainerElement(targets);
+                WorldObject* target = Skyfire::Containers::SelectRandomContainerElement(targets);
                 targets.clear();
                 targets.push_back(target);
             }

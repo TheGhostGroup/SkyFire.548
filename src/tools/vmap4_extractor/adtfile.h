@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,6 +23,7 @@
 #include "mpqfile.h"
 #include "wmo.h"
 #include "model.h"
+#include <vector>
 
 #define TILESIZE (533.33333f)
 #define CHUNKSIZE ((TILESIZE) / 16.0f)
@@ -120,8 +121,8 @@ public:
     ~ADTFile();
     int nWMO;
     int nMDX;
-    std::string* WmoInstanceNames;
-    std::string* ModelInstanceNames;
+    std::vector<std::string> WmoInstanceNames;
+    std::vector<std::string> ModelInstanceNames;
     bool init(uint32 map_num, uint32 tileX, uint32 tileY);
     //void LoadMapChunks();
 

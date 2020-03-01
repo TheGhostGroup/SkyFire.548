@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -103,7 +103,7 @@ public:
             if (spell->Id == SPELL_INSANITY)
             {
                 // Not good target or too many players
-                if (target->GetTypeId() != TYPEID_PLAYER || insanityHandled > 4)
+                if (target->GetTypeId() != TypeID::TYPEID_PLAYER || insanityHandled > 4)
                     return;
                 // First target - start channel visual and set self as unnattackable
                 if (!insanityHandled)
@@ -124,7 +124,7 @@ public:
                     if (!player || !player->IsAlive())
                         continue;
                     // Summon clone
-                    if (Unit* summon = me->SummonCreature(NPC_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TEMPSUMMON_CORPSE_DESPAWN, 0))
+                    if (Unit* summon = me->SummonCreature(NPC_TWISTED_VISAGE, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation(), TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 0))
                     {
                         // clone
                         player->CastSpell(summon, SPELL_CLONE_PLAYER, true);

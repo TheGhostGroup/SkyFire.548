@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -125,7 +125,7 @@ void AssistanceMovementGenerator::Finalize(Unit* unit)
     unit->ToCreature()->SetNoCallAssistance(false);
     unit->ToCreature()->CallAssistance();
     if (unit->IsAlive())
-        unit->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
+        unit->GetMotionMaster()->MoveSeekAssistanceDistract(sWorld->getIntConfig(WorldIntConfigs::CONFIG_CREATURE_FAMILY_ASSISTANCE_DELAY));
 }
 
 bool EffectMovementGenerator::Update(Unit* unit, uint32)
@@ -135,7 +135,7 @@ bool EffectMovementGenerator::Update(Unit* unit, uint32)
 
 void EffectMovementGenerator::Finalize(Unit* unit)
 {
-    if (unit->GetTypeId() != TYPEID_UNIT)
+    if (unit->GetTypeId() != TypeID::TYPEID_UNIT)
         return;
 
     // Need restore previous movement since we have no proper states system

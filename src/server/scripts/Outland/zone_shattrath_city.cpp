@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -176,7 +176,7 @@ public:
 
         void DamageTaken(Unit* done_by, uint32 &damage) OVERRIDE
         {
-            if (done_by->GetTypeId() == TYPEID_PLAYER && me->HealthBelowPctDamaged(20, damage))
+            if (done_by->GetTypeId() == TypeID::TYPEID_PLAYER && me->HealthBelowPctDamaged(20, damage))
             {
                 done_by->ToPlayer()->GroupEventHappens(QUEST_10004, me);
                 damage = 0;

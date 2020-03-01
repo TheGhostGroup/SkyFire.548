@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -33,6 +33,7 @@
 #include "CreatureAIImpl.h"
 #include "Player.h"
 #include "WorldPacket.h"
+#include "Chat.h"
 
 namespace
 {
@@ -63,7 +64,7 @@ class ScriptRegistry
             {
                 if (it->second == script)
                 {
-                    TC_LOG_ERROR("scripts", "Script '%s' has same memory pointer as '%s'.",
+                    SF_LOG_ERROR("scripts", "Script '%s' has same memory pointer as '%s'.",
                         script->GetName().c_str(), it->second->GetName().c_str());
 
                     return;
@@ -99,7 +100,7 @@ class ScriptRegistry
                     else
                     {
                         // If the script is already assigned -> delete it!
-                        TC_LOG_ERROR("scripts", "Script '%s' already assigned with the same script name, so the script can't work.",
+                        SF_LOG_ERROR("scripts", "Script '%s' already assigned with the same script name, so the script can't work.",
                             script->GetName().c_str());
 
                         ASSERT(false); // Error that should be fixed ASAP.
@@ -109,7 +110,7 @@ class ScriptRegistry
                 {
                     // The script uses a script name from database, but isn't assigned to anything.
                     if (script->GetName().find("example") == std::string::npos && script->GetName().find("Smart") == std::string::npos)
-                        TC_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.",
+                        SF_LOG_ERROR("sql.sql", "Script named '%s' does not have a script name assigned in database.",
                             script->GetName().c_str());
 
                     // These scripts don't get stored anywhere so throw them into this to avoid leaking memory
@@ -170,11 +171,7 @@ class ScriptRegistry
     if (!V) \
         return R;
 
-struct TSpellSummary
-{
-    uint8 Targets;                                          // set of enum SelectTarget
-    uint8 Effects;                                          // set of enum SelectEffect
-} *SpellSummary;
+struct TSpellSummary *SpellSummary;
 
 ScriptMgr::ScriptMgr()
     : _scriptCount(0), _scheduledScripts(0) { }
@@ -187,12 +184,12 @@ void ScriptMgr::Initialize()
 
     LoadDatabase();
 
-    TC_LOG_INFO("server.loading", "Loading C++ scripts");
+    SF_LOG_INFO("server.loading", "Loading C++ scripts");
 
     FillSpellSummary();
     AddScripts();
 
-    TC_LOG_INFO("server.loading", ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
+    SF_LOG_INFO("server.loading", ">> Loaded %u C++ scripts in %u ms", GetScriptCount(), GetMSTimeDiffToNow(oldMSTime));
 }
 
 void ScriptMgr::Unload()
@@ -526,7 +523,7 @@ void ScriptMgr::OnCreateMap(Map* map)
         itr->second->OnCreate(map);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
+    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsInstance);
         itr->second->OnCreate((InstanceMap*)map);
     SCR_MAP_END;
 
@@ -543,7 +540,7 @@ void ScriptMgr::OnDestroyMap(Map* map)
         itr->second->OnDestroy(map);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
+    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsInstance);
         itr->second->OnDestroy((InstanceMap*)map);
     SCR_MAP_END;
 
@@ -561,7 +558,7 @@ void ScriptMgr::OnLoadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
         itr->second->OnLoadGridMap(map, gmap, gx, gy);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
+    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsInstance);
         itr->second->OnLoadGridMap((InstanceMap*)map, gmap, gx, gy);
     SCR_MAP_END;
 
@@ -579,7 +576,7 @@ void ScriptMgr::OnUnloadGridMap(Map* map, GridMap* gmap, uint32 gx, uint32 gy)
         itr->second->OnUnloadGridMap(map, gmap, gx, gy);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
+    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsInstance);
         itr->second->OnUnloadGridMap((InstanceMap*)map, gmap, gx, gy);
     SCR_MAP_END;
 
@@ -599,7 +596,7 @@ void ScriptMgr::OnPlayerEnterMap(Map* map, Player* player)
         itr->second->OnPlayerEnter(map, player);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
+    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsInstance);
         itr->second->OnPlayerEnter((InstanceMap*)map, player);
     SCR_MAP_END;
 
@@ -617,7 +614,7 @@ void ScriptMgr::OnPlayerLeaveMap(Map* map, Player* player)
         itr->second->OnPlayerLeave(map, player);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
+    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsInstance);
         itr->second->OnPlayerLeave((InstanceMap*)map, player);
     SCR_MAP_END;
 
@@ -634,7 +631,7 @@ void ScriptMgr::OnMapUpdate(Map* map, uint32 diff)
         itr->second->OnUpdate(map, diff);
     SCR_MAP_END;
 
-    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsDungeon);
+    SCR_MAP_BGN(InstanceMapScript, map, itr, end, entry, IsInstance);
         itr->second->OnUpdate((InstanceMap*)map, diff);
     SCR_MAP_END;
 
@@ -944,12 +941,15 @@ OutdoorPvP* ScriptMgr::CreateOutdoorPvP(OutdoorPvPData const* data)
     return tmpscript->GetOutdoorPvP();
 }
 
-std::vector<ChatCommand*> ScriptMgr::GetChatCommands()
+std::vector<ChatCommand> ScriptMgr::GetChatCommands()
 {
-    std::vector<ChatCommand*> table;
+    std::vector<ChatCommand> table;
 
     FOR_SCRIPTS_RET(CommandScript, itr, end, table)
-        table.push_back(itr->second->GetCommands());
+    {
+        std::vector<ChatCommand> cmds = itr->second->GetCommands();
+        table.insert(table.end(), cmds.begin(), cmds.end());
+    }
 
     return table;
 }
@@ -1013,7 +1013,7 @@ bool ScriptMgr::OnConditionCheck(Condition* condition, ConditionSourceInfo& sour
 void ScriptMgr::OnInstall(Vehicle* veh)
 {
     ASSERT(veh);
-    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
+    ASSERT(veh->GetBase()->GetTypeId() == TypeID::TYPEID_UNIT);
 
     GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
     tmpscript->OnInstall(veh);
@@ -1022,7 +1022,7 @@ void ScriptMgr::OnInstall(Vehicle* veh)
 void ScriptMgr::OnUninstall(Vehicle* veh)
 {
     ASSERT(veh);
-    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
+    ASSERT(veh->GetBase()->GetTypeId() == TypeID::TYPEID_UNIT);
 
     GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
     tmpscript->OnUninstall(veh);
@@ -1031,7 +1031,7 @@ void ScriptMgr::OnUninstall(Vehicle* veh)
 void ScriptMgr::OnReset(Vehicle* veh)
 {
     ASSERT(veh);
-    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
+    ASSERT(veh->GetBase()->GetTypeId() == TypeID::TYPEID_UNIT);
 
     GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
     tmpscript->OnReset(veh);
@@ -1040,7 +1040,7 @@ void ScriptMgr::OnReset(Vehicle* veh)
 void ScriptMgr::OnInstallAccessory(Vehicle* veh, Creature* accessory)
 {
     ASSERT(veh);
-    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
+    ASSERT(veh->GetBase()->GetTypeId() == TypeID::TYPEID_UNIT);
     ASSERT(accessory);
 
     GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
@@ -1050,7 +1050,7 @@ void ScriptMgr::OnInstallAccessory(Vehicle* veh, Creature* accessory)
 void ScriptMgr::OnAddPassenger(Vehicle* veh, Unit* passenger, int8 seatId)
 {
     ASSERT(veh);
-    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
+    ASSERT(veh->GetBase()->GetTypeId() == TypeID::TYPEID_UNIT);
     ASSERT(passenger);
 
     GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
@@ -1060,7 +1060,7 @@ void ScriptMgr::OnAddPassenger(Vehicle* veh, Unit* passenger, int8 seatId)
 void ScriptMgr::OnRemovePassenger(Vehicle* veh, Unit* passenger)
 {
     ASSERT(veh);
-    ASSERT(veh->GetBase()->GetTypeId() == TYPEID_UNIT);
+    ASSERT(veh->GetBase()->GetTypeId() == TypeID::TYPEID_UNIT);
     ASSERT(passenger);
 
     GET_SCRIPT(VehicleScript, veh->GetBase()->ToCreature()->GetScriptId(), tmpscript);
@@ -1196,27 +1196,27 @@ void ScriptMgr::OnPlayerDuelEnd(Player* winner, Player* loser, DuelCompleteType 
     FOREACH_SCRIPT(PlayerScript)->OnDuelEnd(winner, loser, type);
 }
 
-void ScriptMgr::OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg)
+void ScriptMgr::OnPlayerChat(Player* player, ChatMsg type, Language lang, std::string& msg)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(player, type, lang, msg);
 }
 
-void ScriptMgr::OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Player* receiver)
+void ScriptMgr::OnPlayerChat(Player* player, ChatMsg type, Language lang, std::string& msg, Player* receiver)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(player, type, lang, msg, receiver);
 }
 
-void ScriptMgr::OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Group* group)
+void ScriptMgr::OnPlayerChat(Player* player, ChatMsg type, Language lang, std::string& msg, Group* group)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(player, type, lang, msg, group);
 }
 
-void ScriptMgr::OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Guild* guild)
+void ScriptMgr::OnPlayerChat(Player* player, ChatMsg type, Language lang, std::string& msg, Guild* guild)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(player, type, lang, msg, guild);
 }
 
-void ScriptMgr::OnPlayerChat(Player* player, uint32 type, uint32 lang, std::string& msg, Channel* channel)
+void ScriptMgr::OnPlayerChat(Player* player, ChatMsg type, Language lang, std::string& msg, Channel* channel)
 {
     FOREACH_SCRIPT(PlayerScript)->OnChat(player, type, lang, msg, channel);
 }
@@ -1236,9 +1236,9 @@ void ScriptMgr::OnPlayerSpellCast(Player* player, Spell* spell, bool skipCheck)
     FOREACH_SCRIPT(PlayerScript)->OnSpellCast(player, spell, skipCheck);
 }
 
-void ScriptMgr::OnPlayerLogin(Player* player)
+void ScriptMgr::OnPlayerLogin(Player* player, bool firstLogin)
 {
-    FOREACH_SCRIPT(PlayerScript)->OnLogin(player);
+    FOREACH_SCRIPT(PlayerScript)->OnLogin(player, firstLogin);
 }
 
 void ScriptMgr::OnPlayerLogout(Player* player)
@@ -1261,7 +1261,7 @@ void ScriptMgr::OnPlayerSave(Player* player)
     FOREACH_SCRIPT(PlayerScript)->OnSave(player);
 }
 
-void ScriptMgr::OnPlayerBindToInstance(Player* player, Difficulty difficulty, uint32 mapid, bool permanent)
+void ScriptMgr::OnPlayerBindToInstance(Player* player, DifficultyID difficulty, uint32 mapid, bool permanent)
 {
     FOREACH_SCRIPT(PlayerScript)->OnBindToInstance(player, difficulty, mapid, permanent);
 }
@@ -1420,7 +1420,7 @@ WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<Map>(mapId)
 {
     if (GetEntry() && !GetEntry()->IsWorldMap())
-        TC_LOG_ERROR("scripts", "WorldMapScript for map %u is invalid.", mapId);
+        SF_LOG_ERROR("scripts", "WorldMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<WorldMapScript>::AddScript(this);
 }
@@ -1428,8 +1428,8 @@ WorldMapScript::WorldMapScript(const char* name, uint32 mapId)
 InstanceMapScript::InstanceMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<InstanceMap>(mapId)
 {
-    if (GetEntry() && !GetEntry()->IsDungeon())
-        TC_LOG_ERROR("scripts", "InstanceMapScript for map %u is invalid.", mapId);
+    if (GetEntry() && !GetEntry()->IsInstance())
+        SF_LOG_ERROR("scripts", "InstanceMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<InstanceMapScript>::AddScript(this);
 }
@@ -1438,7 +1438,7 @@ BattlegroundMapScript::BattlegroundMapScript(const char* name, uint32 mapId)
     : ScriptObject(name), MapScript<BattlegroundMap>(mapId)
 {
     if (GetEntry() && !GetEntry()->IsBattleground())
-        TC_LOG_ERROR("scripts", "BattlegroundMapScript for map %u is invalid.", mapId);
+        SF_LOG_ERROR("scripts", "BattlegroundMapScript for map %u is invalid.", mapId);
 
     ScriptRegistry<BattlegroundMapScript>::AddScript(this);
 }

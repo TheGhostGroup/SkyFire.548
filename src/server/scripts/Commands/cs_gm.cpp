@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -38,22 +38,20 @@ class gm_commandscript : public CommandScript
 public:
     gm_commandscript() : CommandScript("gm_commandscript") { }
 
-    ChatCommand* GetCommands() const OVERRIDE
+    std::vector<ChatCommand> GetCommands() const OVERRIDE
     {
-        static ChatCommand gmCommandTable[] =
+        static std::vector<ChatCommand> gmCommandTable =
         {
-            { "chat",    rbac::RBAC_PERM_COMMAND_GM_CHAT,    false, &HandleGMChatCommand,       "", NULL },
-            { "fly",     rbac::RBAC_PERM_COMMAND_GM_FLY,     false, &HandleGMFlyCommand,        "", NULL },
-            { "ingame",  rbac::RBAC_PERM_COMMAND_GM_INGAME,   true, &HandleGMListIngameCommand, "", NULL },
-            { "list",    rbac::RBAC_PERM_COMMAND_GM_LIST,     true, &HandleGMListFullCommand,   "", NULL },
-            { "visible", rbac::RBAC_PERM_COMMAND_GM_VISIBLE, false, &HandleGMVisibleCommand,    "", NULL },
-            { "",        rbac::RBAC_PERM_COMMAND_GM,         false, &HandleGMCommand,           "", NULL },
-            { NULL,      0,                            false, NULL,                       "", NULL }
+            { "chat",    rbac::RBAC_PERM_COMMAND_GM_CHAT,    false, &HandleGMChatCommand,       "", },
+            { "fly",     rbac::RBAC_PERM_COMMAND_GM_FLY,     false, &HandleGMFlyCommand,        "", },
+            { "ingame",  rbac::RBAC_PERM_COMMAND_GM_INGAME,   true, &HandleGMListIngameCommand, "", },
+            { "list",    rbac::RBAC_PERM_COMMAND_GM_LIST,     true, &HandleGMListFullCommand,   "", },
+            { "visible", rbac::RBAC_PERM_COMMAND_GM_VISIBLE, false, &HandleGMVisibleCommand,    "", },
+            { "",        rbac::RBAC_PERM_COMMAND_GM,         false, &HandleGMCommand,           "", },
         };
-        static ChatCommand commandTable[] =
+        static std::vector<ChatCommand> commandTable =
         {
             { "gm", rbac::RBAC_PERM_COMMAND_GM, false, NULL, "", gmCommandTable },
-            { NULL, 0,                    false, NULL, "", NULL }
         };
         return commandTable;
     }
@@ -122,14 +120,15 @@ public:
         bool first = true;
         bool footer = false;
 
-        TRINITY_READ_GUARD(HashMapHolder<Player>::LockType, *HashMapHolder<Player>::GetLock());
+
+        SF_SHARED_GUARD readGuard(*HashMapHolder<Player>::GetLock());
         HashMapHolder<Player>::MapType const& m = sObjectAccessor->GetPlayers();
         for (HashMapHolder<Player>::MapType::const_iterator itr = m.begin(); itr != m.end(); ++itr)
         {
             AccountTypes itrSec = itr->second->GetSession()->GetSecurity();
             if ((itr->second->IsGameMaster() ||
                 (itr->second->GetSession()->HasPermission(rbac::RBAC_PERM_COMMANDS_APPEAR_IN_GM_LIST) &&
-                 itrSec <= AccountTypes(sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
+                 itrSec <= AccountTypes(sWorld->getIntConfig(WorldIntConfigs::CONFIG_GM_LEVEL_IN_GM_LIST)))) &&
                 (!handler->GetSession() || itr->second->IsVisibleGloballyFor(handler->GetSession()->GetPlayer())))
             {
                 if (first)
@@ -141,15 +140,15 @@ public:
                 }
                 std::string const& name = itr->second->GetName();
                 uint8 size = name.size();
-                uint8 security = itrSec;
+                AccountTypes security = itrSec;
                 uint8 max = ((16 - size) / 2);
                 uint8 max2 = max;
                 if ((max + max2 + size) == 16)
                     max2 = max - 1;
                 if (handler->GetSession())
-                    handler->PSendSysMessage("|    %s GMLevel %u", name.c_str(), security);
+                    handler->PSendSysMessage("|    %s GMLevel %u", name.c_str(), uint8(security));
                 else
-                    handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name.c_str(), max2, " ", security);
+                    handler->PSendSysMessage("|%*s%s%*s|   %u  |", max, " ", name.c_str(), max2, " ", uint8(security));
             }
         }
         if (footer)
@@ -164,7 +163,7 @@ public:
     {
         ///- Get the accounts with GM Level >0
         PreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_GM_ACCOUNTS);
-        stmt->setUInt8(0, uint8(SEC_MODERATOR));
+        stmt->setUInt8(0, uint8(AccountTypes::SEC_MODERATOR));
         stmt->setInt32(1, int32(realmID));
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
@@ -199,7 +198,7 @@ public:
     {
         if (!*args)
         {
-            handler->PSendSysMessage(LANG_YOU_ARE, handler->GetSession()->GetPlayer()->isGMVisible() ? handler->GetTrinityString(LANG_VISIBLE) : handler->GetTrinityString(LANG_INVISIBLE));
+            handler->PSendSysMessage(LANG_YOU_ARE, handler->GetSession()->GetPlayer()->isGMVisible() ? handler->GetSkyFireString(LANG_VISIBLE) : handler->GetSkyFireString(LANG_INVISIBLE));
             return true;
         }
 

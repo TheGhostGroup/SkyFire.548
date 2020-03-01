@@ -1,5 +1,5 @@
-# Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
-# Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
+# Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+# Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
 #
 # This file is free software; as a special exception the author gives
 # unlimited permission to copy and/or distribute it, with or without
@@ -16,44 +16,38 @@ if (USE_SCRIPTPCH)
   set(scripts_STAT_PCH_SRC PrecompiledHeaders/ScriptPCH.cpp)
 endif ()
 
-file(GLOB_RECURSE sources_PrecompiledHeaders PrecompiledHeaders/*.cpp PrecompiledHeaders/*.h)
-file(GLOB_RECURSE sources_EasternKingdoms EasternKingdoms/*.cpp EasternKingdoms/*.h)
-file(GLOB_RECURSE sources_Kalimdor Kalimdor/*.cpp Kalimdor/*.h)
-file(GLOB_RECURSE sources_Outland Outland/*.cpp Outland/*.h)
-file(GLOB_RECURSE sources_Northrend Northrend/*.cpp Northrend/*.h)
-file(GLOB_RECURSE sources_Maelstrom Maelstrom/*.cpp Maelstrom/*.h)
-file(GLOB_RECURSE sources_Custom Custom/*.cpp Custom/*.h)
 file(GLOB_RECURSE sources_Commands Commands/*.cpp Commands/*.h)
-file(GLOB_RECURSE sources_Examples Examples/*.cpp Examples/*.h)
-file(GLOB_RECURSE sources_Events Events/*.cpp Events/*.h)
-file(GLOB_RECURSE sources_Pandaria Pandaria/*.cpp Pandaria/*.h)
-file(GLOB_RECURSE sources_Pet Pet/*.cpp Pet/*.h)
-file(GLOB_RECURSE sources_OutdoorPvP OutdoorPvP/*.cpp OutdoorPvP/*.h)
 file(GLOB_RECURSE sources_Spells Spells/*.cpp Spells/*.h)
-file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
 
-source_group(CMake FILES CMakeLists.txt)
-source_group(PrecompiledHeaders FILES ${sources_PrecompiledHeaders})
-source_group(EasternKingdoms FILES ${sources_EasternKingdoms})
-source_group(Kalimdor FILES ${sources_Kalimdor})
-source_group(Outland FILES ${sources_Outland})
-source_group(Northrend FILES ${sources_Northrend})
-source_group(Maelstrom FILES ${sources_Maelstrom})
-source_group(OutdoorPvP FILES ${sources_OutdoorPvP})
+if(SCRIPTS)
+  file(GLOB_RECURSE sources_Custom Custom/*.cpp Custom/*.h)
+  file(GLOB_RECURSE sources_EasternKingdoms EasternKingdoms/*.cpp EasternKingdoms/*.h)
+  file(GLOB_RECURSE sources_Events Events/*.cpp Events/*.h)
+  file(GLOB_RECURSE sources_Kalimdor Kalimdor/*.cpp Kalimdor/*.h)
+  file(GLOB_RECURSE sources_Maelstrom Maelstrom/*.cpp Maelstrom/*.h)
+  file(GLOB_RECURSE sources_Northrend Northrend/*.cpp Northrend/*.h)
+  file(GLOB_RECURSE sources_OutdoorPvP OutdoorPvP/*.cpp OutdoorPvP/*.h)
+  file(GLOB_RECURSE sources_Outland Outland/*.cpp Outland/*.h)
+  file(GLOB_RECURSE sources_Pet Pet/*.cpp Pet/*.h)
+  file(GLOB_RECURSE sources_World World/*.cpp World/*.h)
+endif()
+
 source_group(Commands FILES ${sources_Commands})
-source_group(Examples FILES ${sources_Examples})
-source_group(Events FILES ${sources_Events})
-source_group(Pandaria FILES ${sources_Pandaria})
-source_group(Pet FILES ${sources_Pet})
 source_group(Spells FILES ${sources_Spells})
-source_group(World FILES ${sources_World})
+
+if(SCRIPTS)
+  source_group(EasternKingdoms FILES ${sources_EasternKingdoms})
+  source_group(Events FILES ${sources_Events})
+  source_group(Kalimdor FILES ${sources_Kalimdor})
+  source_group(Maelstrom FILES ${sources_Maelstrom})
+  source_group(Northrend FILES ${sources_Northrend})
+  source_group(OutdoorPvP FILES ${sources_OutdoorPvP})
+  source_group(Outland FILES ${sources_Outland})
+  source_group(Pet FILES ${sources_Pet})
+  source_group(World FILES ${sources_World})
+endif()
 
 message(STATUS "SCRIPT PREPARATIONS")
-include(Spells/CMakeLists.txt)
-
-include(Commands/CMakeLists.txt)
-
-include(Examples/CMakeLists.txt)
 
 set(scripts_STAT_SRCS
   ${scripts_STAT_SRCS}
@@ -62,18 +56,20 @@ set(scripts_STAT_SRCS
   ../game/AI/ScriptedAI/ScriptedFollowerAI.cpp
 )
 
+include(Commands/CMakeLists.txt)
+include(Spells/CMakeLists.txt)
+
 if(SCRIPTS)
   include(Custom/CMakeLists.txt)
-  include(World/CMakeLists.txt)
-  include(OutdoorPvP/CMakeLists.txt)
   include(EasternKingdoms/CMakeLists.txt)
-  include(Kalimdor/CMakeLists.txt)
-  include(Outland/CMakeLists.txt)
-  include(Northrend/CMakeLists.txt)
-  include(Maelstrom/CMakeLists.txt)
   include(Events/CMakeLists.txt)
-  include(Pandaria/CMakeLists.txt)
+  include(Kalimdor/CMakeLists.txt)
+  include(Maelstrom/CMakeLists.txt)
+  include(Northrend/CMakeLists.txt)
+  include(OutdoorPvP/CMakeLists.txt)
+  include(Outland/CMakeLists.txt)
   include(Pet/CMakeLists.txt)
+  include(World/CMakeLists.txt)
 endif()
 
 message(STATUS "SCRIPT PREPARATION COMPLETE")
@@ -115,6 +111,7 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlefield/Zones
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds
   ${CMAKE_SOURCE_DIR}/src/server/game/Battlegrounds/Zones
+  ${CMAKE_SOURCE_DIR}/src/server/game/BlackMarket
   ${CMAKE_SOURCE_DIR}/src/server/game/Calendar
   ${CMAKE_SOURCE_DIR}/src/server/game/Chat
   ${CMAKE_SOURCE_DIR}/src/server/game/Chat/Channels
@@ -174,7 +171,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/src/server/game/Warden/Modules
   ${CMAKE_SOURCE_DIR}/src/server/game/Weather
   ${CMAKE_SOURCE_DIR}/src/server/game/World
-  ${CMAKE_CURRENT_SOURCE_DIR}/PrecompiledHeaders
   ${ACE_INCLUDE_DIR}
   ${MYSQL_INCLUDE_DIR}
 )

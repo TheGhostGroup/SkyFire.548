@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYSERVER_SPLINE_H
-#define TRINITYSERVER_SPLINE_H
+#ifndef SKYFIRESERVER_SPLINE_H
+#define SKYFIRESERVER_SPLINE_H
 
 #include "MovementTypedefs.h"
 #include <G3D/Vector3.h>
@@ -57,7 +57,7 @@ protected:
         // client's value is 20, blizzs use 2-3 steps to compute length
         STEPS_PER_SEGMENT = 3
     };
-    static_assert(STEPS_PER_SEGMENT > 0, "shouldn't be lesser than 1");
+    static_assert(STEPS_PER_SEGMENT > 0, "STEPS_PER_SEGMENT shouldn't be lesser than 1");
 
 protected:
     void EvaluateLinear(index_type, float, Vector3&) const;
@@ -210,4 +210,4 @@ public:
 
 #include "SplineImpl.h"
 
-#endif // TRINITYSERVER_SPLINE_H
+#endif // SKYFIRESERVER_SPLINE_H

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -116,7 +116,7 @@ public:
             if (!instance)
                 return;
 
-            if (who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
+            if (who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
             {
                 if (instance->GetData(TYPE_MEDIVH) == IN_PROGRESS || instance->GetData(TYPE_MEDIVH) == DONE)
                     return;
@@ -126,7 +126,7 @@ public:
                 DoCast(me, SPELL_CHANNEL, false);
                 Check_Timer = 5000;
             }
-            else if (who->GetTypeId() == TYPEID_UNIT && me->IsWithinDistInMap(who, 15.0f))
+            else if (who->GetTypeId() == TypeID::TYPEID_UNIT && me->IsWithinDistInMap(who, 15.0f))
             {
                 if (instance->GetData(TYPE_MEDIVH) != IN_PROGRESS)
                     return;
@@ -325,7 +325,7 @@ public:
             //normalize Z-level if we can, if rift is not at ground level.
             pos.m_positionZ = std::max(me->GetMap()->GetHeight(pos.m_positionX, pos.m_positionY, MAX_HEIGHT), me->GetMap()->GetWaterLevel(pos.m_positionX, pos.m_positionY));
 
-            if (Unit* Summon = DoSummon(creature_entry, pos, 30000, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
+            if (Unit* Summon = DoSummon(creature_entry, pos, 30000, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT))
                 if (Unit* temp = Unit::GetUnit(*me, instance ? instance->GetData64(DATA_MEDIVH) : 0))
                     Summon->AddThreat(temp, 0.0f);
         }
@@ -338,7 +338,7 @@ public:
             uint32 entry = 0;
 
             entry = PortalWaves[mWaveId].PortalMob[mRiftWaveCount];
-            TC_LOG_DEBUG("scripts", "npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);
+            SF_LOG_DEBUG("scripts", "npc_time_rift: summoning wave Creature (Wave %u, Entry %u).", mRiftWaveCount, entry);
 
             ++mRiftWaveCount;
 
@@ -363,8 +363,8 @@ public:
             if (me->IsNonMeleeSpellCasted(false))
                 return;
 
-            TC_LOG_DEBUG("scripts", "npc_time_rift: not casting anylonger, i need to die.");
-            me->setDeathState(JUST_DIED);
+            SF_LOG_DEBUG("scripts", "npc_time_rift: not casting anylonger, i need to die.");
+            me->setDeathState(DeathState::JUST_DIED);
 
             if (instance->GetData(TYPE_RIFT) == IN_PROGRESS)
                 instance->SetData(TYPE_RIFT, SPECIAL);

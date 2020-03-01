@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,7 +61,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
         _flags |= CHANNEL_FLAG_CUSTOM;
 
         // If storing custom channels in the db is enabled either load or save the channel
-        if (sWorld->getBoolConfig(CONFIG_PRESERVE_CUSTOM_CHANNELS))
+        if (sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_PRESERVE_CUSTOM_CHANNELS))
         {
             PreparedStatement *stmt = CharacterDatabase.GetPreparedStatement(CHAR_SEL_CHANNEL);
             stmt->setString(0, name);
@@ -84,7 +84,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
                         uint64 banned_guid = atol(*i);
                         if (banned_guid)
                         {
-                            TC_LOG_DEBUG("chat.system", "Channel(%s) loaded bannedStore guid:" UI64FMTD "", name.c_str(), banned_guid);
+                            SF_LOG_DEBUG("chat.system", "Channel(%s) loaded bannedStore guid:" UI64FMTD "", name.c_str(), banned_guid);
                             bannedStore.insert(banned_guid);
                         }
                     }
@@ -96,7 +96,7 @@ Channel::Channel(std::string const& name, uint32 channelId, uint32 team):
                 stmt->setString(0, name);
                 stmt->setUInt32(1, _Team);
                 CharacterDatabase.Execute(stmt);
-                TC_LOG_DEBUG("chat.system", "Channel(%s) saved in database", name.c_str());
+                SF_LOG_DEBUG("chat.system", "Channel(%s) saved in database", name.c_str());
             }
 
             _IsSaved = true;
@@ -124,7 +124,7 @@ void Channel::UpdateChannelInDB() const
         stmt->setUInt32(5, _Team);
         CharacterDatabase.Execute(stmt);
 
-        TC_LOG_DEBUG("chat.system", "Channel(%s) updated in database", _name.c_str());
+        SF_LOG_DEBUG("chat.system", "Channel(%s) updated in database", _name.c_str());
     }
 }
 
@@ -138,13 +138,13 @@ void Channel::UpdateChannelUseageInDB() const
 
 void Channel::CleanOldChannelsInDB()
 {
-    if (sWorld->getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION) > 0)
+    if (sWorld->getIntConfig(WorldIntConfigs::CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION) > 0)
     {
         PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_DEL_OLD_CHANNELS);
-        stmt->setUInt32(0, sWorld->getIntConfig(CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION) * DAY);
+        stmt->setUInt32(0, sWorld->getIntConfig(WorldIntConfigs::CONFIG_PRESERVE_CUSTOM_CHANNEL_DURATION) * DAY);
         CharacterDatabase.Execute(stmt);
 
-        TC_LOG_DEBUG("chat.system", "Cleaned out unused custom chat channels.");
+        SF_LOG_DEBUG("chat.system", "Cleaned out unused custom chat channels.");
     }
 }
 
@@ -180,7 +180,7 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
     }
 
     if (HasFlag(CHANNEL_FLAG_LFG) &&
-        sWorld->getBoolConfig(CONFIG_RESTRICTED_LFG_CHANNEL) &&
+        sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_RESTRICTED_LFG_CHANNEL) &&
         AccountMgr::IsPlayerAccount(player->GetSession()->GetSecurity()) && //FIXME: Move to RBAC
         player->GetGroup())
     {
@@ -208,7 +208,7 @@ void Channel::JoinChannel(Player* player, std::string const& pass)
     MakeYouJoined(&data);
     SendToOne(&data, guid);
 
-    JoinNotify(guid);
+    JoinNotify(guid, GetChannelId(), GetFlags(), GetPlayerFlags(guid), GetName());
 
     // Custom channel handling
     if (!IsConstant())
@@ -260,7 +260,7 @@ void Channel::LeaveChannel(Player* player, bool send)
         SendToAll(&data);
     }
 
-    LeaveNotify(guid);
+    LeaveNotify(guid, GetChannelId(), GetFlags(), GetName());
 
     if (!IsConstant())
     {
@@ -528,7 +528,7 @@ void Channel::List(Player const* player)
         return;
     }
 
-    TC_LOG_DEBUG("chat.system", "SMSG_CHANNEL_LIST %s Channel: %s",
+    SF_LOG_DEBUG("chat.system", "SMSG_CHANNEL_LIST %s Channel: %s",
         player->GetSession()->GetPlayerInfo().c_str(), GetName().c_str());
 
     WorldPacket data(SMSG_CHANNEL_LIST, 1+(GetName().size()+1)+1+4+playersStore.size()*(8+1));
@@ -539,7 +539,7 @@ void Channel::List(Player const* player)
     size_t pos = data.wpos();
     data << uint32(0);                                  // size of list, placeholder
 
-    uint32 gmLevelInWhoList = sWorld->getIntConfig(CONFIG_GM_LEVEL_IN_WHO_LIST);
+    uint32 gmLevelInWhoList = sWorld->getIntConfig(WorldIntConfigs::CONFIG_GM_LEVEL_IN_WHO_LIST);
 
     uint32 count  = 0;
     for (PlayerContainer::const_iterator i = playersStore.begin(); i != playersStore.end(); ++i)
@@ -596,7 +596,7 @@ void Channel::Announce(Player const* player)
     UpdateChannelInDB();
 }
 
-void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
+void Channel::Say(uint64 guid, std::string const& what, Language lang)
 {
     if (what.empty())
         return;
@@ -611,8 +611,8 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
     }
 
     // TODO: Add proper RBAC check
-    if (sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
-        lang = LANG_UNIVERSAL;
+    if (sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_ALLOW_TWO_SIDE_INTERACTION_CHANNEL))
+        lang = Language::LANG_UNIVERSAL;
 
     if (!IsOn(guid))
     {
@@ -631,7 +631,7 @@ void Channel::Say(uint64 guid, std::string const& what, uint32 lang)
     }
 
     WorldPacket data;
-    ChatHandler::BuildChatPacket(data, CHAT_MSG_CHANNEL, Language(lang), guid, guid, what, chatTag, "", "", 0, isGM, _name);
+    ChatHandler::BuildChatPacket(data, ChatMsg::CHAT_MSG_CHANNEL, lang, guid, guid, what, chatTag, "", "", 0, isGM, _name);
 
     SendToAll(&data, !playersStore[guid].IsModerator() ? guid : false);
 }
@@ -969,31 +969,56 @@ void Channel::MakeVoiceOff(WorldPacket* data, uint64 guid)
     *data << uint64(guid);
 }
 
-void Channel::JoinNotify(uint64 guid)
+void Channel::JoinNotify(ObjectGuid UserGUID, uint32 ChannelID, uint8 ChannelFlags, uint8 UserFlags, const std::string ChannelName)
 {
-    WorldPacket data(IsConstant() ? SMSG_USERLIST_ADD : SMSG_USERLIST_UPDATE, 8 + 1 + 1 + 4 + GetName().size());
-    data << uint64(guid);
-    data << uint8(GetPlayerFlags(guid));
-    data << uint8(GetFlags());
-    data << uint32(GetNumPlayers());
-    data << GetName();
-
+    WorldPacket data(IsConstant() ? SMSG_USERLIST_ADD : SMSG_USERLIST_UPDATE, 8 + 1 + 1 + 4 + ChannelName.size());
     if (IsConstant())
-        SendToAllButOne(&data, guid);
+    {
+        data << uint32(ChannelID);
+        data << uint8(ChannelFlags);
+        data << uint8(UserFlags);
+        data.WriteGuidMask(UserGUID, 7);
+        data.WriteBits(ChannelName.size(), 7);
+        data.WriteGuidMask(UserGUID, 0, 5, 4, 6, 1, 3, 2);
+        data.FlushBits();
+        data.WriteGuidBytes(UserGUID, 4, 5, 7, 1, 2, 3, 6, 0);
+        data << ChannelName;
+        SendToAllButOne(&data, UserGUID);
+    }
     else
+    { 
+        data.WriteGuidMask(UserGUID, 2, 6, 3, 7, 5, 1, 0);
+        data.WriteBits(ChannelName.size(), 7);
+        data.WriteGuidMask(UserGUID, 4);
+        data.FlushBits();
+        data.WriteGuidBytes(UserGUID, 0, 2, 6, 5);
+        data << uint8(ChannelFlags);
+        data.WriteGuidBytes(UserGUID, 7, 3);
+        data << uint32(ChannelID);
+        data << GetName();
+        data.WriteGuidBytes(UserGUID, 1, 4);
+        data << uint8(UserFlags);
         SendToAll(&data);
+    }
 }
 
-void Channel::LeaveNotify(uint64 guid)
+void Channel::LeaveNotify(ObjectGuid UserGUID, uint32 ChannelID, uint8 ChannelFlags, const std::string ChannelName)
 {
-    WorldPacket data(SMSG_USERLIST_REMOVE, 8 + 1 + 4 + GetName().size());
-    data << uint64(guid);
-    data << uint8(GetFlags());
-    data << uint32(GetNumPlayers());
-    data << GetName();
+    WorldPacket data(SMSG_USERLIST_REMOVE, 8 + 1 + 4 + ChannelName.size());
+
+    data.WriteBits(ChannelName.size(), 7);
+    data.WriteGuidMask(UserGUID, 6, 0, 5, 4, 3, 1, 7, 2);
+    data.FlushBits();
+    data.WriteGuidBytes(UserGUID, 1, 4);
+    data << uint8(ChannelFlags);
+    data.WriteGuidBytes(UserGUID, 6, 5);
+    data << uint32(ChannelID);
+    data.WriteGuidBytes(UserGUID, 2, 7, 0);
+    data << ChannelName;
+    data.WriteGuidBytes(UserGUID, 3);
 
     if (IsConstant())
-        SendToAllButOne(&data, guid);
+        SendToAllButOne(&data, UserGUID);
     else
         SendToAll(&data);
 }

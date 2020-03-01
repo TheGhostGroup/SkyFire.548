@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -140,7 +140,7 @@ public:
                 instance->SetData(DATA_BRUTALLUS_EVENT, DONE);
                 float x, y, z;
                 me->GetPosition(x, y, z);
-                me->SummonCreature(FELMYST, x, y, z+30, me->GetOrientation(), TEMPSUMMON_MANUAL_DESPAWN, 0);
+                me->SummonCreature(FELMYST, x, y, z+30, me->GetOrientation(), TempSummonType::TEMPSUMMON_MANUAL_DESPAWN, 0);
             }
         }
 
@@ -169,7 +169,7 @@ public:
             else
             {
                 //Madrigosa not found, end intro
-                TC_LOG_ERROR("scripts", "Madrigosa was not found");
+                SF_LOG_ERROR("scripts", "Madrigosa was not found");
                 EndIntro();
             }
         }
@@ -251,7 +251,7 @@ public:
                     Talk(YELL_INTRO_KILL_MADRIGOSA);
                     me->SetOrientation(0.14f);
                     me->StopMoving();
-                    Madrigosa->setDeathState(CORPSE);
+                    Madrigosa->setDeathState(DeathState::CORPSE);
                     IntroPhaseTimer = 8000;
                     ++IntroPhase;
                     break;

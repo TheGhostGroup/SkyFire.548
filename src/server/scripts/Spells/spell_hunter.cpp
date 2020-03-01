@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -34,11 +34,17 @@
 
 enum HunterSpells
 {
+    SPELL_HUNTER_A_MURDER_OF_CROWS                  = 131894,
+    SPELL_HUNTER_CROW_TRIGGER                       = 131951,
+    SPELL_HUNTER_DELAYED_CROW                       = 131637,
+    SPELL_HUNTER_DELAYED_CROW2                      = 131952,
+    SPELL_HUNTER_CROW_DMG                           = 131900,
+
     SPELL_HUNTER_BESTIAL_WRATH                      = 19574,
     SPELL_HUNTER_CHIMERA_SHOT_HEAL                  = 53353,
     SPELL_HUNTER_FIRE                               = 82926,
     SPELL_HUNTER_GENERIC_ENERGIZE_FOCUS             = 91954,
-    SPELL_HUNTER_IMPROVED_MEND_PET                  = 24406,
+
     SPELL_HUNTER_INVIGORATION_TRIGGERED             = 53398,
     SPELL_HUNTER_LOCK_AND_LOAD                      = 56453,
     SPELL_HUNTER_MASTERS_CALL_TRIGGERED             = 62305,
@@ -48,14 +54,57 @@ enum HunterSpells
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_TRIGGERED = 54114,
     SPELL_HUNTER_PET_HEART_OF_THE_PHOENIX_DEBUFF    = 55711,
     SPELL_HUNTER_PET_CARRION_FEEDER_TRIGGERED       = 54045,
-    SPELL_HUNTER_RAPID_RECUPERATION                 = 58883,
+    SPELL_HUNTER_RAPID_RECUPERATION                 = 58883, // obsolete
     SPELL_HUNTER_READINESS                          = 23989,
     SPELL_HUNTER_SERPENT_STING                      = 1978,
-    SPELL_HUNTER_SNIPER_TRAINING_R1                 = 53302,
-    SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1            = 64418,
+
     SPELL_HUNTER_STEADY_SHOT_FOCUS                  = 77443,
     SPELL_HUNTER_THRILL_OF_THE_HUNT                 = 34720,
     SPELL_DRAENEI_GIFT_OF_THE_NAARU                 = 59543,
+};
+
+class spell_hun_a_murder_of_crows : public SpellScriptLoader
+{
+public:
+    spell_hun_a_murder_of_crows() : SpellScriptLoader("spell_hun_a_murder_of_crows") { }
+
+    class spell_hun_a_murder_of_crows_AuraScript : public AuraScript
+    {
+        PrepareAuraScript(spell_hun_a_murder_of_crows_AuraScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_A_MURDER_OF_CROWS))
+                return false;
+            return true;
+        }
+
+        void HandleEffectPeriodic(AuraEffect const* /*aurEff*/)
+        {
+            if (Unit* target = GetTarget())
+            {
+                if (Player* player = GetCaster()->ToPlayer())
+                {
+                    player->CastSpell(target, SPELL_HUNTER_CROW_TRIGGER, true); // crow trigger+visual + (Dummy: cdr at 20% target HP NYI)
+                    player->CastSpell(target, SPELL_HUNTER_CROW_DMG, true);
+                    player->CastSpell(target, SPELL_HUNTER_DELAYED_CROW, true);
+                    player->CastSpell(target, SPELL_HUNTER_CROW_DMG, true);
+                    player->CastSpell(target, SPELL_HUNTER_DELAYED_CROW2, true);
+                    player->CastSpell(target, SPELL_HUNTER_CROW_DMG, true);
+                }
+            }
+        }
+        
+        void Register() OVERRIDE
+        {
+            OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_a_murder_of_crows_AuraScript::HandleEffectPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+        }
+    };
+
+    AuraScript* GetAuraScript() const OVERRIDE
+    {
+        return new spell_hun_a_murder_of_crows_AuraScript();
+    }
 };
 
 // 53209 - Chimera Shot
@@ -78,7 +127,7 @@ class spell_hun_chimera_shot : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -121,7 +170,7 @@ class spell_hun_cobra_shot : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleScriptEffect(SpellEffIndex /*effIndex*/)
@@ -137,44 +186,13 @@ class spell_hun_cobra_shot : public SpellScriptLoader
 
             void Register() OVERRIDE
             {
-                OnEffectHitTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleScriptEffect, EFFECT_1, SPELL_EFFECT_SCRIPT_EFFECT);
+                OnEffectHitTarget += SpellEffectFn(spell_hun_cobra_shot_SpellScript::HandleScriptEffect, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
             }
         };
 
         SpellScript* GetSpellScript() const OVERRIDE
         {
             return new spell_hun_cobra_shot_SpellScript();
-        }
-};
-
-// 781 - Disengage
-class spell_hun_disengage : public SpellScriptLoader
-{
-    public:
-        spell_hun_disengage() : SpellScriptLoader("spell_hun_disengage") { }
-
-        class spell_hun_disengage_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_hun_disengage_SpellScript);
-
-            SpellCastResult CheckCast()
-            {
-                Unit* caster = GetCaster();
-                if (caster->GetTypeId() == TYPEID_PLAYER && !caster->IsInCombat())
-                    return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-                return SPELL_CAST_OK;
-            }
-
-            void Register() OVERRIDE
-            {
-                OnCheckCast += SpellCheckCastFn(spell_hun_disengage_SpellScript::CheckCast);
-            }
-        };
-
-        SpellScript* GetSpellScript() const OVERRIDE
-        {
-            return new spell_hun_disengage_SpellScript();
         }
 };
 
@@ -211,47 +229,6 @@ class spell_hun_fire : public SpellScriptLoader
         AuraScript* GetAuraScript() const OVERRIDE
         {
             return new spell_hun_fire_AuraScript();
-        }
-};
-
-// -19572 - Improved Mend Pet
-class spell_hun_improved_mend_pet : public SpellScriptLoader
-{
-    public:
-        spell_hun_improved_mend_pet() : SpellScriptLoader("spell_hun_improved_mend_pet") { }
-
-        class spell_hun_improved_mend_pet_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_improved_mend_pet_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_IMPROVED_MEND_PET))
-                    return false;
-                return true;
-            }
-
-            bool CheckProc(ProcEventInfo& /*eventInfo*/)
-            {
-                return roll_chance_i(GetEffect(EFFECT_0)->GetAmount());
-            }
-
-            void HandleProc(AuraEffect const* aurEff, ProcEventInfo& /*eventInfo*/)
-            {
-                PreventDefaultAction();
-                GetTarget()->CastSpell(GetTarget(), SPELL_HUNTER_IMPROVED_MEND_PET, true, NULL, aurEff);
-            }
-
-            void Register() OVERRIDE
-            {
-                DoCheckProc += AuraCheckProcFn(spell_hun_improved_mend_pet_AuraScript::CheckProc);
-                OnEffectProc += AuraEffectProcFn(spell_hun_improved_mend_pet_AuraScript::HandleProc, EFFECT_0, SPELL_AURA_DUMMY);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_hun_improved_mend_pet_AuraScript();
         }
 };
 
@@ -521,8 +498,8 @@ class spell_hun_pet_carrion_feeder : public SpellScriptLoader
                 float max_range = GetSpellInfo()->GetMaxRange(false);
                 WorldObject* result = NULL;
                 // search for nearby enemy corpse in range
-                Trinity::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
-                Trinity::WorldObjectSearcher<Trinity::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
+                Skyfire::AnyDeadUnitSpellTargetInRangeCheck check(caster, max_range, GetSpellInfo(), TARGET_CHECK_ENEMY);
+                Skyfire::WorldObjectSearcher<Skyfire::AnyDeadUnitSpellTargetInRangeCheck> searcher(caster, result, check);
                 caster->GetMap()->VisitFirstFound(caster->m_positionX, caster->m_positionY, max_range, searcher);
                 if (!result)
                     return SPELL_FAILED_NO_EDIBLE_CORPSES;
@@ -655,7 +632,7 @@ class spell_hun_readiness : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -742,7 +719,7 @@ class spell_hun_scatter_shot : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleDummy(SpellEffIndex /*effIndex*/)
@@ -766,66 +743,6 @@ class spell_hun_scatter_shot : public SpellScriptLoader
         }
 };
 
-// -53302 - Sniper Training
-class spell_hun_sniper_training : public SpellScriptLoader
-{
-    public:
-        spell_hun_sniper_training() : SpellScriptLoader("spell_hun_sniper_training") { }
-
-        class spell_hun_sniper_training_AuraScript : public AuraScript
-        {
-            PrepareAuraScript(spell_hun_sniper_training_AuraScript);
-
-            bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-            {
-                if (!sSpellMgr->GetSpellInfo(SPELL_HUNTER_SNIPER_TRAINING_R1) ||
-                    !sSpellMgr->GetSpellInfo(SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1))
-                    return false;
-                return true;
-            }
-
-            void HandlePeriodic(AuraEffect const* aurEff)
-            {
-                PreventDefaultAction();
-                if (aurEff->GetAmount() <= 0)
-                {
-                    Unit* caster = GetCaster();
-                    uint32 spellId = SPELL_HUNTER_SNIPER_TRAINING_BUFF_R1 + GetId() - SPELL_HUNTER_SNIPER_TRAINING_R1;
-                    if (Unit* target = GetTarget())
-                        if (!target->HasAura(spellId))
-                        {
-                            SpellInfo const* triggeredSpellInfo = sSpellMgr->GetSpellInfo(spellId);
-                            Unit* triggerCaster = triggeredSpellInfo->NeedsToBeTriggeredByCaster(GetSpellInfo()) ? caster : target;
-                            triggerCaster->CastSpell(target, triggeredSpellInfo, true, 0, aurEff);
-                        }
-                }
-            }
-
-            void HandleUpdatePeriodic(AuraEffect* aurEff)
-            {
-                if (Player* playerTarget = GetUnitOwner()->ToPlayer())
-                {
-                    int32 baseAmount = aurEff->GetBaseAmount();
-                    int32 amount = playerTarget->isMoving() ?
-                    playerTarget->CalculateSpellDamage(playerTarget, GetSpellInfo(), aurEff->GetEffIndex(), &baseAmount) :
-                    aurEff->GetAmount() - 1;
-                    aurEff->SetAmount(amount);
-                }
-            }
-
-            void Register() OVERRIDE
-            {
-                OnEffectPeriodic += AuraEffectPeriodicFn(spell_hun_sniper_training_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-                OnEffectUpdatePeriodic += AuraEffectUpdatePeriodicFn(spell_hun_sniper_training_AuraScript::HandleUpdatePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL);
-            }
-        };
-
-        AuraScript* GetAuraScript() const OVERRIDE
-        {
-            return new spell_hun_sniper_training_AuraScript();
-        }
-};
-
 // 56641 - Steady Shot
 class spell_hun_steady_shot : public SpellScriptLoader
 {
@@ -845,7 +762,7 @@ class spell_hun_steady_shot : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_PLAYER;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_PLAYER;
             }
 
             void HandleOnHit()
@@ -878,7 +795,7 @@ class spell_hun_tame_beast : public SpellScriptLoader
             SpellCastResult CheckCast()
             {
                 Unit* caster = GetCaster();
-                if (caster->GetTypeId() != TYPEID_PLAYER)
+                if (caster->GetTypeId() != TypeID::TYPEID_PLAYER)
                     return SPELL_FAILED_DONT_REPORT;
 
                 if (!GetExplTargetUnit())
@@ -1029,11 +946,11 @@ class spell_hun_tnt : public SpellScriptLoader
 
 void AddSC_hunter_spell_scripts()
 {
+    new spell_hun_a_murder_of_crows();
     new spell_hun_chimera_shot();
     new spell_hun_cobra_shot();
-    new spell_hun_disengage();
     new spell_hun_fire();
-    new spell_hun_improved_mend_pet();
+
     new spell_hun_improved_serpent_sting();
     new spell_hun_invigoration();
     new spell_hun_last_stand_pet();
@@ -1046,7 +963,7 @@ void AddSC_hunter_spell_scripts()
     new spell_hun_readiness();
     new spell_hun_ready_set_aim();
     new spell_hun_scatter_shot();
-    new spell_hun_sniper_training();
+
     new spell_hun_steady_shot();
     new spell_hun_tame_beast();
     new spell_hun_target_only_pet_and_owner();

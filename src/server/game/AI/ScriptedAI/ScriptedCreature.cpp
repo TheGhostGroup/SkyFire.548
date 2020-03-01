@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -25,14 +25,11 @@
 #include "Cell.h"
 #include "CellImpl.h"
 #include "ObjectMgr.h"
+#include "ScriptMgr.h"
 #include "TemporarySummon.h"
 
 // Spell summary for ScriptedAI::SelectSpell
-struct TSpellSummary
-{
-    uint8 Targets;                                          // set of enum SelectTarget
-    uint8 Effects;                                          // set of enum SelectEffect
-} extern* SpellSummary;
+extern struct TSpellSummary *SpellSummary;
 
 void SummonList::DoZoneInCombat(uint32 entry)
 {
@@ -106,7 +103,21 @@ ScriptedAI::ScriptedAI(Creature* creature) : CreatureAI(creature),
     _isCombatMovementAllowed(true)
 {
     _isHeroic = me->GetMap()->IsHeroic();
-    _difficulty = Difficulty(me->GetMap()->GetSpawnMode());
+    _difficulty = DifficultyID(me->GetMap()->GetSpawnMode());
+}
+
+bool ScriptedAI::Is25ManRaid() const
+{
+    switch (_difficulty)
+    {
+        case DIFFICULTY_25MAN_LFR:
+        case DIFFICULTY_25MAN_NORMAL:
+        case DIFFICULTY_25MAN_HEROIC:
+            return true;
+        default:
+            break;
+    } 
+    return false;
 }
 
 void ScriptedAI::AttackStartNoMove(Unit* who)
@@ -171,16 +182,16 @@ void ScriptedAI::DoPlaySoundToSet(WorldObject* source, uint32 soundId)
 
     if (!sSoundEntriesStore.LookupEntry(soundId))
     {
-        TC_LOG_ERROR("scripts", "Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", soundId, source->GetTypeId(), source->GetGUIDLow());
+        SF_LOG_ERROR("scripts", "Invalid soundId %u used in DoPlaySoundToSet (Source: TypeId %u, GUID %u)", soundId, uint8(source->GetTypeId()), source->GetGUIDLow());
         return;
     }
 
     source->PlayDirectSound(soundId);
 }
 
-Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, uint32 type, uint32 despawntime)
+Creature* ScriptedAI::DoSpawnCreature(uint32 entry, float offsetX, float offsetY, float offsetZ, float angle, TempSummonType type, uint32 despawntime)
 {
-    return me->SummonCreature(entry, me->GetPositionX() + offsetX, me->GetPositionY() + offsetY, me->GetPositionZ() + offsetZ, angle, TempSummonType(type), despawntime);
+    return me->SummonCreature(entry, me->GetPositionX() + offsetX, me->GetPositionY() + offsetY, me->GetPositionZ() + offsetZ, angle, type, despawntime);
 }
 
 SpellInfo const* ScriptedAI::SelectSpell(Unit* target, uint32 school, uint32 mechanic, SelectTargetType targets, uint32 powerCostMin, uint32 powerCostMax, float rangeMin, float rangeMax, SelectEffect effects)
@@ -264,7 +275,7 @@ void ScriptedAI::DoResetThreat()
 {
     if (!me->CanHaveThreatList() || me->getThreatManager().isThreatListEmpty())
     {
-        TC_LOG_ERROR("scripts", "DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
+        SF_LOG_ERROR("scripts", "DoResetThreat called for creature that either cannot have threat list or has empty threat list (me entry = %d)", me->GetEntry());
         return;
     }
 
@@ -312,14 +323,14 @@ void ScriptedAI::DoTeleportPlayer(Unit* unit, float x, float y, float z, float o
     if (Player* player = unit->ToPlayer())
         player->TeleportTo(unit->GetMapId(), x, y, z, o, TELE_TO_NOT_LEAVE_COMBAT);
     else
-        TC_LOG_ERROR("scripts", "Creature " UI64FMTD " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " UI64FMTD ") to x: %f y:%f z: %f o: %f. Aborted.",
-            me->GetGUID(), me->GetEntry(), unit->GetTypeId(), unit->GetGUID(), x, y, z, o);
+        SF_LOG_ERROR("scripts", "Creature " UI64FMTD " (Entry: %u) Tried to teleport non-player unit (Type: %u GUID: " UI64FMTD ") to x: %f y:%f z: %f o: %f. Aborted.",
+            me->GetGUID(), me->GetEntry(), uint8(unit->GetTypeId()), unit->GetGUID(), x, y, z, o);
 }
 
 void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
 {
     Map* map = me->GetMap();
-    if (!map->IsDungeon())
+    if (!map->IsInstance())
         return;
 
     Map::PlayerList const& PlayerList = map->GetPlayers();
@@ -332,8 +343,8 @@ void ScriptedAI::DoTeleportAll(float x, float y, float z, float o)
 Unit* ScriptedAI::DoSelectLowestHpFriendly(float range, uint32 minHPDiff)
 {
     Unit* unit = NULL;
-    Trinity::MostHPMissingInRange u_check(me, range, minHPDiff);
-    Trinity::UnitLastSearcher<Trinity::MostHPMissingInRange> searcher(me, unit, u_check);
+    Skyfire::MostHPMissingInRange u_check(me, range, minHPDiff);
+    Skyfire::UnitLastSearcher<Skyfire::MostHPMissingInRange> searcher(me, unit, u_check);
     me->VisitNearbyObject(range, searcher);
 
     return unit;
@@ -342,8 +353,8 @@ Unit* ScriptedAI::DoSelectLowestHpFriendly(float range, uint32 minHPDiff)
 std::list<Creature*> ScriptedAI::DoFindFriendlyCC(float range)
 {
     std::list<Creature*> list;
-    Trinity::FriendlyCCedInRange u_check(me, range);
-    Trinity::CreatureListSearcher<Trinity::FriendlyCCedInRange> searcher(me, list, u_check);
+    Skyfire::FriendlyCCedInRange u_check(me, range);
+    Skyfire::CreatureListSearcher<Skyfire::FriendlyCCedInRange> searcher(me, list, u_check);
     me->VisitNearbyObject(range, searcher);
 
     return list;
@@ -352,8 +363,8 @@ std::list<Creature*> ScriptedAI::DoFindFriendlyCC(float range)
 std::list<Creature*> ScriptedAI::DoFindFriendlyMissingBuff(float range, uint32 uiSpellid)
 {
     std::list<Creature*> list;
-    Trinity::FriendlyMissingBuffInRange u_check(me, range, uiSpellid);
-    Trinity::CreatureListSearcher<Trinity::FriendlyMissingBuffInRange> searcher(me, list, u_check);
+    Skyfire::FriendlyMissingBuffInRange u_check(me, range, uiSpellid);
+    Skyfire::CreatureListSearcher<Skyfire::FriendlyMissingBuffInRange> searcher(me, list, u_check);
     me->VisitNearbyObject(range, searcher);
 
     return list;
@@ -363,13 +374,13 @@ Player* ScriptedAI::GetPlayerAtMinimumRange(float minimumRange)
 {
     Player* player = NULL;
 
-    CellCoord pair(Trinity::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
+    CellCoord pair(Skyfire::ComputeCellCoord(me->GetPositionX(), me->GetPositionY()));
     Cell cell(pair);
     cell.SetNoCreate();
 
-    Trinity::PlayerAtMinimumRangeAway check(me, minimumRange);
-    Trinity::PlayerSearcher<Trinity::PlayerAtMinimumRangeAway> searcher(me, player, check);
-    TypeContainerVisitor<Trinity::PlayerSearcher<Trinity::PlayerAtMinimumRangeAway>, GridTypeMapContainer> visitor(searcher);
+    Skyfire::PlayerAtMinimumRangeAway check(me, minimumRange);
+    Skyfire::PlayerSearcher<Skyfire::PlayerAtMinimumRangeAway> searcher(me, player, check);
+    TypeContainerVisitor<Skyfire::PlayerSearcher<Skyfire::PlayerAtMinimumRangeAway>, GridTypeMapContainer> visitor(searcher);
 
     cell.Visit(pair, visitor, *me->GetMap(), *me, minimumRange);
 
@@ -445,7 +456,7 @@ bool ScriptedAI::EnterEvadeIfOutOfCombatArea(uint32 const diff)
                 return false;
             break;
         default: // For most of creatures that certain area is their home area.
-            TC_LOG_INFO("misc", "TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition. Using the default one.", me->GetEntry());
+            SF_LOG_INFO("misc", "TSCR: EnterEvadeIfOutOfCombatArea used for creature entry %u, but does not have any definition. Using the default one.", me->GetEntry());
             uint32 homeAreaId = me->GetMap()->GetAreaId(me->GetHomePosition().GetPositionX(), me->GetHomePosition().GetPositionY(), me->GetHomePosition().GetPositionZ());
             if (me->GetAreaId() == homeAreaId)
                 return false;
@@ -509,7 +520,7 @@ void BossAI::TeleportCheaters()
     ThreatContainer::StorageType threatList = me->getThreatManager().getThreatList();
     for (ThreatContainer::StorageType::const_iterator itr = threatList.begin(); itr != threatList.end(); ++itr)
         if (Unit* target = (*itr)->getTarget())
-            if (target->GetTypeId() == TYPEID_PLAYER && !CheckBoundary(target))
+            if (target->GetTypeId() == TypeID::TYPEID_PLAYER && !CheckBoundary(target))
                 target->NearTeleportTo(x, y, z, 0);
 }
 
@@ -685,4 +696,16 @@ void GetGameObjectListWithEntryInGrid(std::list<GameObject*>& list, WorldObject*
 void GetPlayerListInGrid(std::list<Player*>& list, WorldObject* source, float maxSearchRange)
 {
     source->GetPlayerListInGrid(list, maxSearchRange);
+}
+
+void GetPositionWithDistInOrientation(Unit* pUnit, float dist, float orientation, float& x, float& y)
+{
+    x = pUnit->GetPositionX() + (dist * cos(orientation));
+    y = pUnit->GetPositionY() + (dist * sin(orientation));
+}
+void GetRandPosFromCenterInDist(float centerX, float centerY, float dist, float& x, float& y)
+{
+    float randOrientation = frand(0, 2 * M_PI);
+    x = centerX + (dist * cos(randOrientation));
+    y = centerY + (dist * sin(randOrientation));
 }

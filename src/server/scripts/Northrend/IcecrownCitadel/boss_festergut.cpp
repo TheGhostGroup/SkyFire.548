@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -158,7 +158,7 @@ class boss_festergut : public CreatureScript
 
             void KilledUnit(Unit* victim) OVERRIDE
             {
-                if (victim->GetTypeId() == TYPEID_PLAYER)
+                if (victim->GetTypeId() == TypeID::TYPEID_PLAYER)
                     Talk(SAY_KILL);
             }
 
@@ -218,14 +218,14 @@ class boss_festergut : public CreatureScript
                                 if (melee.empty())
                                     break;
 
-                                Unit* target = Trinity::Containers::SelectRandomContainerElement(melee);
+                                Unit* target = Skyfire::Containers::SelectRandomContainerElement(melee);
                                 ranged.push_back(target);
                                 melee.remove(target);
                             }
 
                             if (!ranged.empty())
                             {
-                                Trinity::Containers::RandomResizeList(ranged, RAID_MODE<uint32>(1, 3, 1, 3));
+                                Skyfire::Containers::RandomResizeList(ranged, RAID_MODE<uint32>(1, 3, 1, 3));
                                 for (std::list<Unit*>::iterator itr = ranged.begin(); itr != ranged.end(); ++itr)
                                     DoCast(*itr, SPELL_VILE_GAS);
                             }
@@ -375,7 +375,7 @@ class spell_festergut_pungent_blight : public SpellScriptLoader
 
             bool Load() OVERRIDE
             {
-                return GetCaster()->GetTypeId() == TYPEID_UNIT;
+                return GetCaster()->GetTypeId() == TypeID::TYPEID_UNIT;
             }
 
             void HandleScript(SpellEffIndex /*effIndex*/)
@@ -481,7 +481,7 @@ class achievement_flu_shot_shortage : public AchievementCriteriaScript
 
         bool OnCheck(Player* /*source*/, Unit* target) OVERRIDE
         {
-            if (target && target->GetTypeId() == TYPEID_UNIT)
+            if (target && target->GetTypeId() == TypeID::TYPEID_UNIT)
                 return target->ToCreature()->AI()->GetData(DATA_INOCULATED_STACK) < 3;
 
             return false;

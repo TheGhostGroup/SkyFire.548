@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITY_MOTIONMASTER_H
-#define TRINITY_MOTIONMASTER_H
+#ifndef SKYFIRE_MOTIONMASTER_H
+#define SKYFIRE_MOTIONMASTER_H
 
 #include "Common.h"
 #include <vector>
@@ -98,14 +98,7 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void InitTop();
     public:
 
-        explicit MotionMaster(Unit* unit) : _expList(NULL), _top(-1), _owner(unit), _cleanFlag(MMCF_NONE)
-        {
-            for (uint8 i = 0; i < MAX_MOTION_SLOT; ++i)
-            {
-                Impl[i] = NULL;
-                _needInit[i] = true;
-            }
-        }
+        explicit MotionMaster(Unit* unit) : _expList(NULL), _top(-1), _owner(unit), _cleanFlag(MMCF_NONE) { }
         ~MotionMaster();
 
         void Initialize();
@@ -195,10 +188,10 @@ class MotionMaster //: private std::stack<MovementGenerator *>
 
         typedef std::vector<_Ty> ExpireList;
         ExpireList* _expList;
-        _Ty Impl[MAX_MOTION_SLOT];
+        _Ty Impl[MAX_MOTION_SLOT] = {};
         int _top;
         Unit* _owner;
-        bool _needInit[MAX_MOTION_SLOT];
+        bool _needInit[MAX_MOTION_SLOT] = {true};
         uint8 _cleanFlag;
 };
 #endif

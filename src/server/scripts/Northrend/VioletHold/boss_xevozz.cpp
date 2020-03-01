@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -143,7 +143,7 @@ public:
             if (instance)
             {
                 if (GameObject* pDoor = instance->instance->GetGameObject(instance->GetData64(DATA_XEVOZZ_CELL)))
-                    if (pDoor->GetGoState() == GO_STATE_READY)
+                    if (pDoor->GetGoState() == GOState::GO_STATE_READY)
                     {
                         EnterEvadeMode();
                         return;
@@ -186,7 +186,7 @@ public:
                 Talk(SAY_SPAWN);
                 DoCast(me, SPELL_SUMMON_ETHEREAL_SPHERE_1);
                 if (IsHeroic()) // extra one for heroic
-                    me->SummonCreature(NPC_ETHEREAL_SPHERE, me->GetPositionX()-5+rand()%10, me->GetPositionY()-5+rand()%10, me->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
+                    me->SummonCreature(NPC_ETHEREAL_SPHERE, me->GetPositionX()-5+rand()%10, me->GetPositionY()-5+rand()%10, me->GetPositionZ(), 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 40000);
 
                 uiSummonEtherealSphere_Timer = urand(45000, 47000);
                 uiArcaneBuffet_Timer = urand(5000, 6000);
@@ -218,7 +218,7 @@ public:
         }
         void KilledUnit(Unit* victim) OVERRIDE
         {
-            if (victim->GetTypeId() != TYPEID_PLAYER)
+            if (victim->GetTypeId() != TypeID::TYPEID_PLAYER)
                 return;
 
             Talk(SAY_SLAY);

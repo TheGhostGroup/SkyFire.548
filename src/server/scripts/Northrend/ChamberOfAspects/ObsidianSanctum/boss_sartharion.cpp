@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -520,7 +520,7 @@ public:
         void SendFlameTsunami()
         {
             if (Map* map = me->GetMap())
-                if (map->IsDungeon())
+                if (map->IsRaid())
                 {
                     Map::PlayerList const &PlayerList = map->GetPlayers();
 
@@ -536,8 +536,8 @@ public:
         void CastLavaStrikeOnTarget(Unit* target)
         {
             std::list<Creature*> pFireCyclonesList;
-            Trinity::AllCreaturesOfEntryInRange checker(me, NPC_FIRE_CYCLONE, 200.0f);
-            Trinity::CreatureListSearcher<Trinity::AllCreaturesOfEntryInRange> searcher(me, pFireCyclonesList, checker);
+            Skyfire::AllCreaturesOfEntryInRange checker(me, NPC_FIRE_CYCLONE, 200.0f);
+            Skyfire::CreatureListSearcher<Skyfire::AllCreaturesOfEntryInRange> searcher(me, pFireCyclonesList, checker);
             me->VisitNearbyObject(200.0f, searcher);
 
             if (pFireCyclonesList.empty())
@@ -598,9 +598,9 @@ public:
                 {
                     case 0:
                     {
-                        Creature* Right1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight1Spawn.x, FlameRight1Spawn.y, FlameRight1Spawn.z, 0, TEMPSUMMON_TIMED_DESPAWN, 12000);
-                        Creature* Right2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight2Spawn.x, FlameRight2Spawn.y, FlameRight2Spawn.z, 0, TEMPSUMMON_TIMED_DESPAWN, 12000);
-                        Creature* Right3 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight3Spawn.x, FlameRight3Spawn.y, FlameRight3Spawn.z, 0, TEMPSUMMON_TIMED_DESPAWN, 12000);
+                        Creature* Right1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight1Spawn.x, FlameRight1Spawn.y, FlameRight1Spawn.z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 12000);
+                        Creature* Right2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight2Spawn.x, FlameRight2Spawn.y, FlameRight2Spawn.z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 12000);
+                        Creature* Right3 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameRight3Spawn.x, FlameRight3Spawn.y, FlameRight3Spawn.z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 12000);
                         Right1->GetMotionMaster()->MovePoint(0, FlameRight1Direction.x, FlameRight1Direction.y, FlameRight1Direction.z);
                         Right2->GetMotionMaster()->MovePoint(0, FlameRight2Direction.x, FlameRight2Direction.y, FlameRight2Direction.z);
                         Right3->GetMotionMaster()->MovePoint(0, FlameRight3Direction.x, FlameRight3Direction.y, FlameRight3Direction.z);
@@ -608,8 +608,8 @@ public:
                     }
                     case 1:
                     {
-                        Creature* Left1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft1Spawn.x, FlameLeft1Spawn.y, FlameLeft1Spawn.z, 0, TEMPSUMMON_TIMED_DESPAWN, 12000);
-                        Creature* Left2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft2Spawn.x, FlameLeft2Spawn.y, FlameLeft2Spawn.z, 0, TEMPSUMMON_TIMED_DESPAWN, 12000);
+                        Creature* Left1 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft1Spawn.x, FlameLeft1Spawn.y, FlameLeft1Spawn.z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 12000);
+                        Creature* Left2 = me->SummonCreature(NPC_FLAME_TSUNAMI, FlameLeft2Spawn.x, FlameLeft2Spawn.y, FlameLeft2Spawn.z, 0, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 12000);
                         Left1->GetMotionMaster()->MovePoint(0, FlameLeft1Direction.x, FlameLeft1Direction.y, FlameLeft1Direction.z);
                         Left2->GetMotionMaster()->MovePoint(0, FlameLeft2Direction.x, FlameLeft2Direction.y, FlameLeft2Direction.z);
                         break;
@@ -844,34 +844,34 @@ struct dummy_dragonAI : public ScriptedAI
             case NPC_TENEBRON:
             {
                 iTextId = WHISPER_HATCH_EGGS;
-                if (instance && !instance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+                if (instance && instance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
                 {
                     for (uint32 i = 0; i < 6; ++i)
-                        me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i].x, TwilightEggs[i].y, TwilightEggs[i].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                        me->SummonCreature(NPC_TWILIGHT_EGG, TwilightEggs[i].x, TwilightEggs[i].y, TwilightEggs[i].z, 0, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
                 }
                 else
                 {
                     for (uint32 i = 0; i < 6; ++i)
-                        me->SummonCreature(NPC_SARTHARION_TWILIGHT_EGG, TwilightEggsSarth[i].x, TwilightEggsSarth[i].y, TwilightEggsSarth[i].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
+                        me->SummonCreature(NPC_SARTHARION_TWILIGHT_EGG, TwilightEggsSarth[i].x, TwilightEggsSarth[i].y, TwilightEggsSarth[i].z, 0, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000);
                 }
                 break;
             }
             case NPC_SHADRON:
             {
                 iTextId = WHISPER_OPEN_PORTAL;
-                if (instance && !instance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
-                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron.x, AcolyteofShadron.y, AcolyteofShadron.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
+                if (instance && instance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
+                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron.x, AcolyteofShadron.y, AcolyteofShadron.z, 0, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
                 else
-                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2.x, AcolyteofShadron2.y, AcolyteofShadron2.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
+                    me->SummonCreature(NPC_ACOLYTE_OF_SHADRON, AcolyteofShadron2.x, AcolyteofShadron2.y, AcolyteofShadron2.z, 0, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 28000);
 
                 break;
             }
             case NPC_VESPERON:
             {
                 iTextId = WHISPER_OPEN_PORTAL;
-                if (instance && !instance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+                if (instance && instance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
                 {
-                    if (Creature* Acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon.x, AcolyteofVesperon.y, AcolyteofVesperon.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Creature* Acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon.x, AcolyteofVesperon.y, AcolyteofVesperon.z, 0, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                     {
                         me->InterruptNonMeleeSpells(true);
                         Acolyte->InterruptNonMeleeSpells(true);
@@ -880,7 +880,7 @@ struct dummy_dragonAI : public ScriptedAI
                 }
                 else
                 {
-                    if (Creature* Acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon2.x, AcolyteofVesperon2.y, AcolyteofVesperon2.z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
+                    if (Creature* Acolyte = me->SummonCreature(NPC_ACOLYTE_OF_VESPERON, AcolyteofVesperon2.x, AcolyteofVesperon2.y, AcolyteofVesperon2.z, 0, TempSummonType::TEMPSUMMON_CORPSE_TIMED_DESPAWN, 20000))
                     {
                         me->InterruptNonMeleeSpells(true);
                         Acolyte->InterruptNonMeleeSpells(true);
@@ -1514,10 +1514,10 @@ public:
         {
             me->RemoveAllAuras();
 
-            if (!instance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
-                me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+            if (instance->GetData(TYPE_SARTHARION_EVENT) != IN_PROGRESS)
+                me->SummonCreature(NPC_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             else
-                me->SummonCreature(NPC_SHARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                me->SummonCreature(NPC_SHARTHARION_TWILIGHT_WHELP, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
             me->DealDamage(me, me->GetHealth());
         }
 

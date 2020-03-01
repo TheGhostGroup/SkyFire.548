@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -112,9 +112,9 @@ public:
 
             if (Summon)
             {
-                me->SummonCreature(NPC_GHARZUL, 8745, -7134.32f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-                me->SummonCreature(NPC_ANGERSHADE, 8745, -7134.32f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
-                me->SummonCreature(NPC_ANGERSHADE, 8745, -7134.32f, 35.22f, 0, TEMPSUMMON_CORPSE_DESPAWN, 4000);
+                me->SummonCreature(NPC_GHARZUL, 8745, -7134.32f, 35.22f, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 4000);
+                me->SummonCreature(NPC_ANGERSHADE, 8745, -7134.32f, 35.22f, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 4000);
+                me->SummonCreature(NPC_ANGERSHADE, 8745, -7134.32f, 35.22f, 0, TempSummonType::TEMPSUMMON_CORPSE_DESPAWN, 4000);
                 Summon = false;
             }
         }
@@ -189,7 +189,7 @@ public:
         void MoveInLineOfSight(Unit* who) OVERRIDE
 
         {
-            if (!Progress && who->GetTypeId() == TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
+            if (!Progress && who->GetTypeId() == TypeID::TYPEID_PLAYER && me->IsWithinDistInMap(who, 10.0f))
             {
                 if (who->ToPlayer()->GetQuestStatus(QUEST_POWERING_OUR_DEFENSES) == QUEST_STATUS_INCOMPLETE)
                 {
@@ -232,9 +232,9 @@ public:
                 uint32 ran1 = rand()%8;
                 uint32 ran2 = rand()%8;
                 uint32 ran3 = rand()%8;
-                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran1].x, SpawnLocations[ran1].y, SpawnLocations[ran1].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran2].x, SpawnLocations[ran2].y, SpawnLocations[ran2].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
-                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran3].x, SpawnLocations[ran3].y, SpawnLocations[ran3].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran1].x, SpawnLocations[ran1].y, SpawnLocations[ran1].z, 0, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran2].x, SpawnLocations[ran2].y, SpawnLocations[ran2].z, 0, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
+                me->SummonCreature(NPC_ENRAGED_WRAITH, SpawnLocations[ran3].x, SpawnLocations[ran3].y, SpawnLocations[ran3].z, 0, TempSummonType::TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 10000);
                 WaveTimer = 30000;
             } else WaveTimer -= diff;
         }

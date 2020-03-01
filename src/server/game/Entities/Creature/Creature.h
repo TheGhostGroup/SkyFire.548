@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,8 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef TRINITYCORE_CREATURE_H
-#define TRINITYCORE_CREATURE_H
+#ifndef SKYFIRESERVER_CREATURE_H
+#define SKYFIRESERVER_CREATURE_H
 
 #include "Common.h"
 #include "Unit.h"
@@ -76,7 +76,7 @@ enum CreatureFlagsExtra
 struct CreatureTemplate
 {
     uint32  Entry;
-    uint32  DifficultyEntry[MAX_DIFFICULTY - 1];
+    uint32  DifficultyEntry[4 - 1];
     uint32  KillCredit[MAX_KILL_CREDIT];
     uint32  Modelid1;
     uint32  Modelid2;
@@ -86,9 +86,9 @@ struct CreatureTemplate
     std::string  SubName;
     std::string  IconName;
     uint32  GossipMenuId;
-    int16   minlevel;
-    int16   maxlevel;
-    int32  expansion;
+    uint8   minlevel;
+    uint8   maxlevel;
+    uint32  expansion;
     uint32  expansionUnknown;                               // either 0 or 3, sent to the client / wdb
     uint32  faction_A;
     uint32  faction_H;
@@ -142,6 +142,7 @@ struct CreatureTemplate
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
     uint32  ScriptID;
+    bool    ModLevel;
     uint32  GetRandomValidModelId() const;
     uint32  GetFirstValidModelId() const;
 
@@ -171,6 +172,29 @@ struct CreatureTemplate
         // if can tame exotic then can tame any tameable
         return canTameExotic || !IsExotic();
     }
+
+    static int32 DiffToDiffIndex(uint32 difficulty)
+    {
+        switch (difficulty)
+        {
+        case DIFFICULTY_NONE:
+        case DIFFICULTY_NORMAL:
+        case DIFFICULTY_10MAN_NORMAL:
+        case DIFFICULTY_40MAN:
+            return -1;
+        case DIFFICULTY_HEROIC:
+        case DIFFICULTY_25MAN_NORMAL:
+            return 0;
+        case DIFFICULTY_10MAN_HEROIC:
+        case DIFFICULTY_CHALLENGE:
+            return 1;
+        case DIFFICULTY_25MAN_HEROIC:
+            return 2;
+        case DIFFICULTY_25MAN_LFR:
+        default:
+            return -1;
+        }
+    }
 };
 
 // Benchmarked: Faster than std::map (insert/find)
@@ -192,10 +216,7 @@ struct CreatureBaseStats
 
     // Helpers
 
-    uint32 GenerateHealth(CreatureTemplate const* info) const
-    {
-        return uint32(ceil(BaseHealth[(CURRENT_CONTENT_EXP > info->expansion) ? 0 : 1] * info->ModHealth));
-    }
+    uint32 GenerateHealth(CreatureTemplate const* info) const;
 
     uint32 GenerateMana(CreatureTemplate const* info) const
     {
@@ -245,10 +266,15 @@ typedef UNORDERED_MAP<uint32, EquipmentInfoContainerInternal> EquipmentInfoConta
 // from `creature` table
 struct CreatureData
 {
-    CreatureData() : dbData(true) { }
+    CreatureData() : id(0), mapid(0), phaseid(0), phaseGroup(0), displayid(0), equipmentId(0),
+        posX(0.0f), posY(0.0f), posZ(0.0f), orientation(0.0f), spawntimesecs(0), spawndist(0.0f),
+        currentwaypoint(0), curhealth(0), curmana(0), movementType(0), spawnMask(0), npcflag(0),
+        unit_flags(0), dynamicflags(0), dbData(true) { }
+
     uint32 id;                                              // entry in creature_template
     uint16 mapid;
-    uint32 phaseMask;
+    uint32 phaseid;
+    uint32 phaseGroup;
     uint32 displayid;
     int8 equipmentId;
     float posX;
@@ -261,7 +287,7 @@ struct CreatureData
     uint32 curhealth;
     uint32 curmana;
     uint8 movementType;
-    uint8 spawnMask;
+    uint32 spawnMask;
     uint32 npcflag;
     uint32 unit_flags;                                      // enum UnitFlags mask values
     uint32 dynamicflags;
@@ -378,18 +404,14 @@ typedef std::list<VendorItemCount> VendorItemCounts;
 
 struct TrainerSpell
 {
-    TrainerSpell() : spell(0), spellCost(0), reqSkill(0), reqSkillValue(0), reqLevel(0)
-    {
-        for (uint8 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-            learnedSpell[i] = 0;
-    }
+    TrainerSpell() : spell(0), spellCost(0), reqSkill(0), reqSkillValue(0), reqLevel(0) { }
 
     uint32 spell;
     uint32 spellCost;
     uint32 reqSkill;
     uint32 reqSkillValue;
     uint32 reqLevel;
-    uint32 learnedSpell[MAX_SPELL_EFFECTS];
+    uint32 learnedSpell[MAX_SPELL_EFFECTS] = { };
 
     // helpers
     bool IsCastable() const { return learnedSpell[0] != spell; }
@@ -430,7 +452,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         void DisappearAndDie();
 
-        bool Create(uint32 guidlow, Map* map, uint32 phaseMask, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
+        bool Create(uint32 guidlow, Map* map, uint32 Entry, uint32 vehId, uint32 team, float x, float y, float z, float ang, const CreatureData* data = NULL);
         bool LoadCreaturesAddon(bool reload = false);
         void SelectLevel(const CreatureTemplate* cinfo);
         void LoadEquipment(int8 id = 1, bool force = false);
@@ -486,20 +508,20 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         uint32 GetCreatureSpellCooldownDelay(uint32 spellId) const;
         virtual void ProhibitSpellSchool(SpellSchoolMask idSchoolMask, uint32 unTimeMs);
 
-        bool HasSpell(uint32 spellID) const;
+        bool HasSpell(uint32 spellID) const OVERRIDE;
 
         bool UpdateEntry(uint32 entry, uint32 team=ALLIANCE, const CreatureData* data=NULL);
 
         void UpdateMovementFlags();
 
-        bool UpdateStats(Stats stat);
-        bool UpdateAllStats();
-        void UpdateResistances(uint32 school);
-        void UpdateArmor();
-        void UpdateMaxHealth();
-        void UpdateMaxPower(Powers power);
-        void UpdateAttackPowerAndDamage(bool ranged = false);
-        void UpdateDamagePhysical(WeaponAttackType attType);
+        bool UpdateStats(Stats stat) OVERRIDE;
+        bool UpdateAllStats() OVERRIDE;
+        void UpdateResistances(uint32 school) OVERRIDE;
+        void UpdateArmor() OVERRIDE;
+        void UpdateMaxHealth() OVERRIDE;
+        void UpdateMaxPower(Powers power) OVERRIDE;
+        void UpdateAttackPowerAndDamage(bool ranged = false) OVERRIDE;
+        void UpdateDamagePhysical(WeaponAttackType attType) OVERRIDE;
 
         int8 GetOriginalEquipmentId() const { return m_originalEquipmentId; }
         uint8 GetCurrentEquipmentId() { return m_equipmentId; }
@@ -522,15 +544,15 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         uint32 GetScriptId() const;
 
         // override WorldObject function for proper name localization
-        std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const;
+        std::string const& GetNameForLocaleIdx(LocaleConstant locale_idx) const OVERRIDE;
 
-        void setDeathState(DeathState s);                   // override virtual Unit::setDeathState
+        void setDeathState(DeathState s) OVERRIDE;                   // override virtual Unit::setDeathState
 
         bool LoadFromDB(uint32 guid, Map* map) { return LoadCreatureFromDB(guid, map, false); }
         bool LoadCreatureFromDB(uint32 guid, Map* map, bool addToMap = true);
         void SaveToDB();
                                                             // overriden in Pet
-        virtual void SaveToDB(uint32 mapid, uint8 spawnMask, uint32 phaseMask);
+        virtual void SaveToDB(uint32 mapid, uint32 spawnMask);
         virtual void DeleteFromDB();                        // overriden in Pet
 
         Loot loot;
@@ -589,7 +611,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         time_t GetRespawnTimeEx() const;
         void SetRespawnTime(uint32 respawn) { m_respawnTime = respawn ? time(NULL) + respawn : 0; }
         void Respawn(bool force = false);
-        void SaveRespawnTime();
+        void SaveRespawnTime() OVERRIDE;
 
         uint32 GetRespawnDelay() const { return m_respawnDelay; }
         void SetRespawnDelay(uint32 delay) { m_respawnDelay = delay; }
@@ -604,8 +626,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
 
         void SetInCombatWithZone();
 
-        bool hasQuest(uint32 quest_id) const;
-        bool hasInvolvedQuest(uint32 quest_id)  const;
+        bool hasQuest(uint32 quest_id) const OVERRIDE;
+        bool hasInvolvedQuest(uint32 quest_id)  const OVERRIDE;
 
         bool isRegeneratingHealth() { return m_regenHealth; }
         void setRegeneratingHealth(bool regenHealth) { m_regenHealth = regenHealth; }
@@ -618,12 +640,12 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         void SetHomePosition(float x, float y, float z, float o) { m_homePosition.Relocate(x, y, z, o); }
         void SetHomePosition(const Position &pos) { m_homePosition.Relocate(pos); }
         void GetHomePosition(float &x, float &y, float &z, float &ori) const { m_homePosition.GetPosition(x, y, z, ori); }
-        Position GetHomePosition() const { return m_homePosition; }
+        const Position& GetHomePosition() const { return m_homePosition; }
 
         void SetTransportHomePosition(float x, float y, float z, float o) { m_transportHomePosition.Relocate(x, y, z, o); }
         void SetTransportHomePosition(const Position &pos) { m_transportHomePosition.Relocate(pos); }
         void GetTransportHomePosition(float &x, float &y, float &z, float &ori) { m_transportHomePosition.GetPosition(x, y, z, ori); }
-        Position GetTransportHomePosition() { return m_transportHomePosition; }
+        const Position& GetTransportHomePosition() { return m_transportHomePosition; }
 
         uint32 GetWaypointPath(){return m_path_id;}
         void LoadPath(uint32 pathid) { m_path_id = pathid; }
@@ -656,7 +678,7 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         bool m_isTempWorldObject; //true when possessed
 
         // Handling caster facing during spellcast
-        void SetTarget(uint64 guid);
+        void SetTarget(uint64 guid) OVERRIDE;
         void FocusTarget(Spell const* focusSpell, WorldObject const* target);
         void ReleaseFocus(Spell const* focusSpell);
 
@@ -707,8 +729,8 @@ class Creature : public Unit, public GridObject<Creature>, public MapObject
         uint16 m_LootMode;                                  // Bitmask (default: LOOT_MODE_DEFAULT) that determines what loot will be lootable
         uint32 guid_transport;
 
-        bool IsInvisibleDueToDespawn() const;
-        bool CanAlwaysSee(WorldObject const* obj) const;
+        bool IsInvisibleDueToDespawn() const OVERRIDE;
+        bool CanAlwaysSee(WorldObject const* obj) const OVERRIDE;
     private:
         void ForcedDespawn(uint32 timeMSToDespawn = 0);
 
@@ -728,7 +750,7 @@ class AssistDelayEvent : public BasicEvent
     public:
         AssistDelayEvent(uint64 victim, Unit& owner) : BasicEvent(), m_victim(victim), m_owner(owner) { }
 
-        bool Execute(uint64 e_time, uint32 p_time);
+        bool Execute(uint64 e_time, uint32 p_time) OVERRIDE;
         void AddAssistant(uint64 guid) { m_assistants.push_back(guid); }
     private:
         AssistDelayEvent();
@@ -742,7 +764,7 @@ class ForcedDespawnDelayEvent : public BasicEvent
 {
     public:
         ForcedDespawnDelayEvent(Creature& owner) : BasicEvent(), m_owner(owner) { }
-        bool Execute(uint64 e_time, uint32 p_time);
+        bool Execute(uint64 e_time, uint32 p_time) OVERRIDE;
 
     private:
         Creature& m_owner;

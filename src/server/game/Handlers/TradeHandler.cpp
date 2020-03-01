@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -75,12 +75,12 @@ void WorldSession::SendTradeStatus(TradeStatus status)
 
 void WorldSession::HandleIgnoreTradeOpcode(WorldPacket& /*recvPacket*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Ignore Trade %u", _player->GetGUIDLow());
+    SF_LOG_DEBUG("network", "WORLD: Ignore Trade %u", _player->GetGUIDLow());
 }
 
 void WorldSession::HandleBusyTradeOpcode(WorldPacket& /*recvPacket*/)
 {
-    TC_LOG_DEBUG("network", "WORLD: Busy Trade %u", _player->GetGUIDLow());
+    SF_LOG_DEBUG("network", "WORLD: Busy Trade %u", _player->GetGUIDLow());
 }
 
 void WorldSession::SendUpdateTrade(bool trader_data /*= true*/)
@@ -212,7 +212,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (myItems[i])
             {
                 // logging
-                TC_LOG_DEBUG("network", "partner storing: %u", myItems[i]->GetGUIDLow());
+                SF_LOG_DEBUG("network", "partner storing: %u", myItems[i]->GetGUIDLow());
                 if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
                 {
                     sLog->outCommand(_player->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
@@ -230,7 +230,7 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (hisItems[i])
             {
                 // logging
-                TC_LOG_DEBUG("network", "player storing: %u", hisItems[i]->GetGUIDLow());
+                SF_LOG_DEBUG("network", "player storing: %u", hisItems[i]->GetGUIDLow());
                 if (HasPermission(rbac::RBAC_PERM_LOG_GM_TRADE))
                 {
                     sLog->outCommand(trader->GetSession()->GetAccountId(), "GM %s (Account: %u) trade: %s (Entry: %d Count: %u) to player: %s (Account: %u)",
@@ -253,21 +253,21 @@ void WorldSession::moveItems(Item* myItems[], Item* hisItems[])
             if (myItems[i])
             {
                 if (!traderCanTrade)
-                    TC_LOG_ERROR("network", "trader can't store item: %u", myItems[i]->GetGUIDLow());
+                    SF_LOG_ERROR("network", "trader can't store item: %u", myItems[i]->GetGUIDLow());
                 if (_player->CanStoreItem(NULL_BAG, NULL_SLOT, playerDst, myItems[i], false) == EQUIP_ERR_OK)
                     _player->MoveItemToInventory(playerDst, myItems[i], true, true);
                 else
-                    TC_LOG_ERROR("network", "player can't take item back: %u", myItems[i]->GetGUIDLow());
+                    SF_LOG_ERROR("network", "player can't take item back: %u", myItems[i]->GetGUIDLow());
             }
             // return the already removed items to the original owner
             if (hisItems[i])
             {
                 if (!playerCanTrade)
-                    TC_LOG_ERROR("network", "player can't store item: %u", hisItems[i]->GetGUIDLow());
+                    SF_LOG_ERROR("network", "player can't store item: %u", hisItems[i]->GetGUIDLow());
                 if (trader->CanStoreItem(NULL_BAG, NULL_SLOT, traderDst, hisItems[i], false) == EQUIP_ERR_OK)
                     trader->MoveItemToInventory(traderDst, hisItems[i], true, true);
                 else
-                    TC_LOG_ERROR("network", "trader can't take item back: %u", hisItems[i]->GetGUIDLow());
+                    SF_LOG_ERROR("network", "trader can't take item back: %u", hisItems[i]->GetGUIDLow());
             }
         }
     }
@@ -285,7 +285,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
     {
         if (Item* item = myTrade->GetItem(TradeSlots(i)))
         {
-            TC_LOG_DEBUG("network", "player trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
+            SF_LOG_DEBUG("network", "player trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
             //Can return NULL
             myItems[i] = item;
             myItems[i]->SetInTrade();
@@ -293,7 +293,7 @@ static void setAcceptTradeMode(TradeData* myTrade, TradeData* hisTrade, Item* *m
 
         if (Item* item = hisTrade->GetItem(TradeSlots(i)))
         {
-            TC_LOG_DEBUG("network", "partner trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
+            SF_LOG_DEBUG("network", "partner trade item %u bag: %u slot: %u", item->GetGUIDLow(), item->GetBagSlot(), item->GetSlot());
             hisItems[i] = item;
             hisItems[i]->SetInTrade();
         }
@@ -670,9 +670,9 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (GetPlayer()->getLevel() < sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ))
+    if (GetPlayer()->getLevel() < sWorld->getIntConfig(WorldIntConfigs::CONFIG_TRADE_LEVEL_REQ))
     {
-        SendNotification(GetTrinityString(LANG_TRADE_REQ), sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ));
+        SendNotification(GetSkyFireString(LANG_TRADE_REQ), sWorld->getIntConfig(WorldIntConfigs::CONFIG_TRADE_LEVEL_REQ));
         return;
     }
 
@@ -720,7 +720,7 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (!sWorld->getBoolConfig(CONFIG_ALLOW_TWO_SIDE_TRADE) && pOther->GetTeam() !=_player->GetTeam())
+    if (!sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_ALLOW_TWO_SIDE_TRADE) && pOther->GetTeam() !=_player->GetTeam())
     {
         SendTradeStatus(TRADE_STATUS_WRONG_FACTION);
         return;
@@ -732,9 +732,9 @@ void WorldSession::HandleInitiateTradeOpcode(WorldPacket& recvPacket)
         return;
     }
 
-    if (pOther->getLevel() < sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ))
+    if (pOther->getLevel() < sWorld->getIntConfig(WorldIntConfigs::CONFIG_TRADE_LEVEL_REQ))
     {
-        SendNotification(GetTrinityString(LANG_TRADE_OTHER_REQ), sWorld->getIntConfig(CONFIG_TRADE_LEVEL_REQ));
+        SendNotification(GetSkyFireString(LANG_TRADE_OTHER_REQ), sWorld->getIntConfig(WorldIntConfigs::CONFIG_TRADE_LEVEL_REQ));
         return;
     }
 

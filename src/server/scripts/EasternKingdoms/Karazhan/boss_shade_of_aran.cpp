@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  * Copyright (C) 2006-2014 ScriptDev2 <https://github.com/scriptdev2/scriptdev2/>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -197,7 +197,7 @@ public:
             {
                 Unit* target = Unit::GetUnit(*me, (*itr)->getUnitGuid());
                 //only on alive players
-                if (target && target->IsAlive() && target->GetTypeId() == TYPEID_PLAYER)
+                if (target && target->IsAlive() && target->GetTypeId() == TypeID::TYPEID_PLAYER)
                     targets.push_back(target);
             }
 
@@ -407,7 +407,7 @@ public:
                     case SUPER_BLIZZARD:
                         Talk(SAY_BLIZZARD);
 
-                        if (Creature* pSpawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 25000))
+                        if (Creature* pSpawn = me->SummonCreature(CREATURE_ARAN_BLIZZARD, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 25000))
                         {
                             pSpawn->setFaction(me->getFaction());
                             pSpawn->CastSpell(pSpawn, SPELL_CIRCULAR_BLIZZARD, false);
@@ -424,7 +424,7 @@ public:
 
                 for (uint32 i = 0; i < 4; ++i)
                 {
-                    if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 90000))
+                    if (Creature* unit = me->SummonCreature(CREATURE_WATER_ELEMENTAL, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN, 90000))
                     {
                         unit->Attack(me->GetVictim(), true);
                         unit->setFaction(me->getFaction());
@@ -438,7 +438,7 @@ public:
             {
                 for (uint32 i = 0; i < 5; ++i)
                 {
-                    if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
+                    if (Creature* unit = me->SummonCreature(CREATURE_SHADOW_OF_ARAN, 0.0f, 0.0f, 0.0f, 0.0f, TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 5000))
                     {
                         unit->Attack(me->GetVictim(), true);
                         unit->setFaction(me->getFaction());

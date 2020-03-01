@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,7 +27,7 @@
 #include <string>
 
 // Values assigned have their equivalent in enum ACE_Log_Priority
-enum LogLevel
+enum class LogLevel
 {
     LOG_LEVEL_DISABLED                           = 0,
     LOG_LEVEL_TRACE                              = 1,
@@ -40,7 +40,7 @@ enum LogLevel
 
 const uint8 MaxLogLevels = 6;
 
-enum AppenderType
+enum class AppenderType
 {
     APPENDER_NONE,
     APPENDER_CONSOLE,
@@ -77,14 +77,14 @@ struct LogMessage
     ///@ Returns size of the log message content in bytes
     uint32 Size() const
     {
-        return prefix.size() + text.size();
+        return static_cast<uint32>(prefix.size() + text.size());
     }
 };
 
 class Appender
 {
     public:
-        Appender(uint8 _id, std::string const& name, AppenderType type = APPENDER_NONE, LogLevel level = LOG_LEVEL_DISABLED, AppenderFlags flags = APPENDER_FLAGS_NONE);
+        Appender(uint8 _id, std::string const& name, AppenderType type = AppenderType::APPENDER_NONE, LogLevel level = LogLevel::LOG_LEVEL_DISABLED, AppenderFlags flags = APPENDER_FLAGS_NONE);
         virtual ~Appender();
 
         uint8 getId() const;
@@ -103,7 +103,7 @@ class Appender
         uint8 id;
         std::string name;
         AppenderType type;
-        LogLevel level;
+        LogLevel level = LogLevel::LOG_LEVEL_DISABLED;
         AppenderFlags flags;
 };
 

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2015 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2015 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2015 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
+ * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,9 +21,10 @@
 #define SF_ACCMGR_H
 
 #include "RBAC.h"
+#include "Common.h"
 #include <ace/Singleton.h>
 
-enum AccountOpResult
+enum class AccountOpResult
 {
     AOR_OK,
     AOR_NAME_TOO_LONG,
@@ -69,17 +70,17 @@ class AccountMgr
         static bool CheckEmail(uint32 accountId, std::string newEmail);
 
         static uint32 GetId(std::string const& username);
-        static uint32 GetSecurity(uint32 accountId);
-        static uint32 GetSecurity(uint32 accountId, int32 realmId);
+        static AccountTypes GetSecurity(uint32 accountId);
+        static AccountTypes GetSecurity(uint32 accountId, int32 realmId);
         static bool GetName(uint32 accountId, std::string& name);
         static bool GetEmail(uint32 accountId, std::string& email);
         static uint32 GetCharactersCount(uint32 accountId);
 
         static std::string CalculateShaPassHash(std::string const& name, std::string const& password);
         static bool normalizeString(std::string& utf8String);
-        static bool IsPlayerAccount(uint32 gmlevel);
-        static bool IsAdminAccount(uint32 gmlevel);
-        static bool IsConsoleAccount(uint32 gmlevel);
+        static bool IsPlayerAccount(AccountTypes gmlevel);
+        static bool IsAdminAccount(AccountTypes gmlevel);
+        static bool IsConsoleAccount(AccountTypes gmlevel);
         static bool HasPermission(uint32 accountId, uint32 permission, uint32 realmId);
 
         void UpdateAccountAccess(rbac::RBACData* rbac, uint32 accountId, uint8 securityLevel, int32 realmId);
