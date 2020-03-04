@@ -670,7 +670,7 @@ enum QuestSlotStateMask
     QUEST_STATE_FAIL     = 0x0002
 };
 
-enum SkillUpdateState
+enum class SkillUpdateState
 {
     SKILL_UNCHANGED = 0,
     SKILL_CHANGED   = 1,
@@ -2378,7 +2378,7 @@ class Player : public Unit, public GridObject<Player>
     void SendDeclineGuildInvitation(std::string declinerName, bool autoDecline = false);
     static void RemovePetitionsAndSigns(uint64 guid, uint32 type);
 
-    uint32 GetArenaPersonalRating(uint8 slot) const
+    uint32 GetArenaPersonalRating(uint8 /*slot*/) const
     {
         return 0;
     }

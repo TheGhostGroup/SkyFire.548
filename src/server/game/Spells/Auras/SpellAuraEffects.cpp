@@ -3941,7 +3941,7 @@ void AuraEffect::HandleAuraModBlockPercent(AuraApplication const* aurApp, uint8 
     target->ToPlayer()->UpdateBlockPercentage();
 }
 
-void AuraEffect::HandleAuraModRegenInterrupt(AuraApplication const* aurApp, uint8 mode, bool apply) const
+void AuraEffect::HandleAuraModRegenInterrupt(AuraApplication const* aurApp, uint8 mode, bool /*apply*/) const
 {
     if (!(mode & (AURA_EFFECT_HANDLE_CHANGE_AMOUNT_MASK | AURA_EFFECT_HANDLE_STAT)))
         return;
@@ -4533,11 +4533,11 @@ void AuraEffect::HandleAuraDummy(AuraApplication const* aurApp, uint8 mode, bool
                     if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
                         if (Unit* spellTarget = ObjectAccessor::GetUnit(*target, target->ToPlayer()->GetComboTarget()))
                             target->CastSpell(spellTarget, 51699, true);
-                   break;
+                    break;
                 case 71563:
                     if (Aura* newAura = target->AddAura(71564, target))
                         newAura->SetStackAmount(newAura->GetSpellInfo()->StackAmount);
-                        break;
+                    break;
             }
         }
         // AT REMOVE
@@ -4830,7 +4830,6 @@ void AuraEffect::HandleChannelDeathItem(AuraApplication const* aurApp, uint8 mod
         return;
 
     Player* plCaster = caster->ToPlayer();
-    Unit* target = aurApp->GetTarget();
 
     // Item amount
     if (GetAmount() <= 0)

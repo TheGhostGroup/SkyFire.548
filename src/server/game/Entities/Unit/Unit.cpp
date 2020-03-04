@@ -225,8 +225,8 @@ m_HostileRefManager(this), _lastDamagedTime(0)
     uint8 maxAttackType = uint8(WeaponAttackType::MAX_ATTACK);
     for (uint8 i = 0; i < maxAttackType; ++i)
     {
-        m_weaponDamage [i] [MINDAMAGE] = BASE_MINDAMAGE;
-        m_weaponDamage [i] [MAXDAMAGE] = BASE_MAXDAMAGE;
+        m_weaponDamage [i] [uint8(WeaponDamageRange::MINDAMAGE)] = BASE_MINDAMAGE;
+        m_weaponDamage [i] [uint8(WeaponDamageRange::MAXDAMAGE)] = BASE_MAXDAMAGE;
     }
 
     for (uint8 i = 0; i < MAX_STATS; ++i)
@@ -5029,7 +5029,6 @@ void Unit::SendAttackStateUpdate(CalcDamageInfo* damageInfo)
 
     ObjectGuid guid = GetGUID();
     uint32 count = 1;
-    uint32 counter = 0;
     size_t maxsize = 4 + 5 + 5 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 + 1 + 4 + 4 + 4 + 4 + 4 * 12;
     WorldPacket data(SMSG_ATTACKER_STATE_UPDATE, maxsize);    // we guess size
 
@@ -5320,9 +5319,11 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 }
                 // Twisted Reflection (boss spell)
                 case 21063:
+                {
                     triggered_spell_id = 21064;
                     break;
-                    // Vampiric Aura (boss spell)
+                }
+                // Vampiric Aura (boss spell)
                 case 38196:
                 {
                     basepoints0 = 3 * damage;               // 300%
@@ -5497,18 +5498,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     }
                     return false;
                 }
-                // Kill command
-                case 58914:
-                {
-                    // Remove aura stack from pet
-                    RemoveAuraFromStack(58914);
-                    Unit* owner = GetOwner();
-                    if (!owner)
-                        return true;
-                    // reduce the owner's aura stack
-                    owner->RemoveAuraFromStack(34027);
-                    return true;
-                }
                 // Vampiric Touch (generic, used by some boss)
                 case 52723:
                 case 60501:
@@ -5526,18 +5515,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         return false;
                     // Glyph of Shadowfiend (need cast as self cast for owner, no hidden cooldown)
                     owner->CastSpell(owner, 58227, true, castItem, triggeredByAura);
-                    return true;
-                }
-                // Divine purpose
-                case 31871:
-                case 31872:
-                {
-                    // Roll chane
-                    if (!victim || !victim->IsAlive() || !roll_chance_i(triggerAmount))
-                        return false;
-
-                    // Remove any stun effect on target
-                    victim->RemoveAurasWithMechanic(1 << MECHANIC_STUN, AURA_REMOVE_BY_ENEMY_SPELL);
                     return true;
                 }
                 // Purified Shard of the Scale - Onyxia 10 Caster Trinket
@@ -5711,6 +5688,7 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 triggered_spell_id = 37436;
                 break;
             }
+            break;
         }
         case SPELLFAMILY_WARLOCK:
         {
@@ -5855,37 +5833,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
         {
             switch (dummySpell->Id)
             {
-                // Glyph of Bloodletting
-                case 54815:
-                {
-                    if (!target)
-                        return false;
-
-                    // try to find spell Rip on the target
-                    if (AuraEffect const* AurEff = target->GetAuraEffect(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_DRUID, 0x00800000, 0x0, 0x0, GetGUID()))
-                    {
-                        // Rip's max duration, note: spells which modifies Rip's duration also counted
-                        uint32 CountMin = AurEff->GetBase()->GetMaxDuration();
-
-                        // just Rip's max duration without other spells
-                        uint32 CountMax = AurEff->GetSpellInfo()->GetMaxDuration();
-
-                        // add possible auras' and Glyph of Shred's max duration
-                        CountMax += 3 * triggerAmount * IN_MILLISECONDS;      // Glyph of Bloodletting        -> +6 seconds
-                        CountMax += HasAura(60141) ? 4 * IN_MILLISECONDS : 0; // Rip Duration/Lacerate Damage -> +4 seconds
-
-                        // if min < max -> that means caster didn't cast 3 shred yet
-                        // so set Rip's duration and max duration
-                        if (CountMin < CountMax)
-                        {
-                            AurEff->GetBase()->SetDuration(AurEff->GetBase()->GetDuration() + triggerAmount * IN_MILLISECONDS);
-                            AurEff->GetBase()->SetMaxDuration(CountMin + triggerAmount * IN_MILLISECONDS);
-                            return true;
-                        }
-                    }
-                    // if not found Rip
-                    return false;
-                }
                 // Leader of the Pack
                 case 24932:
                 {
@@ -5906,13 +5853,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                     basepoints0 = int32(CalculatePct(procSpell->ManaCost, 30));
                     target = this;
                     triggered_spell_id = 28742;
-                    break;
-                }
-                // Healing Touch Refund (Idol of Longevity trinket)
-                case 28847:
-                {
-                    target = this;
-                    triggered_spell_id = 28848;
                     break;
                 }
                 // Mana Restore (Malorne Raiment set / Malorne Regalia set)
@@ -6001,23 +5941,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
             }
             switch (dummySpell->Id)
             {
-                // Sacred Shield
-                case 53601:
-                {
-                    if (procFlag & PROC_FLAG_TAKEN_SPELL_MAGIC_DMG_CLASS_POS)
-                        return false;
-
-                    if (damage > 0)
-                        triggered_spell_id = 58597;
-
-                    // Item - Paladin T8 Holy 4P Bonus
-                    if (Unit* caster = triggeredByAura->GetCaster())
-                        if (AuraEffect const* aurEff = caster->GetAuraEffect(64895, 0))
-                            cooldown = aurEff->GetAmount();
-
-                    target = this;
-                    break;
-                }
                 // Holy Power (Redemption Armor set)
                 case 28789:
                 {
@@ -6216,13 +6139,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                         default:
                             return false;
                     }
-                    break;
-                }
-                // Lesser Healing Wave (Totem of Flowing Water Relic)
-                case 28849:
-                {
-                    target = this;
-                    triggered_spell_id = 28850;
                     break;
                 }
                 // Windfury Weapon (Passive) 1-8 Ranks
@@ -6583,30 +6499,6 @@ bool Unit::HandleDummyAuraProc(Unit* victim, uint32 damage, AuraEffect* triggere
                 triggered_spell_id = 61258;
                 target = this;
                 break;
-            }
-            break;
-        }
-        case SPELLFAMILY_PET:
-        {
-            switch (dummySpell->SpellIconID)
-            {
-                // Guard Dog
-                case 201:
-                {
-                    if (!victim)
-                        return false;
-
-                    triggered_spell_id = 54445;
-                    target = this;
-                    float addThreat = float(CalculatePct(procSpell->Effects [0].CalcValue(this), triggerAmount));
-                    victim->AddThreat(this, addThreat);
-                    break;
-                }
-                // Silverback
-                case 1582:
-                    triggered_spell_id = dummySpell->Id == 62765 ? 62801 : 62800;
-                    target = this;
-                    break;
             }
             break;
         }
@@ -11796,7 +11688,7 @@ float Unit::GetWeaponDamageRange(WeaponAttackType attType, WeaponDamageRange typ
     if (attType == WeaponAttackType::OFF_ATTACK && !haveOffhandWeapon())
         return 0.0f;
 
-    return m_weaponDamage[uint8(attType)][type];
+    return m_weaponDamage[uint8(attType)][uint8(type)];
 }
 
 bool Unit::CanFreeMove() const
@@ -12187,7 +12079,7 @@ void Unit::DeleteCharmInfo()
 
 CharmInfo::CharmInfo(Unit* unit)
     : _unit(unit), _CommandState(COMMAND_FOLLOW), _petnumber(0), _barInit(false),
-    _isCommandAttack(false), _isAtStay(false), _isFollowing(false), _isReturning(false),
+    _isCommandAttack(false), _isCommandFollow(false), _isAtStay(false), _isFollowing(false), _isReturning(false),
     _stayX(0.0f), _stayY(0.0f), _stayZ(0.0f)
 {
     for (uint8 i = 0; i < MAX_SPELL_CHARM; ++i)
@@ -16218,9 +16110,6 @@ void Unit::SendTeleportPacket(Position& pos)
 
     if (GetTypeId() == TypeID::TYPEID_UNIT)
         Relocate(&pos); // Relocate the unit to its new position in order to build the packets correctly.
-
-    ObjectGuid guid = GetGUID();
-    ObjectGuid transGuid = GetTransGUID();
 
     WorldPacket data(SMSG_MOVE_UPDATE_TELEPORT, 38);
     WriteMovementInfo(data);

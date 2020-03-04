@@ -295,7 +295,7 @@ void WorldSession::HandleWhoOpcode(WorldPacket& recvData)
         levelMax = STRONG_MAX_LEVEL;
 
     uint32 team = _player->GetTeam();
-    AccountTypes security = GetSecurity();
+
     //bool allowTwoSideWhoList = sWorld->GetBoolConfig(CONFIG_ALLOW_TWO_SIDE_WHO_LIST);
     uint32 gmLevelInWhoList  = sWorld->getIntConfig(WorldIntConfigs::CONFIG_GM_LEVEL_IN_WHO_LIST);
     uint8 displaycount = 0, matchcount = 0;
@@ -960,7 +960,7 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket& recvData)
         return;
 
     // prevent resurrect before 30-sec delay after body release not finished
-    if (time_t(corpse->GetGhostTime() + GetPlayer()->GetCorpseReclaimDelay(corpse->GetType() == CORPSE_RESURRECTABLE_PVP)) > time_t(time(NULL)))
+    if (time_t(corpse->GetGhostTime() + GetPlayer()->GetCorpseReclaimDelay(corpse->GetType() == CorpseType::CORPSE_RESURRECTABLE_PVP)) > time_t(time(NULL)))
         return;
 
     if (!corpse->IsWithinDistInMap(GetPlayer(), CORPSE_RECLAIM_RADIUS, true))
