@@ -1422,7 +1422,7 @@ class spell_gen_dungeon_credit : public SpellScriptLoader
                 _handled = true;
                 Unit* caster = GetCaster();
                 if (InstanceScript* instance = caster->GetInstanceScript())
-                    instance->UpdateEncounterState(ENCOUNTER_CREDIT_CAST_SPELL, GetSpellInfo()->Id, caster);
+                    instance->UpdateEncounterState(EncounterCreditType::ENCOUNTER_CREDIT_CAST_SPELL, GetSpellInfo()->Id, caster);
             }
 
             void Register() OVERRIDE
@@ -3552,7 +3552,7 @@ class spell_gen_override_display_power : public SpellScriptLoader
                     target->SetUInt32Value(UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID, aurEff->GetMiscValue());
             }
 
-            void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+            void OnRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
             {
                 if (Unit* target = GetTarget())
                     target->SetUInt32Value(UNIT_FIELD_OVERRIDE_DISPLAY_POWER_ID, 0);
