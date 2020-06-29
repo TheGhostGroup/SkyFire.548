@@ -98,7 +98,7 @@ struct AccountData
     std::string Data;
 };
 
-enum PartyOperation
+enum class PartyOperation
 {
     PARTY_OP_INVITE = 0,
     PARTY_OP_UNINVITE = 1,
@@ -466,7 +466,6 @@ class WorldSession
         z_stream_s* GetCompressionStream() { return _compressionStream; }
 
     public:                                                 // opcodes handlers
-
         void Handle_NULL(WorldPacket& recvPacket);          // not used
         void Handle_EarlyProccess(WorldPacket& recvPacket); // just mark packets processed in WorldSocket::OnRead
 		void Handle_EarlyProccessContinued(WorldPacket& recvPacket); //Found in sniffs

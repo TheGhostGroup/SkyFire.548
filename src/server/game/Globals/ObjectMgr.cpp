@@ -321,8 +321,8 @@ void ObjectMgr::LoadGraveyardOrientations()
             continue;
         }
         _graveyardOrientations[id] = fields[1].GetFloat();
-
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     SF_LOG_INFO("server.loading", ">> Loaded %lu graveyard orientations in %u ms", (unsigned long)_graveyardOrientations.size(), GetMSTimeDiffToNow(oldMSTime));
 }
@@ -1576,8 +1576,8 @@ void ObjectMgr::LoadTempSummons()
         _tempSummonDataStore[key].push_back(data);
 
         ++count;
-
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     SF_LOG_INFO("server.loading", ">> Loaded %u temp summons in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -1726,8 +1726,8 @@ void ObjectMgr::LoadCreatures()
             AddCreatureToGrid(guid, &data);
 
         ++count;
-
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     SF_LOG_INFO("server.loading", ">> Loaded %u creatures in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -4741,7 +4741,6 @@ void ObjectMgr::LoadSpellScriptNames()
 
     do
     {
-
         Field* fields = result->Fetch();
 
         int32 spellId          = fields[0].GetInt32();
@@ -4882,7 +4881,6 @@ void ObjectMgr::LoadPageTexts()
             PageTextContainer::const_iterator itr2 = _pageTextStore.find(itr->second.NextPage);
             if (itr2 == _pageTextStore.end())
                 SF_LOG_ERROR("sql.sql", "Page text (Id: %u) has not existing next page (Id: %u)", itr->first, itr->second.NextPage);
-
         }
     }
 
@@ -5353,8 +5351,8 @@ void ObjectMgr::LoadQuestAreaTriggers()
         }
 
         _questAreaTriggerStore[trigger_ID] = quest_ID;
-
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     SF_LOG_INFO("server.loading", ">> Loaded %u quest trigger points in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -5876,8 +5874,8 @@ void ObjectMgr::LoadAreaTriggerTeleports()
         }
 
         _areaTriggerStore[Trigger_ID] = at;
-
-    } while (result->NextRow());
+    }
+    while (result->NextRow());
 
     SF_LOG_INFO("server.loading", ">> Loaded %u area trigger teleport definitions in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
@@ -8090,7 +8088,6 @@ void ObjectMgr::LoadVendors()
     QueryResult result = WorldDatabase.Query("SELECT entry, item, maxcount, incrtime, ExtendedCost, type FROM npc_vendor ORDER BY entry, slot ASC");
     if (!result)
     {
-
         SF_LOG_ERROR("server.loading", ">>  Loaded 0 Vendors. DB table `npc_vendor` is empty!");
         return;
     }

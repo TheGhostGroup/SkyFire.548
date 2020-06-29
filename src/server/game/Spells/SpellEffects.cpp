@@ -3336,7 +3336,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                             aurEff->GetBase()->SetDuration(uint32(aurEff->GetBase()->GetDuration() + 3000));
                             aurEff->GetBase()->SetMaxDuration(countMin + 2000);
                         }
-
                     }
                     return;
                 }
@@ -3696,7 +3695,6 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                 }
                 case 59317:                                 // Teleporting
                 {
-
                     if (!unitTarget || unitTarget->GetTypeId() != TypeID::TYPEID_PLAYER)
                         return;
 
