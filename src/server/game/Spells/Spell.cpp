@@ -583,7 +583,6 @@ m_spellValue(new SpellValue(m_spellInfo)), m_preGeneratedPath(PathGenerator(m_ca
     focusObject = NULL;
     m_cast_count = 0;
     m_glyphIndex = 0;
-    m_preCastSpell = 0;
     m_triggeredByAuraSpell  = NULL;
     m_spellAura = NULL;
 
@@ -2573,7 +2572,7 @@ void Spell::DoAllEffectOnTarget(TargetInfo* target)
 
     if (missInfo != SPELL_MISS_EVADE && !m_caster->IsFriendlyTo(unit) && (!m_spellInfo->IsPositive() || m_spellInfo->HasEffect(SPELL_EFFECT_DISPEL)))
     {
-        m_caster->CombatStart(unit, !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO));
+        m_caster->CombatStart(unit, !(m_spellInfo->AttributesEx & SPELL_ATTR1_NO_THREAT || m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO));
 
         if (m_spellInfo->AttributesCu & SPELL_ATTR0_CU_AURA_CC)
             if (!unit->IsStandState())
@@ -2664,7 +2663,7 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
                 if (m_caster->GetTypeId() == TypeID::TYPEID_PLAYER)
                     m_caster->ToPlayer()->UpdatePvP(true);
             }
-            if (unit->IsInCombat() && !(m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO))
+            if (unit->IsInCombat() && !(m_spellInfo->AttributesEx & SPELL_ATTR1_NO_THREAT || m_spellInfo->AttributesEx3 & SPELL_ATTR3_NO_INITIAL_AGGRO))
             {
                 m_caster->SetInCombatState(unit->GetCombatTimer() > 0, unit);
                 unit->getHostileRefManager().threatAssist(m_caster, 0.0f);
@@ -2797,29 +2796,6 @@ SpellMissInfo Spell::DoSpellHitOnUnit(Unit* unit, uint32 effectMask, bool scaleA
 
 void Spell::DoTriggersOnSpellHit(Unit* unit, uint32 effMask)
 {
-    // Apply additional spell effects to target
-    /// @todo move this code to scripts
-    if (m_preCastSpell)
-    {
-        // Paladin immunity shields
-        if (m_preCastSpell == 61988)
-        {
-            // Cast Forbearance
-            m_caster->CastSpell(unit, 25771, true);
-            // Cast Avenging Wrath Marker
-            unit->CastSpell(unit, 61987, true);
-        }
-
-        // Avenging Wrath
-        if (m_preCastSpell == 61987)
-            // Cast the serverside immunity shield marker
-            m_caster->CastSpell(unit, 61988, true);
-
-        if (sSpellMgr->GetSpellInfo(m_preCastSpell))
-            // Blizz seems to just apply aura without bothering to cast
-            m_caster->AddAura(m_preCastSpell, unit);
-    }
-
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras
     // this is executed after spell proc spells on target hit
     // spells are triggered for each hit spell target
@@ -4914,26 +4890,11 @@ void Spell::SendChannelUpdate(uint32 time)
 
     ObjectGuid CasterGUID = m_caster->GetGUID();
 
-    WorldPacket data(SMSG_SPELL_CHANNEL_UPDATE, 8+4);
-
-    data.WriteBit(CasterGUID[0]);
-    data.WriteBit(CasterGUID[3]);
-    data.WriteBit(CasterGUID[4]);
-    data.WriteBit(CasterGUID[1]);
-    data.WriteBit(CasterGUID[5]);
-    data.WriteBit(CasterGUID[2]);
-    data.WriteBit(CasterGUID[6]);
-    data.WriteBit(CasterGUID[7]);
-
-    data.WriteByteSeq(CasterGUID[4]);
-    data.WriteByteSeq(CasterGUID[7]);
-    data.WriteByteSeq(CasterGUID[1]);
-    data.WriteByteSeq(CasterGUID[2]);
-    data.WriteByteSeq(CasterGUID[6]);
-    data.WriteByteSeq(CasterGUID[5]);
+    WorldPacket data(SMSG_SPELL_CHANNEL_UPDATE, 8 + 4);
+    data.WriteGuidMask(CasterGUID, 0, 3, 4, 1, 5, 2, 6, 7);
+    data.WriteGuidBytes(CasterGUID, 4, 7, 1, 2, 6, 5);
     data << uint32(time);
-    data.WriteByteSeq(CasterGUID[0]);
-    data.WriteByteSeq(CasterGUID[3]);
+    data.WriteGuidBytes(CasterGUID, 0, 3);
     m_caster->SendMessageToSet(&data, true);
 }
 
@@ -7860,29 +7821,6 @@ bool Spell::CanExecuteTriggersOnHit(uint32 effMask, SpellInfo const* triggeredBy
 
 void Spell::PrepareTriggersExecutedOnHit()
 {
-    /// @todo move this to scripts
-    if (m_spellInfo->SpellFamilyName)
-    {
-        SpellInfo const* excludeCasterSpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->ExcludeCasterAuraSpell);
-        if (excludeCasterSpellInfo && !excludeCasterSpellInfo->IsPositive())
-            m_preCastSpell = m_spellInfo->ExcludeCasterAuraSpell;
-        SpellInfo const* excludeTargetSpellInfo = sSpellMgr->GetSpellInfo(m_spellInfo->ExcludeTargetAuraSpell);
-        if (excludeTargetSpellInfo && !excludeTargetSpellInfo->IsPositive())
-            m_preCastSpell = m_spellInfo->ExcludeTargetAuraSpell;
-    }
-
-    /// @todo move this to scripts
-    switch (m_spellInfo->SpellFamilyName)
-    {
-        case SPELLFAMILY_MAGE:
-        {
-             // Permafrost
-             if (m_spellInfo->SpellFamilyFlags[1] & 0x00001000 ||  m_spellInfo->SpellFamilyFlags[0] & 0x00100220)
-                 m_preCastSpell = 68391;
-             break;
-        }
-    }
-
     // handle SPELL_AURA_ADD_TARGET_TRIGGER auras:
     // save auras which were present on spell caster on cast, to prevent triggered auras from affecting caster
     // and to correctly calculate proc chance when combopoints are present
