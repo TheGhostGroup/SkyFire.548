@@ -118,6 +118,7 @@ public:
 
         void UpdateAI(uint32 diff) OVERRIDE
         {
+
             if (!enteredCombat)
             {
                 events.Update(diff);

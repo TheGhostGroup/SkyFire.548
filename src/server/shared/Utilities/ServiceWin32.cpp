@@ -115,6 +115,7 @@ bool WinServiceInstall()
                     &sfa);                                  // new data
 
                 CloseServiceHandle(service);
+
             }
         }
         CloseServiceHandle(serviceControlManager);

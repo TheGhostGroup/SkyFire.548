@@ -96,8 +96,8 @@ class MotionMaster //: private std::stack<MovementGenerator *>
 
         bool needInitTop() const { return _needInit[_top]; }
         void InitTop();
-
     public:
+
         explicit MotionMaster(Unit* unit) : _expList(NULL), _top(-1), _owner(unit), _cleanFlag(MMCF_NONE) { }
         ~MotionMaster();
 
@@ -177,7 +177,6 @@ class MotionMaster //: private std::stack<MovementGenerator *>
         void propagateSpeedChange();
 
         bool GetDestination(float &x, float &y, float &z);
-
     private:
         void Mutate(MovementGenerator *m, MovementSlot slot);                  // use Move* functions instead
 

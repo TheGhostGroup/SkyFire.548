@@ -81,6 +81,7 @@ public:
                 me->SummonCreature(spawnCreatureID, 0.0f, 0.0f, 0.0f, me->GetOrientation(), TempSummonType::TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000);
         }
     };
+
 };
 
 /*######
@@ -146,6 +147,7 @@ public:
 
         return true;
     }
+
 };
 
 /*######

@@ -31,6 +31,7 @@
 enum WarriorSpells
 {
     SPELL_WARRIOR_ALLOW_RAGING_BLOW                 = 131116,
+    SPELL_WARRIOR_BLOODTHIRST                       = 23885,
     SPELL_WARRIOR_BLOODTHIRST_DAMAGE                = 23881,
     SPELL_WARRIOR_BLOODTHIRST_HEAL                  = 117313,
     SPELL_WARRIOR_CHARGE                            = 34846,
@@ -87,8 +88,7 @@ public:
 
         bool Validate(SpellInfo const* /*SpellEntry*/) OVERRIDE
         {
-            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_BLOODTHIRST_DAMAGE) ||
-                !sSpellMgr->GetSpellInfo(SPELL_WARRIOR_BLOODTHIRST_HEAL))
+            if (!sSpellMgr->GetSpellInfo(SPELL_WARRIOR_BLOODTHIRST))
                 return false;
             return true;
         }
@@ -225,7 +225,7 @@ public:
                             _player->CastSpell(target, SPELL_WARRIOR_DEEP_WOUNDS, true);
 
                     // Item - Warrior T16 DPS 4P Bonus - 144441
-                    if (GetSpellInfo()->Id == SPELL_WARRIOR_MORTAL_STRIKE_AURA || GetSpellInfo()->Id == SPELL_WARRIOR_BLOODTHIRST_DAMAGE)
+                    if (GetSpellInfo()->Id == SPELL_WARRIOR_MORTAL_STRIKE_AURA || GetSpellInfo()->Id == SPELL_WARRIOR_BLOODTHIRST)
                         if (_player->HasAura(SPELL_WARRIOR_T16_DPS_4P_BONUS))
                             if (roll_chance_i(10))
                                 _player->CastSpell(_player, SPELL_WARRIOR_T16_DPS_4P_BONUS_PROC, true);

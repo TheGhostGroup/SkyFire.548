@@ -46,7 +46,11 @@ inline uint32 GetMSTimeDiffToNow(uint32 oldMSTime)
 struct IntervalTimer
 {
     public:
-        IntervalTimer() : _interval(0), _current(0) { }
+
+        IntervalTimer()
+            : _interval(0), _current(0)
+        {
+        }
 
         void Update(time_t diff)
         {
@@ -87,6 +91,7 @@ struct IntervalTimer
         }
 
     private:
+
         time_t _interval;
         time_t _current;
 };
@@ -94,7 +99,11 @@ struct IntervalTimer
 struct TimeTracker
 {
     public:
-        TimeTracker(time_t expiry) : i_expiryTime(expiry) { }
+
+        TimeTracker(time_t expiry)
+            : i_expiryTime(expiry)
+        {
+        }
 
         void Update(time_t diff)
         {
@@ -117,13 +126,18 @@ struct TimeTracker
         }
 
     private:
+
         time_t i_expiryTime;
 };
 
 struct TimeTrackerSmall
 {
     public:
-        TimeTrackerSmall(uint32 expiry = 0) : i_expiryTime(expiry) { }
+
+        TimeTrackerSmall(uint32 expiry = 0)
+            : i_expiryTime(expiry)
+        {
+        }
 
         void Update(int32 diff)
         {
@@ -146,13 +160,18 @@ struct TimeTrackerSmall
         }
 
     private:
+
         int32 i_expiryTime;
 };
 
 struct PeriodicTimer
 {
     public:
-        PeriodicTimer(int32 period, int32 start_time) : i_period(period), i_expireTime(start_time) { }
+
+        PeriodicTimer(int32 period, int32 start_time)
+            : i_period(period), i_expireTime(start_time)
+        {
+        }
 
         bool Update(const uint32 diff)
         {
@@ -175,6 +194,7 @@ struct PeriodicTimer
         void TReset(int32 diff, int32 period)  { i_expireTime += period > diff ? period : diff; }
 
     private:
+
         int32 i_period;
         int32 i_expireTime;
 };

@@ -101,6 +101,7 @@ public:
                     instance->SetData(DATA_DISTILLER, DONE);
         }
     };
+
 };
 
 class boss_warlord_kalithresh : public CreatureScript
