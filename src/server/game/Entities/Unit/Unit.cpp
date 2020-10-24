@@ -1428,16 +1428,47 @@ void Unit::DealMeleeDamage(CalcDamageInfo* damageInfo, bool durabilityLoss)
             // No Unit::CalcAbsorbResist here - opcode doesn't send that data - this damage is probably not affected by that
             victim->DealDamageMods(this, damage, NULL);
 
+            // defender guid
+            ObjectGuid defenderGUID = victim->GetGUID(); 
+            // attacker guid
+            ObjectGuid attackerGUID = GetGUID();
+
             /// @todo Move this to a packet handler
             WorldPacket data(SMSG_SPELLDAMAGESHIELD, 8 + 8 + 4 + 4 + 4 + 4 + 4);
-            data << uint64(victim->GetGUID());
-            data << uint64(GetGUID());
+            data.WriteGuidMask(attackerGUID, 1);
+            data.WriteGuidMask(defenderGUID, 2);
+            data.WriteBit(0); // hasSpellCastLogData //72 
+            data.WriteGuidMask(defenderGUID, 6);
+            data.WriteGuidMask(attackerGUID, 3);
+            data.WriteGuidMask(defenderGUID, 4);
+            data.WriteGuidMask(attackerGUID, 2, 5, 6);
+            data.WriteGuidMask(defenderGUID, 3);
+            data.WriteGuidMask(attackerGUID, 0);
+            data.WriteGuidMask(defenderGUID, 5, 1, 0);
+            data.WriteGuidMask(attackerGUID, 7, 4);
+            data.WriteGuidMask(defenderGUID, 7);
+
+            data.FlushBits();
+            //if72 {}
+            data.WriteGuidBytes(attackerGUID, 2);
+            data.WriteGuidBytes(defenderGUID, 6);
+            data.WriteGuidBytes(attackerGUID, 6, 4);
+            data.WriteGuidBytes(defenderGUID, 3);
+            data.WriteGuidBytes(attackerGUID, 7);
+            data << uint32(damageInfo->absorb);          // LogAbsorb
+            data.WriteGuidBytes(defenderGUID, 4);
+            data.WriteGuidBytes(attackerGUID, 1);
+            data << uint32(damage);                      // Damage
+            data.WriteGuidBytes(defenderGUID, 7);
             data << uint32(i_spellProto->Id);
-            data << uint32(damage);                  // Damage
             int32 overkill = int32(damage) - int32(GetHealth());
             data << uint32(overkill > 0 ? overkill : 0); // Overkill
+            data.WriteGuidBytes(attackerGUID, 5);
+            data.WriteGuidBytes(defenderGUID, 5);
+            data.WriteGuidBytes(attackerGUID, 0);
+            data.WriteGuidBytes(defenderGUID, 1, 0, 2);
             data << uint32(i_spellProto->SchoolMask);
-            data << uint32(0); // FIX ME: Send resisted damage, both fully resisted and partly resisted
+            data.WriteGuidBytes(attackerGUID, 3);
             victim->SendMessageToSet(&data, true);
 
             victim->DealDamage(this, damage, 0, SPELL_DIRECT_DAMAGE, i_spellProto->GetSchoolMask(), i_spellProto, true);
@@ -5015,11 +5046,30 @@ void Unit::SendSpellDamageResist(Unit* target, uint32 spellId)
 
 void Unit::SendSpellDamageImmune(Unit* target, uint32 spellId)
 {
+    ObjectGuid guid = GetGUID();
+    ObjectGuid targetGuid = target->GetGUID();
     WorldPacket data(SMSG_SPELLORDAMAGE_IMMUNE, 8 + 8 + 4 + 1);
-    data << uint64(GetGUID());
-    data << uint64(target->GetGUID());
+    data.WriteGuidMask(guid, 5, 0);
+    data.WriteGuidMask(targetGuid, 6);
+    data.WriteBit(0); // bool - log format: 0-default, 1-debug
+    data.WriteGuidMask(guid, 7);
+    data.WriteGuidMask(targetGuid, 5, 2);
+    data.WriteGuidMask(guid, 2, 1, 3);
+    data.WriteGuidMask(targetGuid, 4);
+    data.WriteGuidMask(guid, 4);
+    data.WriteGuidMask(targetGuid, 7);
+    data.WriteGuidMask(guid, 6);
+    data.WriteGuidMask(targetGuid, 3, 1, 0);
+    data.FlushBits();
+    data.WriteGuidBytes(targetGuid, 4, 3);
+    data.WriteGuidBytes(guid, 2);
+    data.WriteGuidBytes(targetGuid, 6, 5);
+    data.WriteGuidBytes(guid, 3);
+    data.WriteGuidBytes(targetGuid, 7, 2, 0);
+    data.WriteGuidBytes(guid, 7, 5, 0, 1, 4);
     data << uint32(spellId);
-    data << uint8(0); // bool - log format: 0-default, 1-debug
+    data.WriteGuidBytes(targetGuid, 1);
+    data.WriteGuidBytes(guid, 6);
     SendMessageToSet(&data, true);
 }
 
