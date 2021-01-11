@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
+ * Copyright (C) 2011-2021 Project SkyFire <https://www.projectskyfire.org/>
+ * Copyright (C) 2008-2021 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2021 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -94,7 +94,6 @@ struct AuctionEntry
     bool LoadFromFieldList(Field* fields);
     std::string BuildAuctionMailSubject(MailAuctionAnswers response) const;
     static std::string BuildAuctionMailBody(uint32 lowGuid, uint32 bid, uint32 buyout, uint32 deposit, uint32 cut);
-
 };
 
 //this class is used as auctionhouse instance
@@ -146,7 +145,6 @@ class AuctionHouseMgr
         ~AuctionHouseMgr();
 
     public:
-
         typedef UNORDERED_MAP<uint32, Item*> ItemMap;
 
         AuctionHouseObject* GetAuctionsMap(uint32 factionTemplateId);
@@ -173,7 +171,6 @@ class AuctionHouseMgr
         static AuctionHouseEntry const* GetAuctionHouseEntry(uint32 factionTemplateId);
 
     public:
-
         // Used primarily at server start to avoid loading a list of expired auctions
         void DeleteExpiredAuctionsAtStartup();
 
@@ -187,7 +184,6 @@ class AuctionHouseMgr
         void Update();
 
     private:
-
         AuctionHouseObject mHordeAuctions;
         AuctionHouseObject mAllianceAuctions;
         AuctionHouseObject mNeutralAuctions;

@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2011-2020 Project SkyFire <http://www.projectskyfire.org/>
- * Copyright (C) 2008-2020 TrinityCore <http://www.trinitycore.org/>
- * Copyright (C) 2005-2020 MaNGOS <https://www.getmangos.eu/>
+ * Copyright (C) 2011-2021 Project SkyFire <https://www.projectskyfire.org/>
+ * Copyright (C) 2008-2021 TrinityCore <http://www.trinitycore.org/>
+ * Copyright (C) 2005-2021 MaNGOS <https://www.getmangos.eu/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,14 +74,14 @@ bool AreaTrigger::CreateAreaTrigger(uint32 guidlow, uint32 triggerEntry, Unit* c
 
     SetEntry(triggerEntry);
     SetDuration(spell->GetDuration());
-    SetObjectScale(1);
 
-    SetUInt32Value(DYNAMICOBJECT_FIELD_SPELL_ID, spell->Id);
-    SetUInt32Value(DYNAMICOBJECT_FIELD_TYPE_AND_VISUAL_ID, spell->SpellVisual[0]);
+    SetObjectScale(1.0f);
+
+    SetUInt64Value(AREATRIGGER_FIELD_CASTER, caster->GetGUID());
     SetUInt32Value(AREATRIGGER_FIELD_DURATION, spell->GetDuration());
-    //SetFloatValue(AREATRIGGER_FINAL_POS + 0, pos.GetPositionX());
-    //SetFloatValue(AREATRIGGER_FINAL_POS + 1, pos.GetPositionY());
-    //SetFloatValue(AREATRIGGER_FINAL_POS + 2, pos.GetPositionZ());
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_ID, spell->Id);
+    SetUInt32Value(AREATRIGGER_FIELD_SPELL_VISUAL_ID, spell->SpellVisual[0]);
+    //AREATRIGGER_FIELD_EXPLICIT_SCALE // NYI
 
     if (!GetMap()->AddToMap(this))
         return false;
