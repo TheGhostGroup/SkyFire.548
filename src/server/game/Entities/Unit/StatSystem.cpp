@@ -120,7 +120,7 @@ bool Player::UpdateStats(Stats stat)
 void Player::UpdatePvpPower()
 {
     float precision = 100.0f;
-    float value = GetRatingBonusValue(CR_PVP_POWER);
+    float value = GetRatingBonusValue(CombatRating::CR_PVP_POWER);
     value += GetTotalAuraModifier(SPELL_AURA_MOD_RATING);
 
     float pvpHealing = value / precision;
@@ -200,7 +200,7 @@ bool Player::UpdateAllStats()
     UpdateManaRegen();
     UpdateExpertise(WeaponAttackType::BASE_ATTACK);
     UpdateExpertise(WeaponAttackType::OFF_ATTACK);
-    RecalculateRating(CR_ARMOR_PENETRATION);
+    RecalculateRating(CombatRating::CR_ARMOR_PENETRATION);
     for (int i = SPELL_SCHOOL_NORMAL; i < MAX_SPELL_SCHOOL; ++i)
         UpdateResistances(i);
 
@@ -262,10 +262,27 @@ float Player::GetHealthBonusFromStamina()
 
     return baseStam + moreStam * ratio;
 }
-
-float Player::GetManaBonusFromIntellect()
+void Player::UpdateTalentSpecializationManaBonus()
 {
-    return 0;
+    if (getPowerType() == POWER_MANA)
+    {
+        UpdateMaxPower(POWER_MANA);                         // Update max Mana (to add/reset bonus from specialization)
+    }
+}
+
+float Player::GetManaSpecializationMultiplier()
+{
+    switch (GetTalentSpecialization(GetActiveSpec()))
+    {
+        case SPEC_PALADIN_HOLY:
+        case SPEC_SHAMAN_ELEMENTAL:
+        case SPEC_SHAMAN_RESTORATION:
+        case SPEC_DRUID_BALANCE:
+        case SPEC_DRUID_RESTORATION:
+            return 5.0f;
+        break;
+    }
+    return 0.0f;
 }
 
 void Player::UpdateMaxHealth()
@@ -284,11 +301,11 @@ void Player::UpdateMaxPower(Powers power)
 {
     UnitMods unitMod = UnitMods(UNIT_MOD_POWER_START + power);
 
-    float bonusPower = (power == POWER_MANA && GetCreatePowers(power) > 0) ? GetManaBonusFromIntellect() : 0;
+    float bonusPower = (power == POWER_MANA && GetCreatePowers(power) > 0) ? GetManaSpecializationMultiplier() : 0;
 
-    float value = GetModifierValue(unitMod, BASE_VALUE) + GetCreatePowers(power);
+    float value = GetModifierValue(unitMod, BASE_VALUE) + (GetCreatePowers(power) * (bonusPower > 0 ? bonusPower : 1));
     value *= GetModifierValue(unitMod, BASE_PCT);
-    value += GetModifierValue(unitMod, TOTAL_VALUE) +  bonusPower;
+    value += GetModifierValue(unitMod, TOTAL_VALUE);
     value *= GetModifierValue(unitMod, TOTAL_PCT);
 
     SetMaxPower(power, uint32(value));
@@ -479,7 +496,7 @@ void Player::UpdateBlockPercentage()
         // Increase from SPELL_AURA_MOD_BLOCK_PERCENT aura
         value += GetTotalAuraModifier(SPELL_AURA_MOD_BLOCK_PERCENT);
         // Increase from rating
-        value += GetRatingBonusValue(CR_BLOCK);
+        value += GetRatingBonusValue(CombatRating::CR_BLOCK);
 
         if (sWorld->GetBoolConfig(WorldBoolConfigs::CONFIG_STATS_LIMITS_ENABLE))
              value = value > sWorld->GetFloatConfig(WorldFloatConfigs::CONFIG_STATS_LIMITS_BLOCK) ? sWorld->GetFloatConfig(WorldFloatConfigs::CONFIG_STATS_LIMITS_BLOCK) : value;
@@ -500,18 +517,18 @@ void Player::UpdateCritPercentage(WeaponAttackType attType)
         case WeaponAttackType::OFF_ATTACK:
             modGroup = OFFHAND_CRIT_PERCENTAGE;
             index = PLAYER_FIELD_OFFHAND_CRIT_PERCENTAGE;
-            cr = CR_CRIT_MELEE;
+            cr = CombatRating::CR_CRIT_MELEE;
             break;
         case WeaponAttackType::RANGED_ATTACK:
             modGroup = RANGED_CRIT_PERCENTAGE;
             index = PLAYER_FIELD_RANGED_CRIT_PERCENTAGE;
-            cr = CR_CRIT_RANGED;
+            cr = CombatRating::CR_CRIT_RANGED;
             break;
         case WeaponAttackType::BASE_ATTACK:
         default:
             modGroup = CRIT_PERCENTAGE;
             index = PLAYER_FIELD_CRIT_PERCENTAGE;
-            cr = CR_CRIT_MELEE;
+            cr = CombatRating::CR_CRIT_MELEE;
             break;
     }
 
@@ -541,41 +558,12 @@ void Player::UpdateAllCritPercentages()
 
 void Player::UpdateMastery()
 {
-    if (!CanUseMastery())
-    {
-        SetFloatValue(PLAYER_FIELD_MASTERY, 0.0f);
-        return;
-    }
-
-    float value = GetTotalAuraModifier(SPELL_AURA_MASTERY);
-    value += GetRatingBonusValue(CR_MASTERY);
+    float value = 8.0f;
+    value += GetTotalAuraModifier(SPELL_AURA_MASTERY);
+    value += GetRatingBonusValue(CombatRating::CR_MASTERY);
     SetFloatValue(PLAYER_FIELD_MASTERY, value);
-    /*
-    TalentTabEntry const* talentTab = sTalentTabStore.LookupEntry(GetTalentSpecialization(GetActiveSpec()));
-    if (!talentTab)
-        return;
-
-    for (uint32 i = 0; i < MAX_MASTERY_SPELLS; ++i)
-    {
-        if (!talentTab->MasterySpellId[i])
-            continue;
-
-        if (Aura* aura = GetAura(talentTab->MasterySpellId[i]))
-        {
-            for (uint32 j = 0; j < MAX_SPELL_EFFECTS; ++j)
-            {
-                if (!aura->HasEffect(j))
-                    continue;
-
-                float mult = aura->GetSpellInfo()->Effects[j].BonusMultiplier;
-                if (G3D::fuzzyEq(mult, 0.0f))
-                    continue;
-
-                aura->GetEffect(j)->ChangeAmount(int32(value * aura->GetSpellInfo()->Effects[j].BonusMultiplier));
-            }
-        }
-    }*/
 }
+
 
 const float m_diminishing_k[MAX_CLASSES] =
 {
@@ -616,7 +604,7 @@ void Player::UpdateParryPercentage()
     {
         float nondiminishing  = 5.0f;
         // Parry from rating
-        float diminishing = GetRatingBonusValue(CR_PARRY);
+        float diminishing = GetRatingBonusValue(CombatRating::CR_PARRY);
         // Parry from SPELL_AURA_MOD_PARRY_PERCENT aura
         nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_PARRY_PERCENT);
         // apply diminishing formula to diminishing parry chance
@@ -652,7 +640,7 @@ void Player::UpdateDodgePercentage()
     // Dodge from SPELL_AURA_MOD_DODGE_PERCENT aura
     nondiminishing += GetTotalAuraModifier(SPELL_AURA_MOD_DODGE_PERCENT);
     // Dodge from rating
-    diminishing += GetRatingBonusValue(CR_DODGE);
+    diminishing += GetRatingBonusValue(CombatRating::CR_DODGE);
     // apply diminishing formula to diminishing dodge chance
     uint32 pclass = getClass()-1;
     float value = nondiminishing + (diminishing * dodge_cap[pclass] / (diminishing + dodge_cap[pclass] * m_diminishing_k[pclass]));
@@ -681,7 +669,7 @@ void Player::UpdateSpellCritChance(uint32 school)
     // Increase crit from SPELL_AURA_MOD_CRIT_PCT
     crit += GetTotalAuraModifier(SPELL_AURA_MOD_CRIT_PCT);
     // Increase crit from spell crit ratings
-    crit += GetRatingBonusValue(CR_CRIT_SPELL);
+    crit += GetRatingBonusValue(CombatRating::CR_CRIT_SPELL);
 
     // Store crit value
     SetFloatValue(PLAYER_FIELD_SPELL_CRIT_PERCENTAGE + school, crit);
@@ -690,25 +678,25 @@ void Player::UpdateSpellCritChance(uint32 school)
 void Player::UpdateArmorPenetration(int32 amount)
 {
     // Store Rating Value
-    SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + CR_ARMOR_PENETRATION, amount);
+    SetUInt32Value(PLAYER_FIELD_COMBAT_RATINGS + uint8(CombatRating::CR_ARMOR_PENETRATION), amount);
 }
 
 void Player::UpdateMeleeHitChances()
 {
     m_modMeleeHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
-    m_modMeleeHitChance += GetRatingBonusValue(CR_HIT_MELEE);
+    m_modMeleeHitChance += GetRatingBonusValue(CombatRating::CR_HIT_MELEE);
 }
 
 void Player::UpdateRangedHitChances()
 {
     m_modRangedHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_HIT_CHANCE);
-    m_modRangedHitChance += GetRatingBonusValue(CR_HIT_RANGED);
+    m_modRangedHitChance += GetRatingBonusValue(CombatRating::CR_HIT_RANGED);
 }
 
 void Player::UpdateSpellHitChances()
 {
     m_modSpellHitChance = (float)GetTotalAuraModifier(SPELL_AURA_MOD_SPELL_HIT_CHANCE);
-    m_modSpellHitChance += GetRatingBonusValue(CR_HIT_SPELL);
+    m_modSpellHitChance += GetRatingBonusValue(CombatRating::CR_HIT_SPELL);
 }
 
 void Player::UpdateAllSpellCritChances()
@@ -719,7 +707,7 @@ void Player::UpdateAllSpellCritChances()
 
 void Player::UpdateExpertise(WeaponAttackType attack)
 {
-    int32 expertise = int32(GetRatingBonusValue(CR_EXPERTISE));
+    int32 expertise = int32(GetRatingBonusValue(CombatRating::CR_EXPERTISE));
 
     Item* weapon = GetWeaponForAttack(attack, true);
 
@@ -759,6 +747,16 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 
 void Player::UpdateManaRegen()
 {
+    /* -- 5.4.8 PAPERDOLL
+    local base, casting = GetManaRegen();
+    --All mana regen stats are displayed as mana / 5 sec.
+        base = floor(base * 5.0);
+    casting = BreakUpLargeNumbers(floor(casting * 5.0));
+    text:SetText(casting);
+    statFrame.tooltip = HIGHLIGHT_FONT_COLOR_CODE ..MANA_REGEN_COMBAT ..FONT_COLOR_CODE_CLOSE;
+    statFrame.tooltip2 = format(MANA_COMBAT_REGEN_TOOLTIP, casting);
+    statFrame:Show();
+    */
     // base regen since pandaria is 2% aka 6000 MP @90.
     float base_regen = GetMaxPower(POWER_MANA) * 0.02f;
     // Mana regen from spirit
@@ -771,6 +769,7 @@ void Player::UpdateManaRegen()
 
     // mp5
     spirit_regen /= 5.0f;
+    base_regen /= 5.0f;
 
     // Set regen rate in cast state apply only on spirit based regen
     int32 modManaRegenInterrupt = GetTotalAuraModifier(SPELL_AURA_MOD_MANA_REGEN_INTERRUPT);

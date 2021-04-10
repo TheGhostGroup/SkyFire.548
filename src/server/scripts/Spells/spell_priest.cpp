@@ -32,22 +32,24 @@
 enum PriestSpells
 {
     SPELL_PRIEST_EVANGELISM_PROC                    = 81661,
+    SPELL_PRIEST_BODY_AND_SOUL_PASSIVE              = 64129,
     SPELL_PRIEST_BODY_AND_SOUL_SPEED                = 65081,
+    SPELL_PRIEST_WEAKENED_SOUL                      = 6788,
     SPELL_PRIEST_DIVINE_AEGIS                       = 47753,
     SPELL_PRIEST_DIVINE_TOUCH                       = 63544,
     SPELL_PRIEST_GLYPH_OF_LIGHTWELL                 = 55673,
     SPELL_PRIEST_GLYPH_OF_SHADOW                    = 107906,
     SPELL_PRIEST_ITEM_EFFICIENCY                    = 37595,
-    SPELL_PRIEST_LEAP_OF_FAITH                      = 73325,
     SPELL_PRIEST_LEAP_OF_FAITH_EFFECT               = 92832,
-    SPELL_PRIEST_LEAP_OF_FAITH_EFFECT_TRIGGER       = 92833,
-    SPELL_PRIEST_LEAP_OF_FAITH_TRIGGERED            = 92572,
+    SPELL_PRIEST_LEAP_OF_FAITH_GLYPH                = 119850,
     SPELL_PRIEST_MANA_LEECH_PROC                    = 34650,
     SPELL_PRIEST_PENANCE_R1                         = 47540,
     SPELL_PRIEST_PENANCE_R1_DAMAGE                  = 47758,
     SPELL_PRIEST_PENANCE_R1_HEAL                    = 47757,
-    SPELL_PRIEST_REFLECTIVE_SHIELD_R1               = 33201, // obsolete
+
+    SPELL_PRIEST_REFLECTIVE_SHIELD_GLYPH            = 33202,
     SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED        = 33619,
+
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITHOUT_GLYPH    = 107903,
     SPELL_PRIEST_SHADOWFORM_VISUAL_WITH_GLYPH       = 107904,
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409,
@@ -101,43 +103,6 @@ public:
     AuraScript* GetAuraScript() const OVERRIDE
     {
         return new spell_pri_evangelism_AuraScript();
-    }
-};
-
-class spell_pri_body_and_soul : public SpellScriptLoader
-{
-public:
-    spell_pri_body_and_soul() : SpellScriptLoader("spell_pri_body_and_soul") { }
-
-    class spell_pri_body_and_soul_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_pri_body_and_soul_AuraScript);
-
-        bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
-        {
-            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BODY_AND_SOUL_SPEED))
-                return false;
-            return true;
-        }
-
-        void HandleEffectSpeedProc(AuraEffect const* aurEff, ProcEventInfo& eventInfo)
-        {
-            PreventDefaultAction();
-            // Proc only with Power Word: Shield or Leap of Faith
-            if (!(eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyFlags[0] & 0x1 || eventInfo.GetDamageInfo()->GetSpellInfo()->SpellFamilyFlags[2] & 0x80000))
-                return;
-
-            GetTarget()->CastCustomSpell(SPELL_PRIEST_BODY_AND_SOUL_SPEED, SPELLVALUE_BASE_POINT0, aurEff->GetAmount(), eventInfo.GetProcTarget(), true, NULL, aurEff);
-        }
-        void Register() OVERRIDE
-        {
-            OnEffectProc += AuraEffectProcFn(spell_pri_body_and_soul_AuraScript::HandleEffectSpeedProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const OVERRIDE
-    {
-        return new spell_pri_body_and_soul_AuraScript();
     }
 };
 
@@ -226,19 +191,25 @@ public:
     }
 };
 
-// 92833 - Leap of Faith
-class spell_pri_leap_of_faith_effect_trigger : public SpellScriptLoader
+// 73325 - Leap of Faith
+class spell_pri_leap_of_faith : public SpellScriptLoader
 {
 public:
-    spell_pri_leap_of_faith_effect_trigger() : SpellScriptLoader("spell_pri_leap_of_faith_effect_trigger") { }
+    spell_pri_leap_of_faith() : SpellScriptLoader("spell_pri_leap_of_faith") { }
 
-    class spell_pri_leap_of_faith_effect_trigger_SpellScript : public SpellScript
+    class spell_pri_leap_of_faith_SpellScript : public SpellScript
     {
-        PrepareSpellScript(spell_pri_leap_of_faith_effect_trigger_SpellScript);
+        PrepareSpellScript(spell_pri_leap_of_faith_SpellScript);
 
         bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEAP_OF_FAITH_EFFECT))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BODY_AND_SOUL_PASSIVE))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BODY_AND_SOUL_SPEED))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEAP_OF_FAITH_GLYPH))
                 return false;
             return true;
         }
@@ -251,18 +222,25 @@ public:
             SpellCastTargets targets;
             targets.SetDst(destPos);
             targets.SetUnitTarget(GetCaster());
-            GetHitUnit()->CastSpell(targets, sSpellMgr->GetSpellInfo(GetEffectValue()), NULL);
+            GetHitUnit()->CastSpell(targets, sSpellMgr->GetSpellInfo(SPELL_PRIEST_LEAP_OF_FAITH_EFFECT), NULL);
+
+            if (GetCaster()->HasAura(SPELL_PRIEST_BODY_AND_SOUL_PASSIVE))
+                GetCaster()->CastSpell(GetHitUnit(), SPELL_PRIEST_BODY_AND_SOUL_SPEED, true);
+
+            if (GetCaster()->HasAura(SPELL_PRIEST_LEAP_OF_FAITH_GLYPH))
+                GetHitUnit()->RemoveMovementImpairingAuras();
         }
+
 
         void Register() OVERRIDE
         {
-            OnEffectHitTarget += SpellEffectFn(spell_pri_leap_of_faith_effect_trigger_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+            OnEffectHitTarget += SpellEffectFn(spell_pri_leap_of_faith_SpellScript::HandleEffectDummy, EFFECT_0, SPELL_EFFECT_SCRIPT_EFFECT);
         }
     };
 
     SpellScript* GetSpellScript() const OVERRIDE
     {
-        return new spell_pri_leap_of_faith_effect_trigger_SpellScript();
+        return new spell_pri_leap_of_faith_SpellScript();
     }
 };
 
@@ -463,7 +441,11 @@ public:
         {
             if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED))
                 return false;
-            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_R1))
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_REFLECTIVE_SHIELD_GLYPH))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_BODY_AND_SOUL_SPEED))
+                return false;
+            if (!sSpellMgr->GetSpellInfo(SPELL_PRIEST_WEAKENED_SOUL))
                 return false;
             return true;
         }
@@ -500,10 +482,22 @@ public:
             if (dmgInfo.GetAttacker() == target)
                 return;
 
-            if (AuraEffect const* talentAurEff = target->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_R1, EFFECT_0))
+            if (AuraEffect const* glyphAurEff = target->GetAuraEffectOfRankedSpell(SPELL_PRIEST_REFLECTIVE_SHIELD_GLYPH, EFFECT_0))
             {
-                int32 bp = CalculatePct(absorbAmount, talentAurEff->GetAmount());
+                int32 bp = CalculatePct(absorbAmount, glyphAurEff->GetAmount());
                 target->CastCustomSpell(dmgInfo.GetAttacker(), SPELL_PRIEST_REFLECTIVE_SHIELD_TRIGGERED, &bp, NULL, NULL, true, NULL, aurEff);
+            }
+        }
+
+        void HandleOnEffectApply(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
+        {
+            GetTarget()->CastSpell(GetTarget(), SPELL_PRIEST_WEAKENED_SOUL, true);
+
+            // body and soul
+            if (AuraEffect const* bodyandsoul = GetCaster()->GetAuraEffectOfRankedSpell(64129, EFFECT_0))
+            {
+                int32 bp = bodyandsoul->GetAmount();
+                GetTarget()->CastCustomSpell(SPELL_PRIEST_BODY_AND_SOUL_SPEED, SPELLVALUE_BASE_POINT0, bp, NULL, true, NULL, aurEff);
             }
         }
 
@@ -511,6 +505,7 @@ public:
         {
             DoEffectCalcAmount += AuraEffectCalcAmountFn(spell_pri_power_word_shield_AuraScript::CalculateAmount, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB);
             AfterEffectAbsorb += AuraEffectAbsorbFn(spell_pri_power_word_shield_AuraScript::ReflectDamage, EFFECT_0);
+            OnEffectApply += AuraEffectApplyFn(spell_pri_power_word_shield_AuraScript::HandleOnEffectApply, EFFECT_0, SPELL_AURA_SCHOOL_ABSORB, AURA_EFFECT_HANDLE_REAL_OR_REAPPLY_MASK);
         }
     };
 
@@ -788,10 +783,9 @@ public:
 void AddSC_priest_spell_scripts()
 {
     new spell_pri_evangelism();
-    new spell_pri_body_and_soul();
     new spell_pri_divine_aegis();
     new spell_pri_item_greater_heal_refund();
-    new spell_pri_leap_of_faith_effect_trigger();
+    new spell_pri_leap_of_faith();
     new spell_pri_lightwell_renew();
     new spell_pri_mana_leech();
     new spell_pri_mind_sear();

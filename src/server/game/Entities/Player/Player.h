@@ -137,8 +137,6 @@ uint32 const pandarenLanguageSpellsHorde[] =
 
 #define PANDAREN_FACTION_LANGUAGE_COUNT 3
 
-extern uint32 const MasterySpells [MAX_CLASSES];
-
 enum TalentTree // talent tabs
 {
     TALENT_TREE_WARRIOR_ARMS         = 746,
@@ -179,12 +177,12 @@ enum TalentTree // talent tabs
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
-    SpellModifier(Aura* _ownerAura = NULL) : op(SPELLMOD_DAMAGE), type(SPELLMOD_FLAT), charges(0), value(0), mask(), spellId(0), ownerAura(_ownerAura)
+    SpellModifier(Aura* _ownerAura = NULL) : op(SPELLMOD_DAMAGE), type(SPELLMOD_FLAT), charges(0), value(0.0f), mask(), spellId(0), ownerAura(_ownerAura)
     { }
     SpellModOp   op : 8;
     SpellModType type : 8;
     int16 charges : 16;
-    int32 value;
+    float value;
     flag128 mask;
     uint32 spellId;
     Aura* const ownerAura;
@@ -1200,7 +1198,6 @@ struct PlayerTalentInfo
         {
             SpecInfo[i].Talents = new PlayerTalentMap();
             SpecInfo[i].TalentTree = 0;
-            SpecInfo[i].SpecializationId = 0;
         }
     }
 
@@ -1216,7 +1213,7 @@ struct PlayerTalentInfo
 
     struct TalentSpecInfo
     {
-        TalentSpecInfo() : Talents(NULL), TalentTree(0), SpecializationId(0)
+        TalentSpecInfo() : Talents(NULL), TalentTree(0)
         {
             for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             {
@@ -1229,7 +1226,6 @@ struct PlayerTalentInfo
         PlayerTalentMap* Talents;
         uint32 Glyphs[MAX_GLYPH_SLOT_INDEX] = { };
         uint32 TalentTree;
-        uint32 SpecializationId;
     } SpecInfo[MAX_TALENT_SPECS] = { };
 
     uint32 UsedTalentCount;
@@ -2077,7 +2073,6 @@ class Player : public Unit, public GridObject<Player>
     void SetActiveSpec(uint8 spec) { _talentMgr->ActiveSpec = spec; }
     uint8 GetSpecsCount() const {  return _talentMgr->SpecsCount; }
     void SetSpecsCount(uint8 count) { _talentMgr->SpecsCount = count; }
-    uint32 GetSpecializationId(uint8 spec) const { return _talentMgr->SpecInfo [spec].SpecializationId; }
 
     void SendInspectResult(Player const* player);
 
@@ -2331,7 +2326,8 @@ class Player : public Unit, public GridObject<Player>
     uint32 GetSpellByProto(ItemTemplate* proto);
 
     float GetHealthBonusFromStamina();
-    float GetManaBonusFromIntellect();
+    void UpdateTalentSpecializationManaBonus();
+    float GetManaSpecializationMultiplier();
 
     bool UpdateStats(Stats stat) override;
     bool UpdateAllStats() override;
@@ -2349,7 +2345,6 @@ class Player : public Unit, public GridObject<Player>
     void UpdateAllRatings();
     void UpdateMastery();
     void UpdatePvpPower();
-    bool CanUseMastery() const;
 
     void CalculateMinMaxDamage(WeaponAttackType attType, bool normalized, bool addTotalPct, float& min_damage, float& max_damage);
 
@@ -3601,7 +3596,7 @@ template <class T> T Player::ApplySpellMod(uint32 spellId, SpellModOp op, T &bas
     if (!spellInfo)
         return 0;
     float totalmul = 1.0f;
-    int32 totalflat = 0;
+    float totalflat = 0;
 
     // Drop charges for triggering spells instead of triggered ones
     if (m_spellModTakingSpell)

@@ -1062,7 +1062,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
 
         caster = _player;
     }
-
+    
     if (caster->GetTypeId() == TypeID::TYPEID_PLAYER && !caster->ToPlayer()->HasActiveSpell(spellId))
     {
         // not have spell in spellbook
@@ -1070,6 +1070,7 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
         return;
     }
 
+    // Aura Overriden Spells
     Unit::AuraEffectList swaps = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS);
     Unit::AuraEffectList const& swaps2 = mover->GetAuraEffectsByType(SPELL_AURA_OVERRIDE_ACTIONBAR_SPELLS_2);
     if (!swaps2.empty())
@@ -1083,6 +1084,83 @@ void WorldSession::HandleCastSpellOpcode(WorldPacket& recvPacket)
             {
                 if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo((*itr)->GetAmount()))
                 {
+                    if (caster->ToPlayer()->getLevel() < spellInfo->SpellLevel ||
+                        caster->ToPlayer()->getLevel() < spellInfo->BaseLevel)
+                        continue;
+
+                    if (caster->ToPlayer()->getLevel() < newInfo->SpellLevel ||
+                        caster->ToPlayer()->getLevel() < newInfo->BaseLevel)
+                        continue;
+
+                    spellInfo = newInfo;
+                    spellId = newInfo->Id;
+                }
+                break;
+            }
+        }
+    }
+
+    // Specialization Overriden Spells
+    uint32 SpecializationID = caster->ToPlayer()->GetTalentSpecialization(caster->ToPlayer()->GetActiveSpec());
+    if (SpecializationID)
+    {
+        for (uint32 i = 0; i < sSpecializationSpellsStore.GetNumRows(); i++)
+        {
+            SpecializationSpellsEntry const* specializationInfo = sSpecializationSpellsStore.LookupEntry(i);
+            if (!specializationInfo)
+                continue;
+
+            if (specializationInfo->SpecializationId != SpecializationID)
+                continue;
+
+            if (specializationInfo->RemovesSpellId == spellId)
+            {
+                if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(specializationInfo->SpellId))
+                {
+                    if (caster->ToPlayer()->getLevel() < spellInfo->SpellLevel ||
+                        caster->ToPlayer()->getLevel() < spellInfo->BaseLevel)
+                        continue;
+
+                    if (caster->ToPlayer()->getLevel() < newInfo->SpellLevel ||
+                        caster->ToPlayer()->getLevel() < newInfo->BaseLevel)
+                        continue;
+
+                    spellInfo = newInfo;
+                    spellId = newInfo->Id;
+                }
+                break;
+            }
+        }
+    }
+
+    // Talent Overriden Spells
+    uint32 ClassID = caster->ToPlayer()->getClass();
+    if (ClassID)
+    {
+        for (uint32 i = 0; i < sTalentStore.GetNumRows(); i++)
+        {
+            TalentEntry const* talentInfo = sTalentStore.LookupEntry(i);
+            if (!talentInfo)
+                continue;
+
+            if (talentInfo->playerClass != ClassID)
+                continue;
+
+            if (!caster->ToPlayer()->HasActiveSpell(talentInfo->SpellId))
+                continue;
+
+            if (talentInfo->OverrideSpellID == spellId)
+            {
+                if (SpellInfo const* newInfo = sSpellMgr->GetSpellInfo(talentInfo->SpellId))
+                {
+                    if (caster->ToPlayer()->getLevel() < spellInfo->SpellLevel ||
+                        caster->ToPlayer()->getLevel() < spellInfo->BaseLevel)
+                        continue;
+
+                    if (caster->ToPlayer()->getLevel() < newInfo->SpellLevel ||
+                        caster->ToPlayer()->getLevel() < newInfo->BaseLevel)
+                        continue;
+
                     spellInfo = newInfo;
                     spellId = newInfo->Id;
                 }

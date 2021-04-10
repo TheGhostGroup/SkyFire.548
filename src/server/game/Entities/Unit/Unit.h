@@ -289,17 +289,17 @@ enum Swing
     TWOHANDEDSWING = 2
 };
 
-enum VictimState
+enum class VictimState
 {
-    VICTIMSTATE_INTACT = 0, // set when attacker misses
-    VICTIMSTATE_HIT = 1, // victim got clear/blocked hit
-    VICTIMSTATE_DODGE = 2,
-    VICTIMSTATE_PARRY = 3,
+    VICTIMSTATE_MISS      = 0, // set when attacker misses
+    VICTIMSTATE_WOUND     = 1, // victim got clear/blocked hit
+    VICTIMSTATE_DODGE     = 2,
+    VICTIMSTATE_PARRY     = 3,
     VICTIMSTATE_INTERRUPT = 4,
-    VICTIMSTATE_BLOCKS = 5, // unused? not set when blocked, even on full block
-    VICTIMSTATE_EVADES = 6,
-    VICTIMSTATE_IS_IMMUNE = 7,
-    VICTIMSTATE_DEFLECTS = 8
+    VICTIMSTATE_BLOCK     = 5, // unused? not set when blocked, even on full block
+    VICTIMSTATE_EVADE     = 6,
+    VICTIMSTATE_IMMUNE    = 7,
+    VICTIMSTATE_DEFLECT   = 8
 };
 
 enum HitInfo
@@ -579,7 +579,7 @@ enum class WeaponAttackType
     MAX_ATTACK = 3
 };
 
-enum CombatRating
+enum class CombatRating
 {
     CR_WEAPON_SKILL = 0,
     CR_DEFENSE_SKILL = 1, // Removed in 4.0.1
@@ -1047,7 +1047,7 @@ struct CalcDamageInfo
     uint32 resist;
     uint32 blocked_amount;
     uint32 HitInfo;
-    uint32 TargetState;
+    VictimState TargetState;
     // Helper
     WeaponAttackType attackType; //
     uint32 procAttacker;
@@ -1383,7 +1383,10 @@ enum PlayerTotemType
     SUMMON_TYPE_TOTEM_FIRE = 63,
     SUMMON_TYPE_TOTEM_EARTH = 81,
     SUMMON_TYPE_TOTEM_WATER = 82,
-    SUMMON_TYPE_TOTEM_AIR = 83
+    SUMMON_TYPE_TOTEM_AIR = 83,
+
+    SUMMON_TYPE_STATUE_JADE = 3216,
+    SUMMON_TYPE_STATUE_OX = 3223
 };
 
 // delay time next attack to prevent client attack animation problems
@@ -1447,7 +1450,7 @@ class Unit : public WorldObject
     float GetSpellMaxRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
     float GetSpellMinRangeForTarget(Unit const* target, SpellInfo const* spellInfo) const;
 
-    virtual void Update(uint32 time) override;
+    void Update(uint32 time) OVERRIDE;
 
     void setAttackTimer(WeaponAttackType type, uint32 time)
     {
@@ -1811,11 +1814,11 @@ class Unit : public WorldObject
     // player or player's pet resilience (-1%)
     uint32 GetCritDamageReduction(uint32 damage) const
     {
-        return GetCombatRatingDamageReduction(CR_RESILIENCE_CRIT_TAKEN, 2.2f, 33.0f, damage);
+        return GetCombatRatingDamageReduction(CombatRating::CR_RESILIENCE_CRIT_TAKEN, 2.2f, 33.0f, damage);
     }
     uint32 GetDamageReduction(uint32 damage) const
     {
-        return GetCombatRatingDamageReduction(CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 2.0f, 100.0f, damage);
+        return GetCombatRatingDamageReduction(CombatRating::CR_RESILIENCE_PLAYER_DAMAGE_TAKEN, 2.0f, 100.0f, damage);
     }
 
     void ApplyResilience(Unit const* victim, int32 * damage, bool isCrit) const;

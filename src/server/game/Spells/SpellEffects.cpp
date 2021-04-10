@@ -2096,12 +2096,16 @@ void Spell::EffectSummonType(SpellEffIndex effIndex)
                 case SUMMON_TYPE_VEHICLE2:
                     summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
                     break;
+                case SUMMON_TYPE_STATUE:
                 case SUMMON_TYPE_LIGHTWELL:
                 case SUMMON_TYPE_TOTEM:
                 {
                     summon = m_caster->GetMap()->SummonCreature(entry, *destTarget, properties, duration, m_originalCaster, m_spellInfo->Id);
                     if (!summon || !summon->IsTotem())
                         return;
+
+                    if (m_spellInfo->Id == 115313 || m_spellInfo->Id == 115315)
+                        damage = m_caster->CountPctFromMaxHealth(30);
 
                     // Mana Tide Totem
                     if (m_spellInfo->Id == 16190)
@@ -2998,13 +3002,11 @@ void Spell::EffectWeaponDmg(SpellEffIndex effIndex)
             // Hemorrhage
             if (m_spellInfo->SpellFamilyFlags[0] & 0x2000000)
             {
-                if (m_caster->GetTypeId() == TypeID::TYPEID_PLAYER)
-                    m_caster->ToPlayer()->AddComboPoints(unitTarget, 1, this);
-                // 50% more damage with daggers
+                // 72% more damage with daggers
                 if (m_caster->GetTypeId() == TypeID::TYPEID_PLAYER)
                     if (Item* item = m_caster->ToPlayer()->GetWeaponForAttack(m_attackType, true))
                         if (item->GetTemplate()->SubClass == ITEM_SUBCLASS_WEAPON_DAGGER)
-                            totalDamagePercentMod *= 1.5f;
+                            totalDamagePercentMod *= 1.45f;
             }
             break;
         }
@@ -3845,6 +3847,20 @@ void Spell::EffectScriptEffect(SpellEffIndex effIndex)
                     if (m_targets.GetUnitTarget()->GetAura(55095))
                         m_caster->CastSpell(unitTarget, 55095, true);
                 }
+            }
+            break;
+        }
+        case SPELLFAMILY_WARRIOR:
+        {
+            switch (m_spellInfo->Id)
+            {
+                case 107574: // Avatar
+                {
+                    // Removes snares and roots.
+                    unitTarget->RemoveMovementImpairingAuras();
+                    break;
+                }
+                break;
             }
             break;
         }
@@ -4830,8 +4846,8 @@ void Spell::EffectDestroyAllTotems(SpellEffIndex /*effIndex*/)
             SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(spell_id);
             if (spellInfo)
             {
-                mana += spellInfo->ManaCost;
-                mana += int32(CalculatePct(m_caster->GetCreateMana(), spellInfo->ManaCostPercentage));
+                //mana += spellInfo->ManaCost;
+                //mana += int32(CalculatePct(m_caster->GetCreateMana(), spellInfo->ManaCostPercentage));
             }
             totem->ToTotem()->UnSummon();
         }
@@ -5730,7 +5746,7 @@ void Spell::EffectCastButtons(SpellEffIndex effIndex)
         if (!(spellInfo->AttributesEx9 & SPELL_ATTR9_SUMMON_PLAYER_TOTEM))
             continue;
 
-        int32 cost = spellInfo->CalcPowerCost(m_caster, spellInfo->GetSchoolMask());
+        int32 cost = m_powerCost;
         if (m_caster->GetPower(POWER_MANA) < cost)
             continue;
 

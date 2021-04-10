@@ -701,7 +701,7 @@ class WorldSession
         void HandleSpiritHealerActivateOpcode(WorldPacket& recvPacket);
         void HandleNpcTextQueryOpcode(WorldPacket& recvPacket);
         void HandleBinderActivateOpcode(WorldPacket& recvPacket);
-        void HandleListStabledPetsOpcode(WorldPacket& recvPacket);
+        void HandleRequestStabledPetsOpcode(WorldPacket& recvPacket);
         void HandleStablePet(WorldPacket& recvPacket);
         void HandleStablePetCallback(PreparedQueryResult result);
         void HandleUnstablePet(WorldPacket& recvPacket);
@@ -870,6 +870,7 @@ class WorldSession
         void HandleChangePlayerNameOpcodeCallBack(PreparedQueryResult result, std::string const& newName);
         void HandleSetPlayerDeclinedNames(WorldPacket& recvData);
         void HandeSetTalentSpecialization(WorldPacket& recvData);
+        void HandleSetPetSpecialization(WorldPacket& recvData);
 
         void HandleTotemDestroyed(WorldPacket& recvData);
         void HandleDismissCritter(WorldPacket& recvData);
@@ -1065,6 +1066,8 @@ class WorldSession
         void SendLoadCUFProfiles();
 
         // Battle Pets
+        void HandlePetBattleStartPvpMatchmaking(WorldPacket& recvData);
+        void HandlePetBattleStopPvpMatchmaking(WorldPacket& recvData);
         void HandleBattlePetDelete(WorldPacket& recvData);
         void HandleBattlePetModifyName(WorldPacket& recvData);
         void HandleBattlePetQueryName(WorldPacket& recvData);

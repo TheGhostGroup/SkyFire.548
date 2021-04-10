@@ -32,6 +32,7 @@
 
 enum MageSpells
 {
+    SPELL_MAGE_FROSTJAW                          = 102051,
     SPELL_MAGE_COLD_SNAP                         = 11958,
     SPELL_MAGE_FROST_NOVA                        = 122,
     SPELL_MAGE_IGNITE                            = 12654,
@@ -72,6 +73,47 @@ enum MageIcons
 enum MiscSpells
 {
     SPELL_PRIEST_SHADOW_WORD_DEATH                  = 32409
+};
+
+// Frostjaw - 102051 // 5.4.8
+class spell_mage_frostjaw : public SpellScriptLoader
+{
+public:
+    spell_mage_frostjaw() : SpellScriptLoader("spell_mage_frostjaw") { }
+
+    class spell_mage_frostjaw_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_frostjaw_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) OVERRIDE
+        {
+            if (!sSpellMgr->GetSpellInfo(SPELL_MAGE_FROSTJAW))
+                return false;
+            return true;
+        }
+
+        void HandleOnHit()
+        {
+            if (Player* player = GetCaster()->ToPlayer())
+                if (Unit* target = GetHitUnit())
+                    if (target->GetTypeId() == TypeID::TYPEID_PLAYER)
+                        if (Aura* aura = target->GetAura(SPELL_MAGE_FROSTJAW, player->GetGUID()))
+                        {
+                            aura->SetDuration(aura->GetDuration() / 2);
+                            aura->SetMaxDuration(aura->GetMaxDuration() / 2);
+                        }
+        }
+
+        void Register() OVERRIDE
+        {
+            OnHit += SpellHitFn(spell_mage_frostjaw_SpellScript::HandleOnHit);
+        }
+    };
+
+    SpellScript* GetSpellScript() const OVERRIDE
+    {
+        return new spell_mage_frostjaw_SpellScript();
+    }
 };
 
 // Pyroblast - 11366 // 5.4.8
@@ -209,7 +251,7 @@ public:
     }
 };
 
-// 11958 - Cold Snap
+// 11958 - Cold Snap // 5.4.8
 class spell_mage_cold_snap : public SpellScriptLoader
 {
 public:
@@ -227,15 +269,21 @@ public:
         void HandleDummy(SpellEffIndex /*effIndex*/)
         {
             Player* caster = GetCaster()->ToPlayer();
-            // immediately finishes the cooldown on Frost spells
+            // immediately finishes the cooldown of Frost Nova, Cone of Cold, Ice Block
             const SpellCooldowns& cm = caster->GetSpellCooldownMap();
             for (SpellCooldowns::const_iterator itr = cm.begin(); itr != cm.end();)
             {
                 SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(itr->first);
 
                 if (spellInfo->SpellFamilyName == SPELLFAMILY_MAGE &&
-                    (spellInfo->GetSchoolMask() & SPELL_SCHOOL_MASK_FROST) &&
-                    spellInfo->Id != SPELL_MAGE_COLD_SNAP && spellInfo->GetRecoveryTime() > 0)
+                    (
+                        // Frost Nova
+                        (spellInfo->SpellIconID == 193 && spellInfo->SpellFamilyFlags[0] == 0x00000040) ||
+                        // Cone of Cold
+                        (spellInfo->SpellIconID == 35 && spellInfo->SpellFamilyFlags[0] == 0x00000200) ||
+                        // Ice Block
+                        (spellInfo->SpellIconID == 14 && spellInfo->SpellFamilyFlags[1] == 0x00000080 && spellInfo->SpellFamilyFlags[2] == 0x00000008)
+                    ))
                 {
                     caster->RemoveSpellCooldown((itr++)->first, true);
                 }
@@ -256,6 +304,73 @@ public:
     }
 };
 
+struct ConjureRefreshmentTableData
+{
+    uint32 minLevel;
+    uint32 maxLevel;
+    uint32 spellId;
+};
+
+uint8 const MAX_CONJURE_REFRESHMENT_TABLE_SPELLS = 4;
+ConjureRefreshmentTableData const _conjureTableData[MAX_CONJURE_REFRESHMENT_TABLE_SPELLS] =
+{
+    { 72, 79, 120056 }, // R5: Item: 43518, Spell: 43988, Object: 186812
+    { 80, 84, 120055 }, // R6: Item: 43523, Spell: 92822, Object: 207386
+    { 85, 89, 120054 }, // R7: Item: 65499, Spell: 92826, Object: 207387
+    { 90, 90, 120053 }, // R8: Item: 80610, Spell: 116136, Object: 211363
+};
+
+// 43987 - Conjure Refreshment Table
+class spell_mage_conjure_refreshment_table : public SpellScriptLoader
+{
+public:
+    spell_mage_conjure_refreshment_table() : SpellScriptLoader("spell_mage_conjure_refreshment_table") { }
+
+    class spell_mage_conjure_refreshment_table_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_mage_conjure_refreshment_table_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            for (uint8 i = 0; i < MAX_CONJURE_REFRESHMENT_TABLE_SPELLS; ++i)
+                if (!sSpellMgr->GetSpellInfo(_conjureTableData[i].spellId))
+                    return false;
+            return true;
+        }
+
+        bool Load() override
+        {
+            if (GetCaster()->GetTypeId() != TypeID::TYPEID_PLAYER)
+                return false;
+            return true;
+        }
+
+        void HandleDummy(SpellEffIndex /*effIndex*/)
+        {
+            uint8 level = GetHitUnit()->getLevel();
+            for (uint8 i = 0; i < MAX_CONJURE_REFRESHMENT_TABLE_SPELLS; ++i)
+            {
+                ConjureRefreshmentTableData const& spellData = _conjureTableData[i];
+                if (level < spellData.minLevel || level > spellData.maxLevel)
+                    continue;
+                GetHitUnit()->CastSpell(GetHitUnit(), spellData.spellId);
+                break;
+            }
+        }
+
+        void Register() override
+        {
+            OnEffectHitTarget += SpellEffectFn(spell_mage_conjure_refreshment_table_SpellScript::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_mage_conjure_refreshment_table_SpellScript();
+    }
+};
+
+
 // 42955 Conjure Refreshment
 /// Updated 4.3.4
 struct ConjureRefreshmentData
@@ -265,7 +380,7 @@ struct ConjureRefreshmentData
     uint32 spellId;
 };
 
-uint8 const MAX_CONJURE_REFRESHMENT_SPELLS = 7;
+uint8 const MAX_CONJURE_REFRESHMENT_SPELLS = 8;
 ConjureRefreshmentData const _conjureData[MAX_CONJURE_REFRESHMENT_SPELLS] =
 {
     { 33, 43, 92739 },
@@ -273,8 +388,9 @@ ConjureRefreshmentData const _conjureData[MAX_CONJURE_REFRESHMENT_SPELLS] =
     { 54, 63, 92802 },
     { 64, 73, 92805 },
     { 74, 79, 74625 },
-    { 80, 84, 92822 },
-    { 85, 85, 92727 }
+    { 80, 84, 42956 },
+    { 85, 89, 92727 },
+    { 90, 90, 116130 }, 
 };
 
 // 42955 - Conjure Refreshment
@@ -327,42 +443,6 @@ public:
     }
 };
 
-// 116 - Frostbolt
-/// Updated 4.3.4
-class spell_mage_frostbolt : public SpellScriptLoader
-{
-public:
-    spell_mage_frostbolt() : SpellScriptLoader("spell_mage_frostbolt") { }
-
-    class spell_mage_frostbolt_SpellScript : public SpellScript
-    {
-        PrepareSpellScript(spell_mage_frostbolt_SpellScript);
-
-        void RecalculateDamage(SpellEffIndex /*effIndex*/)
-        {
-            if (GetHitUnit() && GetHitUnit()->HasAuraState(AURA_STATE_FROZEN, GetSpellInfo(), GetCaster()))
-            {
-                if (AuraEffect* aurEff = GetCaster()->GetAuraEffect(SPELL_AURA_DUMMY, SPELLFAMILY_MAGE, ICON_MAGE_SHATTER, EFFECT_1))
-                {
-                    int32 damage = GetHitDamage();
-                    AddPct(damage, aurEff->GetAmount());
-                    SetHitDamage(damage);
-                }
-            }
-        }
-
-        void Register() override
-        {
-            OnEffectHitTarget += SpellEffectFn(spell_mage_frostbolt_SpellScript::RecalculateDamage, EFFECT_1, SPELL_EFFECT_SCHOOL_DAMAGE);
-        }
-    };
-
-    SpellScript* GetSpellScript() const
-    {
-        return new spell_mage_frostbolt_SpellScript();
-    }
-};
-
 // 56372 - Glyph of Ice Block
 class spell_mage_glyph_of_ice_block : public SpellScriptLoader
 {
@@ -402,36 +482,6 @@ public:
     AuraScript* GetAuraScript() const override
     {
         return new spell_mage_glyph_of_ice_block_AuraScript();
-    }
-};
-
-// 56374 - Glyph of Icy Veins
-class spell_mage_glyph_of_icy_veins : public SpellScriptLoader
-{
-public:
-    spell_mage_glyph_of_icy_veins() : SpellScriptLoader("spell_mage_glyph_of_icy_veins") { }
-
-    class spell_mage_glyph_of_icy_veins_AuraScript : public AuraScript
-    {
-        PrepareAuraScript(spell_mage_glyph_of_icy_veins_AuraScript);
-
-        void HandleEffectProc(AuraEffect const* /*aurEff*/, ProcEventInfo& /*eventInfo*/)
-        {
-            PreventDefaultAction();
-
-            GetTarget()->RemoveAurasByType(SPELL_AURA_HASTE_SPELLS, 0, 0, true, false);
-            GetTarget()->RemoveAurasByType(SPELL_AURA_MOD_DECREASE_SPEED);
-        }
-
-        void Register() override
-        {
-            OnEffectProc += AuraEffectProcFn(spell_mage_glyph_of_icy_veins_AuraScript::HandleEffectProc, EFFECT_0, SPELL_AURA_DUMMY);
-        }
-    };
-
-    AuraScript* GetAuraScript() const override
-    {
-        return new spell_mage_glyph_of_icy_veins_AuraScript();
     }
 };
 
@@ -866,15 +916,15 @@ public:
 
 void AddSC_mage_spell_scripts()
 {
+    new spell_mage_frostjaw(); // 5.4.8 18414
     new spell_mage_pyroblast(); // 5.4.8 18414
     new spell_mage_time_warp(); // 5.4.8 18414
     new spell_mage_blast_wave();
     new spell_mage_cold_snap();
+    new spell_mage_conjure_refreshment_table();
     new spell_mage_conjure_refreshment();
-    new spell_mage_frostbolt();
     new spell_mage_ignite();
     new spell_mage_glyph_of_ice_block();
-    new spell_mage_glyph_of_icy_veins();
     new spell_mage_glyph_of_polymorph();
     new spell_mage_living_bomb();
     new spell_mage_nether_vortex();
